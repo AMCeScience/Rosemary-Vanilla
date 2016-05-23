@@ -12,11 +12,14 @@ libraryDependencies ++= Seq(
 //  jdbc,
 //  cache,
 //  ws,
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.11",
+  "org.keyczar" % "keyczar" % "0.71h",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
 )
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+
+// ebioscience artifactory resolver because org.keyczar.keyczar is not published in maven central yet
+resolvers += "ebioscience-artifactory" at "http://dev.ebioscience.amc.nl/artifactory/public"
 
 // eclipse plugin configurations
 EclipseKeys.withSource := true

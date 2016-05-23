@@ -26,6 +26,7 @@ class Module extends AbstractModule {
     // Set AtomicCounter as the implementation for Counter.
     bind(classOf[Counter]).to(classOf[AtomicCounter])
     bind(classOf[Config]).to(classOf[RosemaryConfig]).asEagerSingleton()
+    bind(classOf[Crypto]).to(classOf[KeyCrypto])
   }
 
 }

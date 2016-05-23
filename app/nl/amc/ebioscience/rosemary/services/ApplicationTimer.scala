@@ -1,6 +1,6 @@
 package nl.amc.ebioscience.rosemary.services
 
-import java.time.{Clock, Instant}
+import java.time.{ Clock, Instant }
 import javax.inject._
 import play.api.Logger
 import play.api.inject.ApplicationLifecycle
@@ -21,11 +21,15 @@ import scala.concurrent.Future
  * application's [[ApplicationLifecycle]] to register a stop hook.
  */
 @Singleton
-class ApplicationTimer @Inject() (clock: Clock, appLifecycle: ApplicationLifecycle) {
+class ApplicationTimer @Inject() (clock: Clock, appLifecycle: ApplicationLifecycle, crypto: Crypto) {
 
   // This code is called when the application starts.
   private val start: Instant = clock.instant
   Logger.info(s"ApplicationTimer demo: Starting application at $start.")
+  val ciphertext = crypto.encrypt("Secret Message")
+  val plaintext = crypto.decrypt(ciphertext)
+  Logger.info(s"cipher text = $ciphertext")
+  Logger.info(s"plain text = $plaintext")
 
   // When the application starts, register a stop hook with the
   // ApplicationLifecycle object. The code inside the stop hook will
