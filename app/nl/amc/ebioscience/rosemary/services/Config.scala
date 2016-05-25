@@ -13,17 +13,26 @@ case class ConfigurationException(message: String) extends Exception(message)
 
 @Singleton
 class RosemaryConfig @Inject() (configuration: Configuration) extends Config {
-  private val rosemaryConf = configuration.getConfig("rosemary").getOrElse(Configuration.empty)
+  private val highlevelKey = "rosemary"
+  private val rosemaryConf = configuration.getConfig(highlevelKey).getOrElse(Configuration.empty)
+
+  // Define the set of keys that application check for their existence when the application starts.
   private val requiredKeys = Set(
-    "crypto.key")
+    "crypto.key",
+    "webdav.host.default")
 
   private val diffKeys = requiredKeys diff rosemaryConf.keys
-  if (diffKeys nonEmpty) throw ConfigurationException("Not all configuration keys are present in 'application.conf'." +
-    s"Try defining the following keys under 'rosemary': ${diffKeys.mkString(" , ")}")
+  if (diffKeys.nonEmpty) {
+    val msg = "Not all configuration keys are present in 'application.conf'." +
+      s"Try defining the following keys under '$highlevelKey': ${diffKeys.mkString(" , ")}"
+    Logger.error(msg)
+    throw ConfigurationException(msg)
+  }
 
   override def getConfig(key: String) = Try(rosemaryConf.getString(key, None).get).recover {
     case _ =>
-      Logger.error(s"Key $key is not defined in application.conf under 'rosemary'")
-      ""
+      val msg = s"Configuration key '$key' is not defined in 'application.conf' under '$highlevelKey'"
+      Logger.error(msg)
+      throw ConfigurationException(msg)
   }.get
 }
