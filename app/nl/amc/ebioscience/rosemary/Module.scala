@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule
 import java.time.Clock
 
 import nl.amc.ebioscience.rosemary.services._
+import nl.amc.ebioscience.rosemary.services.dao._
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -32,6 +33,7 @@ class Module extends AbstractModule {
     bind(classOf[Crypto]).to(classOf[KeyCrypto])
     // Ask Guice to create a singlton instance of MongoContext containing the context as implicit value 
     bind(classOf[MongoContext])
+    bind(classOf[ResourceDAO])
   }
 
 }
