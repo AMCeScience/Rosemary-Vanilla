@@ -25,8 +25,13 @@ class Module extends AbstractModule {
     bind(classOf[ApplicationTimer]).asEagerSingleton()
     // Set AtomicCounter as the implementation for Counter.
     bind(classOf[Counter]).to(classOf[AtomicCounter])
+    // Set RosemaryConfig as the implementation for Config when the application starts.
+    // This will check if every necessary Config value is in place.
     bind(classOf[Config]).to(classOf[RosemaryConfig]).asEagerSingleton()
+    // Set KeyCrypto (based on Keyczar) as the implementation for Crypto.
     bind(classOf[Crypto]).to(classOf[KeyCrypto])
+    // Ask Guice to create a singlton instance of MongoContext containing the context as implicit value 
+    bind(classOf[MongoContext])
   }
 
 }
