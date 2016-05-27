@@ -1,6 +1,8 @@
 package nl.amc.ebioscience.rosemary.controllers
 
+import javax.inject._
 import scala.concurrent.Future
+import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
 import nl.amc.ebioscience.rosemary.models.User
 import play.api.cache.Cache
@@ -9,14 +11,16 @@ import play.api.data.Forms.{ email, mapping, nonEmptyText }
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import play.api.mvc.{ Action, BodyParser, Controller, Cookie, DiscardingCookie, Request, Result }
-import play.api.i18n.Messages.Implicits._
 import play.api.Logger
 import play.api.mvc._
 import play.mvc.Http
+import play.api.i18n.{ MessagesApi, Messages, Lang }
+import play.api.cache.CacheApi
+import play.api.Configuration
 
 trait Security { self: Controller =>
 
-  implicit val app: play.api.Application = play.api.Play.current
+  //  implicit val app: play.api.Application = play.api.Play.current
 
   val AuthTokenHeader = "X-XSRF-TOKEN"
   val AuthTokenCookieKey = "XSRF-TOKEN"
@@ -31,13 +35,7 @@ trait Security { self: Controller =>
     }
   }
 
-  def getUserFromToken(token: String) = {
-    Logger.trace(Thread.currentThread().getId() + " || Token: " + token + " User: " + Cache.getAs[User.Id](token).toString)
-    Cache.getAs[User.Id](token) match {
-      case Some(user) => Right(user)
-      case None       => Left("Invalid token")
-    }
-  }
+  def getUserFromToken(token: String): Either[String, User.Id]
 
   private def auth(headers: Headers): Either[String, User.Id] = {
     headers.get(AuthTokenHeader) match {
@@ -89,10 +87,22 @@ trait Security { self: Controller =>
   }
 }
 
-object Authenticate extends Controller with Security {
+@Singleton
+class Authenticate @Inject() (configuration: Configuration, messagesApi: MessagesApi, cacheApi: CacheApi)
+    extends Security with Controller {
+
+  implicit def messages(implicit lang: Lang) = new Messages(lang, messagesApi)
+  
+  def getUserFromToken(token: String) = {
+    Logger.trace(Thread.currentThread().getId() + " || Token: " + token + " User: " + cacheApi.get[User.Id](token).toString)
+    cacheApi.get[User.Id](token) match {
+      case Some(user) => Right(user)
+      case None       => Left("Invalid token")
+    }
+  }
 
   lazy val CacheExpiration =
-    app.configuration.getInt("cache.expiration").getOrElse(60 /*seconds*/ * 2 /* minutes */ )
+    configuration.getInt("cache.expiration").getOrElse(60 /*seconds*/ * 2 /* minutes */ ).seconds
 
   case class Login(email: String, password: String)
 
@@ -103,12 +113,12 @@ object Authenticate extends Controller with Security {
 
   implicit class ResultWithToken(result: Result) {
     def withToken(token: (String, User.Id)): Result = {
-      Cache.set(token._1, token._2, CacheExpiration)
+      cacheApi.set(token._1, token._2, CacheExpiration)
       result.withCookies(Cookie(AuthTokenCookieKey, token._1, None, httpOnly = false))
     }
 
     def discardingToken(token: String): Result = {
-      Cache.remove(token)
+      cacheApi.remove(token)
       result.discardingCookies(DiscardingCookie(name = AuthTokenCookieKey))
     }
   }
