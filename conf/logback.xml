@@ -28,6 +28,8 @@
   <logger name="application" level="DEBUG" />
   <logger name="akka.actor" level="INFO" />
   <logger name="nl.amc.ebioscience.rosemary.actors" level="INFO" />
+  <logger name="nl.amc.ebioscience.rosemary" level="INFO" />
+  <logger name="controllers" level="INFO" />
 
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourselves -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />

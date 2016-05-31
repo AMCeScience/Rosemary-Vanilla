@@ -130,6 +130,7 @@ class WebSocketController @Inject() (
    * @return a connection actor for this ws connection.
    */
   private def createUserActor(name: String, webSocketOut: ActorRef): Future[ActorRef] = {
+    logger.info(s"Creating actor $name for $webSocketOut")
     // Use guice assisted injection to instantiate and configure the child actor.
     val connectionActorFuture = {
       implicit val timeout = Timeout(100.millis)

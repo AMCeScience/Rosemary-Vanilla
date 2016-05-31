@@ -27,7 +27,7 @@ class ConnectionActor @Inject() (
   override def preStart(): Unit = {
     super.preStart()
 
-    log.info("Created a new ConnectionActor")
+    log.info(s"Created a new ConnectionActor: $self")
   }
 
   def receive = LoggingReceive {
@@ -54,6 +54,7 @@ class ConnectionActor @Inject() (
   }
 
   override def postStop() = {
+    log.info(s"Stopped a ConnectionActor: $self")
     _user.map(WebSockets.deregister(_, this))
   }
 }
