@@ -12,6 +12,7 @@ class ConnectionParentActor @Inject() (childFactory: ConnectionActor.Factory)
   override def receive: Receive = LoggingReceive {
     case Create(id, out) =>
       val child: ActorRef = injectedChild(childFactory(out), s"connectionActor-$id")
+      log.info(s"Created connectionActor-$id")
       sender() ! child
   }
 }
