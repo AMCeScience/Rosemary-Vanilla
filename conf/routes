@@ -6,8 +6,6 @@ GET   /socket         nl.amc.ebioscience.rosemary.controllers.WebSocketControlle
 
 # An example controller showing a sample home page
 GET   /               nl.amc.ebioscience.rosemary.controllers.HomeController.index
-# An example controller showing how to use dependency injection
-GET   /count          nl.amc.ebioscience.rosemary.controllers.CountController.count
 # An example controller showing how to write asynchronous code
 GET   /message        nl.amc.ebioscience.rosemary.controllers.AsyncController.message
 
