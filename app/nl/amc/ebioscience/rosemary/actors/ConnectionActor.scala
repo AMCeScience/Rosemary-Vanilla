@@ -1,17 +1,27 @@
-package nl.amc.ebioscience.rosemary.core
+package nl.amc.ebioscience.rosemary.actors
 
-import akka.actor.{ Actor, ActorRef, Props, PoisonPill }
-import nl.amc.ebioscience.rosemary.models.{ User }
-import nl.amc.ebioscience.rosemary.controllers.Security
+import javax.inject._
+import com.google.inject.assistedinject.Assisted
+import akka.actor.{ Actor, ActorRef, PoisonPill }
 import play.api.libs.json.{ JsObject, JsString, JsValue }
 import play.api.Logger
 import play.api.mvc.Controller
+import nl.amc.ebioscience.rosemary.models.User
+import nl.amc.ebioscience.rosemary.controllers.Security
+import nl.amc.ebioscience.rosemary.core.WebSockets
+//import play.api.libs.json.JsValue.jsValueToJsLookup
 
 object ConnectionActor {
-  def props(out: ActorRef) = Props(new ConnectionActor(out))
+  trait Factory {
+    def apply(out: ActorRef): Actor
+  }
 }
 
-class ConnectionActor(out: ActorRef) extends Actor with Controller with Security {
+class ConnectionActor @Inject() (
+  @Assisted out: ActorRef,
+  security: Security)
+    extends Actor with Controller {
+
   var _user: Option[User.Id] = None
 
   def receive = {
@@ -21,7 +31,7 @@ class ConnectionActor(out: ActorRef) extends Actor with Controller with Security
         case JsString("auth") =>
           (msg \ "data").get match {
             case JsString(data) =>
-              getUserFromToken(data) match {
+              security.getUserFromToken(data) match {
                 case Right(user) =>
                   WebSockets.register(user, this); _user = Some(user)
                 case Left(_) => case _ => Logger.error("Unknown websocket user-token"); self ! PoisonPill
