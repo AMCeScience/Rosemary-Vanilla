@@ -7,7 +7,7 @@ import play.api.libs.json.{ JsObject, JsString, JsValue }
 import play.api.Logger
 import play.api.mvc.Controller
 import nl.amc.ebioscience.rosemary.models.User
-import nl.amc.ebioscience.rosemary.controllers.Security
+import nl.amc.ebioscience.rosemary.services.Security
 import nl.amc.ebioscience.rosemary.core.WebSockets
 //import play.api.libs.json.JsValue.jsValueToJsLookup
 

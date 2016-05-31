@@ -1,4 +1,4 @@
-package nl.amc.ebioscience.rosemary.controllers
+package nl.amc.ebioscience.rosemary.services
 
 import javax.inject._
 import play.api.mvc._
