@@ -5,8 +5,8 @@
 ####################################################################################
 
 # Authentication (API spec exception)
-POST     /login                                 nl.amc.ebioscience.rosemary.controllers.Authenticate.login
-GET      /logout                                nl.amc.ebioscience.rosemary.controllers.Authenticate.logout
+POST     /login                                 nl.amc.ebioscience.rosemary.controllers.AuthenticationController.login
+GET      /logout                                nl.amc.ebioscience.rosemary.controllers.AuthenticationController.logout
 
 
 # Data
