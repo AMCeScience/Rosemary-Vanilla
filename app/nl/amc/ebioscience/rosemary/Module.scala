@@ -1,8 +1,10 @@
 package nl.amc.ebioscience.rosemary
 
 import com.google.inject.AbstractModule
+import play.api.libs.concurrent.AkkaGuiceSupport
 import java.time.Clock
 
+import nl.amc.ebioscience.rosemary.actors._
 import nl.amc.ebioscience.rosemary.services._
 import nl.amc.ebioscience.rosemary.services.dao._
 
@@ -16,7 +18,7 @@ import nl.amc.ebioscience.rosemary.services.dao._
  * adding `play.modules.enabled` settings to the `application.conf`
  * configuration file.
  */
-class Module extends AbstractModule {
+class Module extends AbstractModule with AkkaGuiceSupport {
 
   override def configure() = {
     // Use the system clock as the default implementation of Clock
@@ -26,12 +28,20 @@ class Module extends AbstractModule {
     bind(classOf[ApplicationTimer]).asEagerSingleton()
     // Set AtomicCounter as the implementation for Counter.
     bind(classOf[Counter]).to(classOf[AtomicCounter])
+
+    // Services
+    bind(classOf[Security]).to(classOf[RosemarySecurity])
     // Set RosemaryConfig as the implementation for Config when the application starts.
     // This will check if every necessary Config value is in place.
     bind(classOf[Config]).to(classOf[RosemaryConfig]).asEagerSingleton()
     // Set KeyCrypto (based on Keyczar) as the implementation for Crypto.
     bind(classOf[Crypto]).to(classOf[KeyCrypto])
-    // Ask Guice to create a singlton instance of MongoContext containing the context as implicit value 
+
+    // Akka actors
+    bindActor[ConnectionParentActor]("connectionParentActor")
+    bindActorFactory[ConnectionActor, ConnectionActor.Factory]
+
+    // Ask Guice to create a singleton instance of MongoContext containing the context as implicit value 
     bind(classOf[MongoContext])
     bind(classOf[ResourceDAO])
   }
