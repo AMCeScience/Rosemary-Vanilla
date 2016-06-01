@@ -5,14 +5,14 @@ import play.api.Configuration
 import play.api.Logger
 import scala.util.Try
 
-trait Config {
+trait ConfigService {
   def getConfig(key: String): String
 }
 
 case class ConfigurationException(message: String) extends Exception(message)
 
 @Singleton
-class RosemaryConfig @Inject() (configuration: Configuration) extends Config {
+class RosemaryConfigService @Inject() (configuration: Configuration) extends ConfigService {
   private val highlevelKey = "rosemary"
   private val rosemaryConf = configuration.getConfig(highlevelKey).getOrElse(Configuration.empty)
 

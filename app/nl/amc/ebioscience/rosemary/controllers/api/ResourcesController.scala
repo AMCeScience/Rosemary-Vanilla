@@ -9,12 +9,12 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
-import nl.amc.ebioscience.rosemary.services.Security
+import nl.amc.ebioscience.rosemary.services.SecurityService
 
 @Singleton
-class ResourcesController @Inject() (security: Security) extends Controller with JsonHelpers {
+class ResourcesController @Inject() (securityService: SecurityService) extends Controller with JsonHelpers {
 
-  def index = security.HasToken(parse.empty) { implicit request =>
+  def index = securityService.HasToken(parse.empty) { implicit request =>
     Ok(Resource.findAll.toList.map(_.copy(username = None, password = None)).toJson)
   }
 
@@ -71,7 +71,7 @@ class ResourcesController @Inject() (security: Security) extends Controller with
       })
   }
 
-  def queryId(id: Resource.Id) = security.HasToken(parse.empty) { implicit request =>
+  def queryId(id: Resource.Id) = securityService.HasToken(parse.empty) { implicit request =>
     Resource.findOneById(id).map { resource =>
       Ok(resource.toJson)
     } getOrElse Conflict(s"Could not find resource_id $id")

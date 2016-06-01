@@ -10,14 +10,14 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits._
 import nl.amc.ebioscience.rosemary.models.User
 
-trait Security {
+trait SecurityService {
   def getUserFromToken(token: String): Either[String, User.Id]
   def HasToken[A](p: BodyParser[A])(f: Request[A] => Result): Action[A]
   def HasTokenAsync[A](p: BodyParser[A])(f: Request[A] => Future[Result]): Action[A]
 }
 
 @Singleton
-class RosemarySecurity @Inject() (cacheApi: CacheApi) extends Security with Controller {
+class RosemarySecurityService @Inject() (cacheApi: CacheApi) extends SecurityService with Controller {
 
   val AuthTokenHeader = "X-XSRF-TOKEN"
 

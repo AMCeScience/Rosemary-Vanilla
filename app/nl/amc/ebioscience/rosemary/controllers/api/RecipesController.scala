@@ -12,42 +12,42 @@ import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
 import nl.amc.ebioscience.rosemary.core.HelperTools
 import nl.amc.ebioscience.rosemary.core.Tools.Slugify
 import nl.amc.ebioscience.rosemary.core.datasource.Webdav
-import nl.amc.ebioscience.rosemary.services.Security
+import nl.amc.ebioscience.rosemary.services.SecurityService
 import org.bson.types.ObjectId
 
 @Singleton
-class RecipesController @Inject() (security: Security) extends Controller with JsonHelpers {
+class RecipesController @Inject() (securityService: SecurityService) extends Controller with JsonHelpers {
 
-  def indexApplications = security.HasToken(parse.empty) { implicit request =>
+  def indexApplications = securityService.HasToken(parse.empty) { implicit request =>
     Ok(Recipe.getApplications.toJson)
   }
 
-  def createPipeline = security.HasToken(parse.json) { implicit request =>
+  def createPipeline = securityService.HasToken(parse.json) { implicit request =>
     val json = request.body
     Logger.trace(s"Request: $json")
     NotImplemented
   }
 
-  def query = security.HasToken(parse.json) { implicit request =>
+  def query = securityService.HasToken(parse.json) { implicit request =>
     val json = request.body
     Logger.trace(s"Request: $json")
     NotImplemented
   }
 
-  def queryIds = security.HasToken(parse.json) { implicit request =>
+  def queryIds = securityService.HasToken(parse.json) { implicit request =>
     Logger.trace(s"Request: ${request.body}")
     (request.body \ "ids").asOpt[Set[Recipe.Id]].map { ids =>
       Ok(Recipe.findByIds(ids).toJson)
     } getOrElse BadRequest(Json.toJson(errorMaker("ids", "error.path.missing")))
   }
 
-  def queryId(id: Recipe.Id) = security.HasToken(parse.empty) { implicit request =>
+  def queryId(id: Recipe.Id) = securityService.HasToken(parse.empty) { implicit request =>
     Recipe.findOneById(id).map { recipe =>
       Ok(recipe.toJson)
     } getOrElse Conflict(s"Could not find recipe_id $id")
   }
 
-  def edit(id: Recipe.Id) = security.HasToken(parse.json) { implicit request =>
+  def edit(id: Recipe.Id) = securityService.HasToken(parse.json) { implicit request =>
     val json = request.body
     Logger.trace(s"Request: $json")
     val workspaceTags = (request.body \ "workspace").asOpt[Tag.Id] match {
@@ -59,7 +59,7 @@ class RecipesController @Inject() (security: Security) extends Controller with J
     Ok(Recipe.findWithAnyTagsNoPage(workspaceTags).toList.toJson)
   }
 
-  def replicas(id: Recipe.Id) = security.HasToken(parse.empty) { implicit request =>
+  def replicas(id: Recipe.Id) = securityService.HasToken(parse.empty) { implicit request =>
     Recipe.findOneById(id) map { recipe =>
       Ok(recipe.getReplicas.toJson)
     } getOrElse Conflict(s"Could not find recipe_id $id")

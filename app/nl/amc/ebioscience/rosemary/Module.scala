@@ -28,12 +28,12 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[ApplicationTimer]).asEagerSingleton()
 
     // Services
-    bind(classOf[Security]).to(classOf[RosemarySecurity])
+    bind(classOf[SecurityService]).to(classOf[RosemarySecurityService])
     // Set RosemaryConfig as the implementation for Config when the application starts.
     // This will check if every necessary Config value is in place.
-    bind(classOf[Config]).to(classOf[RosemaryConfig]).asEagerSingleton()
+    bind(classOf[ConfigService]).to(classOf[RosemaryConfigService]).asEagerSingleton()
     // Set KeyCrypto (based on Keyczar) as the implementation for Crypto.
-    bind(classOf[Crypto]).to(classOf[KeyCrypto])
+    bind(classOf[CryptoService]).to(classOf[RosemaryCryptoService])
 
     // Akka actors
     bindActor[ConnectionParentActor]("connectionParentActor")

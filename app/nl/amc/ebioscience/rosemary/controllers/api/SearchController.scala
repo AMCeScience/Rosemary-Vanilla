@@ -11,10 +11,10 @@ import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.{ JsonHelpers, EnumJson }
 import nl.amc.ebioscience.rosemary.core.search.{ SearchReader, SearchWriter, SupportedTypes }
 import nl.amc.ebioscience.rosemary.core.HelperTools
-import nl.amc.ebioscience.rosemary.services.Security
+import nl.amc.ebioscience.rosemary.services.SecurityService
 
 @Singleton
-class SearchController @Inject() (security: Security) extends Controller with JsonHelpers {
+class SearchController @Inject() (securityService: SecurityService) extends Controller with JsonHelpers {
 
   /** body of JSON requests to query data or processing */
   case class QueryRequest(
@@ -27,7 +27,7 @@ class SearchController @Inject() (security: Security) extends Controller with Js
     implicit val queryRequestFmt = Json.format[QueryRequest]
   }
 
-  def query = security.HasToken(parse.json) { implicit request =>
+  def query = securityService.HasToken(parse.json) { implicit request =>
     val json = request.body
     Logger.trace(s"Request: $json")
     json.validate[QueryRequest].fold(
