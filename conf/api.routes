@@ -73,20 +73,20 @@ GET      /resources/:id                         nl.amc.ebioscience.rosemary.cont
 
 
 # Tags
-#POST     /tags/action/tag-entities              nl.amc.ebioscience.rosemary.controllers.api.TagsController.tagEntities
-#POST     /tags/action/untag-entities            nl.amc.ebioscience.rosemary.controllers.api.TagsController.untagEntities
-#GET      /tags/query/access                     nl.amc.ebioscience.rosemary.controllers.api.TagsController.queryAccess
-#POST     /tags/query/summary                    nl.amc.ebioscience.rosemary.controllers.api.TagsController.summaryWorkspaceTags
-#PUT      /tags/workspace-tag                    nl.amc.ebioscience.rosemary.controllers.api.TagsController.createWorkspaceTag
-#PUT      /tags/user-tag                         nl.amc.ebioscience.rosemary.controllers.api.TagsController.createUserTag
-#GET      /tags/datum-categories                 nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexDatumCategories
-#GET      /tags/processing-categories            nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexProcessingCategories
-#GET      /tags/processing-status-tags           nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexProcessingStatusTags
-#GET      /tags/public/initialize                nl.amc.ebioscience.rosemary.controllers.api.TagsController.initializePublicTags
-#GET      /tags/:id                              nl.amc.ebioscience.rosemary.controllers.api.TagsController.queryId(id: ObjectId)
-#DELETE   /tags/:id                              nl.amc.ebioscience.rosemary.controllers.api.TagsController.delete(id: ObjectId)
-#POST     /tags/:id/action/add-members           nl.amc.ebioscience.rosemary.controllers.api.TagsController.addMembers(id: ObjectId)
-#POST     /tags/:id/action/remove-members        nl.amc.ebioscience.rosemary.controllers.api.TagsController.removeMembers(id: ObjectId)
+POST     /tags/action/tag-entities              nl.amc.ebioscience.rosemary.controllers.api.TagsController.tagEntities
+POST     /tags/action/untag-entities            nl.amc.ebioscience.rosemary.controllers.api.TagsController.untagEntities
+GET      /tags/query/access                     nl.amc.ebioscience.rosemary.controllers.api.TagsController.queryAccess
+POST     /tags/query/summary                    nl.amc.ebioscience.rosemary.controllers.api.TagsController.summaryWorkspaceTags
+PUT      /tags/workspace-tag                    nl.amc.ebioscience.rosemary.controllers.api.TagsController.createWorkspaceTag
+PUT      /tags/user-tag                         nl.amc.ebioscience.rosemary.controllers.api.TagsController.createUserTag
+GET      /tags/datum-categories                 nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexDatumCategories
+GET      /tags/processing-categories            nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexProcessingCategories
+GET      /tags/processing-status-tags           nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexProcessingStatusTags
+GET      /tags/public/initialize                nl.amc.ebioscience.rosemary.controllers.api.TagsController.initializePublicTags
+GET      /tags/:id                              nl.amc.ebioscience.rosemary.controllers.api.TagsController.queryId(id: ObjectId)
+DELETE   /tags/:id                              nl.amc.ebioscience.rosemary.controllers.api.TagsController.delete(id: ObjectId)
+POST     /tags/:id/action/add-members           nl.amc.ebioscience.rosemary.controllers.api.TagsController.addMembers(id: ObjectId)
+POST     /tags/:id/action/remove-members        nl.amc.ebioscience.rosemary.controllers.api.TagsController.removeMembers(id: ObjectId)
 
 
 # Threads
