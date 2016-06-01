@@ -90,10 +90,10 @@ POST     /tags/:id/action/remove-members        nl.amc.ebioscience.rosemary.cont
 
 
 # Threads
-#PUT      /threads                               nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.create
-#POST     /threads                               nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.query
-#POST     /threads/action/subscription           nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.subscription
-#GET      /threads/:id                           nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.queryId(id: ObjectId)
+PUT      /threads                               nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.create
+POST     /threads                               nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.query
+POST     /threads/action/subscription           nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.subscription
+GET      /threads/:id                           nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.queryId(id: ObjectId)
 
 
 # Users

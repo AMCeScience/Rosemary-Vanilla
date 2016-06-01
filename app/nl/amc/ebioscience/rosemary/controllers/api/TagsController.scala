@@ -183,9 +183,9 @@ class TagsController @Inject() (securityService: SecurityService) extends Contro
   }
 
   /**
-    * From the list below, if a category tag is not in the database it will create one for it
-    * Good for adding categories that come later
-    */
+   * From the list below, if a category tag is not in the database it will create one for it
+   * Good for adding categories that come later
+   */
   def initializePublicTags = Action {
     for (cat <- Tag.DatumCategories.values if Tag.datumCategoriesNameMap.get(cat.toString).isEmpty) {
       DatumCategoryTag(cat.toString).save
