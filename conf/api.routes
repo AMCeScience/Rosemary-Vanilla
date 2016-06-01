@@ -67,9 +67,9 @@ GET      /recipes/:id/replicas                  nl.amc.ebioscience.rosemary.cont
 
 
 # Resources
-#GET      /resources                             nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.index
-#PUT      /resources                             nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.create
-#GET      /resources/:id                         nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.queryId(id: ObjectId)
+GET      /resources                             nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.index
+PUT      /resources                             nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.create
+GET      /resources/:id                         nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.queryId(id: ObjectId)
 
 
 # Tags
