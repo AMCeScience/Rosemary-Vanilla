@@ -5,25 +5,25 @@
 ####################################################################################
 
 # Authentication (API spec exception)
-POST   /login                            nl.amc.ebioscience.rosemary.controllers.AuthenticationController.login
-GET    /logout                           nl.amc.ebioscience.rosemary.controllers.AuthenticationController.logout
+POST     /login                                 nl.amc.ebioscience.rosemary.controllers.AuthenticationController.login
+GET      /logout                                nl.amc.ebioscience.rosemary.controllers.AuthenticationController.logout
 
 
 # Data
-POST   /:workspaceId/data/query/ids      nl.amc.ebioscience.rosemary.controllers.api.DataController.queryIds(workspaceId: ObjectId)
-POST   /:workspaceId/data/action/tag     nl.amc.ebioscience.rosemary.controllers.api.DataController.tag(workspaceId: ObjectId)        
+POST     /:workspaceId/data/query/ids           nl.amc.ebioscience.rosemary.controllers.api.DataController.queryIds(workspaceId: ObjectId)
+POST     /:workspaceId/data/action/tag          nl.amc.ebioscience.rosemary.controllers.api.DataController.tag(workspaceId: ObjectId)        
 # Deprecate i.f.o /tags/action/tag-entities
-POST   /:workspaceId/data/action/untag   nl.amc.ebioscience.rosemary.controllers.api.DataController.untag(workspaceId: ObjectId)   
+POST     /:workspaceId/data/action/untag        nl.amc.ebioscience.rosemary.controllers.api.DataController.untag(workspaceId: ObjectId)   
 # Deprecate i.f.o /tags/action/untag-entities
-GET    /:workspaceId/data/:id            nl.amc.ebioscience.rosemary.controllers.api.DataController.queryId(workspaceId: ObjectId, id: ObjectId)
-GET    /:workspaceId/data/:id/children   nl.amc.ebioscience.rosemary.controllers.api.DataController.children(workspaceId: ObjectId, id: ObjectId)
-GET    /:workspaceId/data/:id/parents    nl.amc.ebioscience.rosemary.controllers.api.DataController.parents(workspaceId: ObjectId, id: ObjectId)
-GET    /:workspaceId/data/:id/parent     nl.amc.ebioscience.rosemary.controllers.api.DataController.parent(workspaceId: ObjectId, id: ObjectId)
-GET    /:workspaceId/data/:id/replicas   nl.amc.ebioscience.rosemary.controllers.api.DataController.replicas(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id                 nl.amc.ebioscience.rosemary.controllers.api.DataController.queryId(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id/children        nl.amc.ebioscience.rosemary.controllers.api.DataController.children(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id/parents         nl.amc.ebioscience.rosemary.controllers.api.DataController.parents(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id/parent          nl.amc.ebioscience.rosemary.controllers.api.DataController.parent(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id/replicas        nl.amc.ebioscience.rosemary.controllers.api.DataController.replicas(workspaceId: ObjectId, id: ObjectId)
 
 
 # Search
-POST   /query                            nl.amc.ebioscience.rosemary.controllers.api.SearchController.query
+POST     /query                                 nl.amc.ebioscience.rosemary.controllers.api.SearchController.query
 
 
 # Move these to NSG?
@@ -56,14 +56,14 @@ POST     /processings/:id/action/resume         nl.amc.ebioscience.rosemary.cont
 
 
 # ProcessingGroups
-#PUT      /processing-groups                     nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.create
-#POST     /processing-groups/for-io              nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.findByIO
-#GET      /processing-groups/action/update       nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.update
-#POST     /processing-groups/query/ids           nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.queryIds
-#GET      /processing-groups/:id                 nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.queryId(id: ObjectId)
-#GET      /processing-groups/:id/children        nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.children(id: ObjectId)
-#POST     /processing-groups/:id/action/abort    nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.abort(id: ObjectId)
-#POST     /processing-groups/:id/action/resume   nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.resume(id: ObjectId)
+PUT      /processing-groups                     nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.create
+POST     /processing-groups/for-io              nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.findByIO
+GET      /processing-groups/action/update       nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.update
+POST     /processing-groups/query/ids           nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.queryIds
+GET      /processing-groups/:id                 nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.queryId(id: ObjectId)
+GET      /processing-groups/:id/children        nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.children(id: ObjectId)
+POST     /processing-groups/:id/action/abort    nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.abort(id: ObjectId)
+POST     /processing-groups/:id/action/resume   nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.resume(id: ObjectId)
 
 
 # Resources
