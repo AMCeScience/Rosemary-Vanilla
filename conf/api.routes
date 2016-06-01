@@ -97,12 +97,12 @@ GET      /threads/:id                           nl.amc.ebioscience.rosemary.cont
 
 
 # Users
-#GET      /users                                 nl.amc.ebioscience.rosemary.controllers.api.UsersController.index
-#PUT      /users                                 nl.amc.ebioscience.rosemary.controllers.api.UsersController.create
-#POST     /users/query/ids                       nl.amc.ebioscience.rosemary.controllers.api.UsersController.queryIds
-#GET      /users/:id                             nl.amc.ebioscience.rosemary.controllers.api.UsersController.queryId(id: ObjectId)
-#POST     /users/:id/action/add-credential       nl.amc.ebioscience.rosemary.controllers.api.UsersController.addCredential(id: ObjectId)
-#POST     /users/:id/action/change-role          nl.amc.ebioscience.rosemary.controllers.api.UsersController.changeRole(id: ObjectId)
+GET      /users                                 nl.amc.ebioscience.rosemary.controllers.api.UsersController.index
+PUT      /users                                 nl.amc.ebioscience.rosemary.controllers.api.UsersController.create
+POST     /users/query/ids                       nl.amc.ebioscience.rosemary.controllers.api.UsersController.queryIds
+GET      /users/:id                             nl.amc.ebioscience.rosemary.controllers.api.UsersController.queryId(id: ObjectId)
+POST     /users/:id/action/add-credential       nl.amc.ebioscience.rosemary.controllers.api.UsersController.addCredential(id: ObjectId)
+POST     /users/:id/action/change-role          nl.amc.ebioscience.rosemary.controllers.api.UsersController.changeRole(id: ObjectId)
 
 
 # Upload and Download
