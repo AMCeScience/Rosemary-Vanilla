@@ -1,17 +1,20 @@
 package nl.amc.ebioscience.rosemary.controllers.api
 
+import javax.inject._
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
-import nl.amc.ebioscience.rosemary.models.core.PlayContext.salatContext
-import nl.amc.ebioscience.rosemary.controllers.{ Security, JsonHelpers, EnumJson }
+import nl.amc.ebioscience.rosemary.models.core.Implicits._
+import nl.amc.ebioscience.rosemary.controllers.{ JsonHelpers, EnumJson }
 import nl.amc.ebioscience.rosemary.core.search.{ SearchReader, SearchWriter, SupportedTypes }
 import nl.amc.ebioscience.rosemary.core.HelperTools
+import nl.amc.ebioscience.rosemary.services.Security
 
-object Search extends Controller with Security with JsonHelpers {
+@Singleton
+class Search @Inject() (security: Security) extends Controller with JsonHelpers {
 
   /** body of JSON requests to query data or processing */
   case class QueryRequest(
@@ -24,7 +27,7 @@ object Search extends Controller with Security with JsonHelpers {
     implicit val queryRequestFmt = Json.format[QueryRequest]
   }
 
-  def query = HasToken(parse.json) { implicit request =>
+  def query = security.HasToken(parse.json) { implicit request =>
     val json = request.body
     Logger.trace(s"Request: $json")
     json.validate[QueryRequest].fold(
