@@ -10,7 +10,7 @@ trait CryptoService {
 
 @Singleton
 class RosemaryCryptoService @Inject() (configService: ConfigService) extends CryptoService {
-  private val crypter = new Crypter(configService.getConfig("crypto.key"))
+  private val crypter = new Crypter(configService.getStringConfig("crypto.key"))
 
   override def encrypt(plaintext: String) = crypter.encrypt(plaintext)
   override def decrypt(cipher: String) = crypter.decrypt(cipher)

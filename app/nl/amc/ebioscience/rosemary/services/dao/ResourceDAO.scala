@@ -13,7 +13,7 @@ class ResourceDAO @Inject() (configService: ConfigService, mctx: MongoContext, p
 
   def findResourceByHostname(hostname: String) = findOne("host" $eq hostname)
 
-  val defaultWebdavHost = configService.getConfig("webdav.host.default")
+  val defaultWebdavHost = configService.getStringConfig("webdav.host.default")
   /** Helper method to get a single WebDAV resource instance */
   def getDefaultWebdavInstance = findOne($and("kind" $eq ResourceKind.Webdav.toString, "host" $eq defaultWebdavHost)).get
   def getLocalMongoResource = findOne(("kind" $eq ResourceKind.Mongodb.toString)).get
