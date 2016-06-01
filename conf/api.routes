@@ -38,13 +38,13 @@ POST     /notifications/query                   nl.amc.ebioscience.rosemary.cont
 
 
 # Recipes
-#GET      /recipes/applications                  nl.amc.ebioscience.rosemary.controllers.api.RecipesController.indexApplications
-#PUT      /recipes/pipeline                      nl.amc.ebioscience.rosemary.controllers.api.RecipesController.createPipeline
-#POST     /recipes/query                         nl.amc.ebioscience.rosemary.controllers.api.RecipesController.query
-#POST     /recipes/query/ids                     nl.amc.ebioscience.rosemary.controllers.api.RecipesController.queryIds
-#GET      /recipes/:id                           nl.amc.ebioscience.rosemary.controllers.api.RecipesController.queryId(id: ObjectId)
-#PATCH    /recipes/:id                           nl.amc.ebioscience.rosemary.controllers.api.RecipesController.edit(id: ObjectId)
-#GET      /recipes/:id/replicas                  nl.amc.ebioscience.rosemary.controllers.api.RecipesController.replicas(id: ObjectId)
+GET      /recipes/applications                  nl.amc.ebioscience.rosemary.controllers.api.RecipesController.indexApplications
+PUT      /recipes/pipeline                      nl.amc.ebioscience.rosemary.controllers.api.RecipesController.createPipeline
+POST     /recipes/query                         nl.amc.ebioscience.rosemary.controllers.api.RecipesController.query
+POST     /recipes/query/ids                     nl.amc.ebioscience.rosemary.controllers.api.RecipesController.queryIds
+GET      /recipes/:id                           nl.amc.ebioscience.rosemary.controllers.api.RecipesController.queryId(id: ObjectId)
+PATCH    /recipes/:id                           nl.amc.ebioscience.rosemary.controllers.api.RecipesController.edit(id: ObjectId)
+GET      /recipes/:id/replicas                  nl.amc.ebioscience.rosemary.controllers.api.RecipesController.replicas(id: ObjectId)
 
 
 # Processings
