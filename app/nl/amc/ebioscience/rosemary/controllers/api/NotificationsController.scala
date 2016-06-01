@@ -12,7 +12,7 @@ import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
 import nl.amc.ebioscience.rosemary.services.Security
 
 @Singleton
-class Notifications @Inject() (security: Security) extends Controller with JsonHelpers {
+class NotificationsController @Inject() (security: Security) extends Controller with JsonHelpers {
 
   case class NotificationListRequest(workspace: Tag.Id, page: Option[Int])
   object NotificationListRequest {

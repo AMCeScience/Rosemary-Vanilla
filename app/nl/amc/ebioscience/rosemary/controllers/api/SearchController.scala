@@ -14,7 +14,7 @@ import nl.amc.ebioscience.rosemary.core.HelperTools
 import nl.amc.ebioscience.rosemary.services.Security
 
 @Singleton
-class Search @Inject() (security: Security) extends Controller with JsonHelpers {
+class SearchController @Inject() (security: Security) extends Controller with JsonHelpers {
 
   /** body of JSON requests to query data or processing */
   case class QueryRequest(

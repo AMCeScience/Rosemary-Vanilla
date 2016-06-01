@@ -12,7 +12,7 @@ import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
 import nl.amc.ebioscience.rosemary.services.Security
 
 @Singleton
-class Data @Inject() (security: Security) extends Controller with JsonHelpers {
+class DataController @Inject() (security: Security) extends Controller with JsonHelpers {
 
   def queryId(workspaceId: Tag.Id, id: Datum.Id) = security.HasToken(parse.empty) { implicit request =>
     findTag(workspaceId).map { workspaceTag =>
