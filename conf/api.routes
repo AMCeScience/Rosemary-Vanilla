@@ -34,7 +34,7 @@ POST   /query                            nl.amc.ebioscience.rosemary.controllers
 
 
 # Notifications
-#POST     /notifications/query                   nl.amc.ebioscience.rosemary.controllers.api.Notifications.query
+POST     /notifications/query                   nl.amc.ebioscience.rosemary.controllers.api.Notifications.query
 
 
 # Recipes
