@@ -1,23 +1,25 @@
 package nl.amc.ebioscience.rosemary.controllers.api
 
+import javax.inject._
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
-import nl.amc.ebioscience.rosemary.models.core.PlayContext.salatContext
-import nl.amc.ebioscience.rosemary.controllers.Security
+import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
+import nl.amc.ebioscience.rosemary.services.Security
 
-object Notifications extends Controller with Security with JsonHelpers {
+@Singleton
+class Notifications @Inject() (security: Security) extends Controller with JsonHelpers {
 
   case class NotificationListRequest(workspace: Tag.Id, page: Option[Int])
   object NotificationListRequest {
     implicit val notificationListRequestFmt = Json.format[NotificationListRequest]
   }
 
-  def query = HasToken(parse.json) { implicit request =>
+  def query = security.HasToken(parse.json) { implicit request =>
     val json = request.body
     Logger.trace("Request: " + json)
     json.validate[NotificationListRequest].fold(
