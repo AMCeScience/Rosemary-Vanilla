@@ -48,11 +48,11 @@ GET      /recipes/:id/replicas                  nl.amc.ebioscience.rosemary.cont
 
 
 # Processings
-#PUT      /processings                           nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.create
-#POST     /processings/for-io                    nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.findByIO
-#GET      /processings/:id                       nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.queryId(id: ObjectId)
-#POST     /processings/:id/action/abort          nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.abort(id: ObjectId)
-#POST     /processings/:id/action/resume         nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.resume(id: ObjectId)
+PUT      /processings                           nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.create
+POST     /processings/for-io                    nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.findByIO
+GET      /processings/:id                       nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.queryId(id: ObjectId)
+POST     /processings/:id/action/abort          nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.abort(id: ObjectId)
+POST     /processings/:id/action/resume         nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.resume(id: ObjectId)
 
 
 # ProcessingGroups
