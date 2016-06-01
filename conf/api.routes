@@ -23,7 +23,7 @@ GET    /:workspaceId/data/:id/replicas   nl.amc.ebioscience.rosemary.controllers
 
 
 # Search
-#POST     /query                                 nl.amc.ebioscience.rosemary.controllers.api.Search.query
+POST   /query                            nl.amc.ebioscience.rosemary.controllers.api.Search.query
 
 
 # Move these to NSG?
