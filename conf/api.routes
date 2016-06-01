@@ -5,21 +5,21 @@
 ####################################################################################
 
 # Authentication (API spec exception)
-POST     /login                                 nl.amc.ebioscience.rosemary.controllers.AuthenticationController.login
-GET      /logout                                nl.amc.ebioscience.rosemary.controllers.AuthenticationController.logout
+POST   /login                            nl.amc.ebioscience.rosemary.controllers.AuthenticationController.login
+GET    /logout                           nl.amc.ebioscience.rosemary.controllers.AuthenticationController.logout
 
 
 # Data
-#POST     /:workspaceId/data/query/ids           nl.amc.ebioscience.rosemary.controllers.api.Data.queryIds(workspaceId: ObjectId)
-#POST     /:workspaceId/data/action/tag          nl.amc.ebioscience.rosemary.controllers.api.Data.tag(workspaceId: ObjectId)        
+POST   /:workspaceId/data/query/ids      nl.amc.ebioscience.rosemary.controllers.api.Data.queryIds(workspaceId: ObjectId)
+POST   /:workspaceId/data/action/tag     nl.amc.ebioscience.rosemary.controllers.api.Data.tag(workspaceId: ObjectId)        
 # Deprecate i.f.o /tags/action/tag-entities
-#POST     /:workspaceId/data/action/untag        nl.amc.ebioscience.rosemary.controllers.api.Data.untag(workspaceId: ObjectId)   
+POST   /:workspaceId/data/action/untag   nl.amc.ebioscience.rosemary.controllers.api.Data.untag(workspaceId: ObjectId)   
 # Deprecate i.f.o /tags/action/untag-entities
-#GET      /:workspaceId/data/:id                 nl.amc.ebioscience.rosemary.controllers.api.Data.queryId(workspaceId: ObjectId, id: ObjectId)
-#GET      /:workspaceId/data/:id/children        nl.amc.ebioscience.rosemary.controllers.api.Data.children(workspaceId: ObjectId, id: ObjectId)
-#GET      /:workspaceId/data/:id/parents         nl.amc.ebioscience.rosemary.controllers.api.Data.parents(workspaceId: ObjectId, id: ObjectId)
-#GET      /:workspaceId/data/:id/parent          nl.amc.ebioscience.rosemary.controllers.api.Data.parent(workspaceId: ObjectId, id: ObjectId)
-#GET      /:workspaceId/data/:id/replicas        nl.amc.ebioscience.rosemary.controllers.api.Data.replicas(workspaceId: ObjectId, id: ObjectId)
+GET    /:workspaceId/data/:id            nl.amc.ebioscience.rosemary.controllers.api.Data.queryId(workspaceId: ObjectId, id: ObjectId)
+GET    /:workspaceId/data/:id/children   nl.amc.ebioscience.rosemary.controllers.api.Data.children(workspaceId: ObjectId, id: ObjectId)
+GET    /:workspaceId/data/:id/parents    nl.amc.ebioscience.rosemary.controllers.api.Data.parents(workspaceId: ObjectId, id: ObjectId)
+GET    /:workspaceId/data/:id/parent     nl.amc.ebioscience.rosemary.controllers.api.Data.parent(workspaceId: ObjectId, id: ObjectId)
+GET    /:workspaceId/data/:id/replicas   nl.amc.ebioscience.rosemary.controllers.api.Data.replicas(workspaceId: ObjectId, id: ObjectId)
 
 
 # Search

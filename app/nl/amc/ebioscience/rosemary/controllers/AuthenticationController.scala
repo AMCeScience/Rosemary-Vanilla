@@ -12,7 +12,7 @@ import play.api.Configuration
 import play.api.mvc._
 
 @Singleton
-class Authenticate @Inject() (configuration: Configuration, messagesApi: MessagesApi, cacheApi: CacheApi)
+class AuthenticationController @Inject() (configuration: Configuration, messagesApi: MessagesApi, cacheApi: CacheApi)
     extends Controller {
 
   private implicit def messages(implicit lang: Lang) = new Messages(lang, messagesApi)

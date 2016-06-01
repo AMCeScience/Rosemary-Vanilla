@@ -1,18 +1,20 @@
 package nl.amc.ebioscience.rosemary.controllers.api
 
+import javax.inject._
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
-import nl.amc.ebioscience.rosemary.models.core.PlayContext.salatContext
-import nl.amc.ebioscience.rosemary.controllers.{ Security, JsonHelpers }
-import nl.amc.ebioscience.rosemary.core.search.{ SearchReader, SearchWriter, SupportedTypes }
+import nl.amc.ebioscience.rosemary.models.core.Implicits._
+import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
+import nl.amc.ebioscience.rosemary.services.Security
 
-object Data extends Controller with Security with JsonHelpers {
+@Singleton
+class Data @Inject() (security: Security) extends Controller with JsonHelpers {
 
-  def queryId(workspaceId: Tag.Id, id: Datum.Id) = HasToken() { implicit request =>
+  def queryId(workspaceId: Tag.Id, id: Datum.Id) = security.HasToken(parse.empty) { implicit request =>
     findTag(workspaceId).map { workspaceTag =>
       Datum.findOneById(id, workspaceTag).map { datum =>
         Ok(datum.toJson)
@@ -20,7 +22,7 @@ object Data extends Controller with Security with JsonHelpers {
     } getOrElse Conflict(s"Could not find the workspace tag $workspaceId")
   }
 
-  def queryIds(workspaceId: Tag.Id) = HasToken(parse.json) { implicit request =>
+  def queryIds(workspaceId: Tag.Id) = security.HasToken(parse.json) { implicit request =>
     Logger.trace(s"Request: ${request.body}")
     (request.body \ "ids").asOpt[Set[Datum.Id]].map { ids =>
       findTag(workspaceId).map { workspaceTag =>
@@ -29,7 +31,7 @@ object Data extends Controller with Security with JsonHelpers {
     } getOrElse BadRequest(Json.toJson(errorMaker("ids", "error.path.missing")))
   }
 
-  def children(workspaceId: Tag.Id, id: Datum.Id) = HasToken() { implicit request =>
+  def children(workspaceId: Tag.Id, id: Datum.Id) = security.HasToken(parse.empty) { implicit request =>
     findTag(workspaceId).map { workspaceTag =>
       Datum.findOneById(id, workspaceTag).map { datum =>
         Ok(Datum.getChildren(datum, workspaceTag).toJson)
@@ -37,7 +39,7 @@ object Data extends Controller with Security with JsonHelpers {
     } getOrElse Conflict(s"Could not find the workspace tag $workspaceId")
   }
 
-  def parents(workspaceId: Tag.Id, id: Datum.Id) = HasToken() { implicit request =>
+  def parents(workspaceId: Tag.Id, id: Datum.Id) = security.HasToken(parse.empty) { implicit request =>
     findTag(workspaceId).map { workspaceTag =>
       Datum.findOneById(id, workspaceTag).map { datum =>
         Ok(Datum.getAssendants(datum, workspaceTag).reverse.toJson)
@@ -45,7 +47,7 @@ object Data extends Controller with Security with JsonHelpers {
     } getOrElse Conflict(s"Could not find the workspace tag $workspaceId")
   }
 
-  def parent(workspaceId: Tag.Id, id: Datum.Id) = HasToken() { implicit request =>
+  def parent(workspaceId: Tag.Id, id: Datum.Id) = security.HasToken(parse.empty) { implicit request =>
     findTag(workspaceId).map { workspaceTag =>
       Datum.findOneById(id, workspaceTag).map { datum =>
         Ok(Datum.getAllDirectParents(datum, workspaceTag).toJson)
@@ -53,7 +55,7 @@ object Data extends Controller with Security with JsonHelpers {
     } getOrElse Conflict(s"Could not find the workspace tag $workspaceId")
   }
 
-  def replicas(workspaceId: Tag.Id, id: Datum.Id) = HasToken() { implicit request =>
+  def replicas(workspaceId: Tag.Id, id: Datum.Id) = security.HasToken(parse.empty) { implicit request =>
     findTag(workspaceId).map { workspaceTag =>
       Datum.findOneById(id).map { datum =>
         Ok(datum.getReplicas.toJson)
@@ -67,7 +69,7 @@ object Data extends Controller with Security with JsonHelpers {
     implicit val tagRequestFmt = Json.format[TagRequest]
   }
 
-  def tagOrUntag(workspaceId: Tag.Id, func: (Datum, Tag.Id) => Datum) = HasToken(parse.json) { implicit request =>
+  def tagOrUntag(workspaceId: Tag.Id, func: (Datum, Tag.Id) => Datum) = security.HasToken(parse.json) { implicit request =>
     val json = request.body
     Logger.trace(s"Request: $json")
 
