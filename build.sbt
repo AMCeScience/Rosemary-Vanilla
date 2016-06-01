@@ -16,6 +16,10 @@ libraryDependencies ++= Seq(
   "org.keyczar" % "keyczar" % "0.71h",
   "com.github.shayanlinux" %% "play-plugins-salat" % "1.6.0",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.1",
+  "org.apache.lucene" % "lucene-core" % "4.9.1",
+  "org.apache.lucene" % "lucene-queryparser" % "4.9.1",
+  "org.apache.lucene" % "lucene-queries" % "4.9.1",
+  "org.apache.lucene" % "lucene-analyzers-common" % "4.9.1",
   "nl.amc.ebioscience" %% "processing-manager-core" % "2.0-SNAPSHOT",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
 )
