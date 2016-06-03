@@ -7,6 +7,7 @@ import java.time.Clock
 import nl.amc.ebioscience.rosemary.actors._
 import nl.amc.ebioscience.rosemary.services._
 import nl.amc.ebioscience.rosemary.services.dao._
+import nl.amc.ebioscience.rosemary.services.processing._
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -39,9 +40,12 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bindActor[ConnectionParentActor]("connectionParentActor")
     bindActorFactory[ConnectionActor, ConnectionActor.Factory]
 
-    // Ask Guice to create a singleton instance of MongoContext containing the context as implicit value 
+    // Ask Guice to create a singleton instance of MongoContext containing the context as implicit value
     bind(classOf[MongoContext])
     bind(classOf[ResourceDAO])
+    
+    bind(classOf[ProcessingManagerClient])
+    bind(classOf[ProcessingHelper])
   }
 
 }

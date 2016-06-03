@@ -1,14 +1,18 @@
-package nl.amc.ebioscience.rosemary.core
+package nl.amc.ebioscience.rosemary.services.processing
 
+import javax.inject._
 import play.api.Logger
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
+import nl.amc.ebioscience.rosemary.core.processing._
+import nl.amc.ebioscience.rosemary.core.WebSockets
 import nl.amc.ebioscience.processingmanager.types.ProcessingLifeCycle
 import scala.reflect.runtime.universe
 
-package object processing {
+@Singleton
+class ProcessingHelper @Inject() (processingManagerClient: ProcessingManagerClient) {
 
   /**
    * Update status and send notification for a ProcessingGroup
@@ -75,7 +79,7 @@ package object processing {
    * Call the processing manager service and update status in the model for a ProcessingGroup
    */
   private def fetchAndUpdateStatus(processingGroup: ProcessingGroup) =
-    ProcessingManagerClient.statusProcessingGroup(processingGroup.id) match {
+    processingManagerClient.statusProcessingGroup(processingGroup.id) match {
       case Left(e) => None
       case Right(optGroupStatusMsg) => optGroupStatusMsg match {
         case None => None
@@ -124,7 +128,7 @@ package object processing {
    * Call the processing manager and update status in the model for a Processing
    */
   private def fetchAndUpdateStatus(processing: Processing) =
-    ProcessingManagerClient.statusProcessing(processing.id) match {
+    processingManagerClient.statusProcessing(processing.id) match {
       case Left(e) => None
       case Right(optStatusContainerMsg) => optStatusContainerMsg match {
         case None => None

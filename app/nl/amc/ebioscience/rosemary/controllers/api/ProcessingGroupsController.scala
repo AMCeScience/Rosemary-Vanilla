@@ -11,22 +11,28 @@ import akka.util.Timeout
 import akka.pattern.ask
 import scala.concurrent.duration._
 import scala.reflect.runtime.universe
-import nl.amc.ebioscience.rosemary.core.processing._
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
+import nl.amc.ebioscience.rosemary.core.processing._
 import nl.amc.ebioscience.rosemary.core.{ WebSockets, HelperTools }
 import nl.amc.ebioscience.rosemary.core.search.{ SearchReader, SearchWriter, SupportedTypes }
+import nl.amc.ebioscience.rosemary.actors.ProcessingStatusCheckActor
 import nl.amc.ebioscience.rosemary.services.SecurityService
+import nl.amc.ebioscience.rosemary.services.processing._
 import nl.amc.ebioscience.processingmanager.types.messaging.{ ProcessingMessage, PortMessagePart }
 import nl.amc.ebioscience.processingmanager.types.{ ProcessingLifeCycle, PortType, Credentials }
 import java.util.Date
 import akka.actor.ActorSystem
 
 @Singleton
-class ProcessingGroupsController @Inject() (securityService: SecurityService, actorSystem: ActorSystem) extends Controller with JsonHelpers {
+class ProcessingGroupsController @Inject() (
+    securityService: SecurityService,
+    processingManagerClient: ProcessingManagerClient,
+    processingHelper: ProcessingHelper,
+    actorSystem: ActorSystem) extends Controller with JsonHelpers {
 
   case class SubmitProcessingGroupRequest(
       workspace: Tag.Id,
@@ -235,7 +241,7 @@ class ProcessingGroupsController @Inject() (securityService: SecurityService, ac
                 // Submit ProcessingMessages one by one and update their status accordingly, and save them
                 val insertedPs = psAndpms map { pAndpm =>
                   // Submit Processing
-                  ProcessingManagerClient.submitProcessing(pAndpm._2) match {
+                  processingManagerClient.submitProcessing(pAndpm._2) match {
                     case Right(r) => pAndpm._1.copy(progress = 10,
                       statuses = Seq(nl.amc.ebioscience.rosemary.models.Status(ProcessingLifeCycle.InPreparation)),
                       tags = pAndpm._1.tags + inPreparationStatusTag.id).insert
@@ -314,7 +320,7 @@ class ProcessingGroupsController @Inject() (securityService: SecurityService, ac
   }
 
   def update = Action.async {
-    val pmActor = actorSystem.actorOf(Props[ProcessingManagerActor])
+    val pmActor = actorSystem.actorOf(Props[ProcessingStatusCheckActor])
     implicit val timeout = Timeout(5.minutes) // needed for `?` below
     val future = (pmActor ? "go for it!").mapTo[String]
     future.map { msg =>
@@ -351,7 +357,7 @@ class ProcessingGroupsController @Inject() (securityService: SecurityService, ac
     ProcessingGroup.findOneById(id).map { processingGroup =>
       val reason = (request.body \ "reason").asOpt[String].getOrElse("Yes, We Can!")
       // TODO Send abort request to the Processing Manager
-      ProcessingManagerClient.abortProcessingGroup(processingGroup.id, reason).fold(
+      processingManagerClient.abortProcessingGroup(processingGroup.id, reason).fold(
         { error => Conflict(error) }, // Report Processing Manager service connection problems
         { optMsg => // Call to the Processing Manager service was successful  
           optMsg match {
@@ -359,7 +365,7 @@ class ProcessingGroupsController @Inject() (securityService: SecurityService, ac
             case Some(msg) => msg match {
               case "OK" =>
                 // Update ProcessingGroup status and send notification about its status change
-                updateStatusAndSendNotification(processingGroup)
+                processingHelper.updateStatusAndSendNotification(processingGroup)
               // TODO Send user action notification
               case m @ _ => Logger.warn(s"Processing Manager says that aborting the ProcessingGroup ${processingGroup.id} was not OK: $m")
             }
@@ -373,7 +379,7 @@ class ProcessingGroupsController @Inject() (securityService: SecurityService, ac
   def resume(id: ProcessingGroup.Id) = securityService.HasToken(parse.empty) { implicit request =>
     ProcessingGroup.findOneById(id).map { processingGroup =>
       // Send resume request to the Processing Manager 
-      ProcessingManagerClient.resumeProcessingGroup(processingGroup.id).fold(
+      processingManagerClient.resumeProcessingGroup(processingGroup.id).fold(
         { error => Conflict(error) }, // Report Processing Manager service connection problems
         { optMsg => // Call to the Processing Manager service was successful 
           optMsg match {
@@ -381,7 +387,7 @@ class ProcessingGroupsController @Inject() (securityService: SecurityService, ac
             case Some(msg) => msg match {
               case "OK" =>
                 // Update ProcessingGroup status and send notification about its status change
-                updateStatusAndSendNotification(processingGroup)
+                processingHelper.updateStatusAndSendNotification(processingGroup)
               // TODO Send user action notification
               case m @ _ => Logger.warn(s"Processing Manager says that resuming the ProcessingGroup ${processingGroup.id} was not OK: $m")
             }

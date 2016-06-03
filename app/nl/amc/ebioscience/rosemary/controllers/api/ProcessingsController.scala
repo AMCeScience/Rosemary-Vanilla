@@ -13,13 +13,17 @@ import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
 import nl.amc.ebioscience.rosemary.core.{ WebSockets, HelperTools }
 import nl.amc.ebioscience.rosemary.core.search.{ SearchReader, SearchWriter, SupportedTypes }
+import nl.amc.ebioscience.rosemary.services.SecurityService
+import nl.amc.ebioscience.rosemary.services.processing._
 import nl.amc.ebioscience.processingmanager.types.messaging.{ ProcessingMessage, PortMessagePart }
 import nl.amc.ebioscience.processingmanager.types.{ ProcessingLifeCycle, PortType, Credentials }
 import java.util.Date
-import nl.amc.ebioscience.rosemary.services.SecurityService
 
 @Singleton
-class ProcessingsController @Inject() (securityService: SecurityService) extends Controller with JsonHelpers {
+class ProcessingsController @Inject() (
+    securityService: SecurityService,
+    processingManagerClient: ProcessingManagerClient,
+    processingHelper: ProcessingHelper) extends Controller with JsonHelpers {
 
   case class SubmitProcessingRequest(
       workspace: Tag.Id,
@@ -215,7 +219,7 @@ class ProcessingsController @Inject() (securityService: SecurityService) extends
                 // Submit ProcessingMessages one by one and update their status accordingly, and save them
                 val insertedPs = psAndpms map { pAndpm =>
                   // Submit Processing
-                  ProcessingManagerClient.submitProcessing(pAndpm._2) match {
+                  processingManagerClient.submitProcessing(pAndpm._2) match {
                     case Right(r) => pAndpm._1.copy(progress = 10,
                       statuses = Seq(nl.amc.ebioscience.rosemary.models.Status(ProcessingLifeCycle.InPreparation)),
                       tags = pAndpm._1.tags + inPreparationStatusTag.id).insert
@@ -309,7 +313,7 @@ class ProcessingsController @Inject() (securityService: SecurityService) extends
     Processing.findOneById(id).map { processing =>
       val reason = (request.body \ "reason").asOpt[String].getOrElse("Yes, We Can!")
       // TODO Send abort request to the Processing Manager
-      ProcessingManagerClient.abortProcessing(processing.id, reason).fold(
+      processingManagerClient.abortProcessing(processing.id, reason).fold(
         { error => Conflict(error) }, // Report Processing Manager service connection problems
         { optMsg => // Call to the Processing Manager service was successful  
           optMsg match {
@@ -317,7 +321,7 @@ class ProcessingsController @Inject() (securityService: SecurityService) extends
             case Some(msg) => msg match {
               case "OK" =>
                 // Update ProcessingGroup status and send notification about its status change
-                updateStatusAndSendNotification(processing)
+                processingHelper.updateStatusAndSendNotification(processing)
               // TODO Send user action notification
               case m @ _ => Logger.warn(s"Processing Manager says that aborting the Processing ${processing.id} was not OK: $m")
             }
@@ -331,7 +335,7 @@ class ProcessingsController @Inject() (securityService: SecurityService) extends
   def resume(id: Processing.Id) = securityService.HasToken(parse.empty) { implicit request =>
     Processing.findOneById(id).map { processing =>
       // Send resume request to the Processing Manager 
-      ProcessingManagerClient.resumeProcessing(processing.id).fold(
+      processingManagerClient.resumeProcessing(processing.id).fold(
         { error => Conflict(error) }, // Report Processing Manager service connection problems
         { optMsg => // Call to the Processing Manager service was successful 
           optMsg match {
@@ -339,7 +343,7 @@ class ProcessingsController @Inject() (securityService: SecurityService) extends
             case Some(msg) => msg match {
               case "OK" =>
                 // Update Processing status and send notification about its status change
-                updateStatusAndSendNotification(processing)
+                processingHelper.updateStatusAndSendNotification(processing)
               // TODO Send user action notification
               case m @ _ => Logger.warn(s"Processing Manager says that resuming the Processing ${processing.id} was not OK: $m")
             }

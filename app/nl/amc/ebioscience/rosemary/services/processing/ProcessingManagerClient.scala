@@ -1,20 +1,22 @@
-package nl.amc.ebioscience.rosemary.core.processing
+package nl.amc.ebioscience.rosemary.services.processing
 
+import javax.inject._
 import dispatch._
 import dispatch.Defaults._
 import play.api.libs.json._
 import play.api.data.validation.ValidationError
-import play.api.{ Logger, Play }
+import play.api.Logger
 import nl.amc.ebioscience.processingmanager.types.messaging.{ ActionMessage, ProcessingMessage, StatusContainerMessage, GroupStatusMessage }
 import org.bson.types.ObjectId
+import nl.amc.ebioscience.rosemary.services.ConfigService
 
-object ProcessingManagerClient {
+@Singleton
+class ProcessingManagerClient @Inject() (configService: ConfigService) {
 
-  val configuration = Play.current.configuration
-  val baseUri = configuration.getString("processingmanager.uri").getOrElse("http://localhost:8080/RestfulProcessingManager")
+  val baseUri = configService.getStringConfig("processingmanager.uri")
 
-  val pmUserId = configuration.getInt("processingmanager.default.userid").getOrElse(1)
-  val pmProjectId = configuration.getInt("processingmanager.default.projectid").getOrElse(1)
+  val pmUserId = configService.getIntConfig("processingmanager.default.userid")
+  val pmProjectId = configService.getIntConfig("processingmanager.default.projectid")
   val baseReq = url(baseUri)
 
   Http.configure(_.setAllowPoolingConnection(true).
