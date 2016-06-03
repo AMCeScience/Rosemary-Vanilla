@@ -6,6 +6,9 @@ import play.api.routing.Router
 import nl.amc.ebioscience.rosemary.services.MongoContext
 import se.radley.plugin.salat.PlaySalat
 
+/**
+ * WIP not used currently
+ */
 class RosemaryApplicationLoader extends ApplicationLoader {
   def load(context: Context) = {
     LoggerConfigurator(context.environment.classLoader).foreach {

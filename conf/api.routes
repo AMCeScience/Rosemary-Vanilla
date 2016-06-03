@@ -1,0 +1,110 @@
+####################################################################################
+#                                                                                  #
+# Check ROOT/docs/general/api.md for documentation, also before editing this file. #
+#                                                                                  #
+####################################################################################
+
+# Authentication (API spec exception)
+POST     /login                                 nl.amc.ebioscience.rosemary.controllers.AuthenticationController.login
+GET      /logout                                nl.amc.ebioscience.rosemary.controllers.AuthenticationController.logout
+
+
+# Data
+POST     /:workspaceId/data/query/ids           nl.amc.ebioscience.rosemary.controllers.api.DataController.queryIds(workspaceId: ObjectId)
+POST     /:workspaceId/data/action/tag          nl.amc.ebioscience.rosemary.controllers.api.DataController.tag(workspaceId: ObjectId)        
+# Deprecate i.f.o /tags/action/tag-entities
+POST     /:workspaceId/data/action/untag        nl.amc.ebioscience.rosemary.controllers.api.DataController.untag(workspaceId: ObjectId)   
+# Deprecate i.f.o /tags/action/untag-entities
+GET      /:workspaceId/data/:id                 nl.amc.ebioscience.rosemary.controllers.api.DataController.queryId(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id/children        nl.amc.ebioscience.rosemary.controllers.api.DataController.children(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id/parents         nl.amc.ebioscience.rosemary.controllers.api.DataController.parents(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id/parent          nl.amc.ebioscience.rosemary.controllers.api.DataController.parent(workspaceId: ObjectId, id: ObjectId)
+GET      /:workspaceId/data/:id/replicas        nl.amc.ebioscience.rosemary.controllers.api.DataController.replicas(workspaceId: ObjectId, id: ObjectId)
+
+
+# Search
+POST     /query                                 nl.amc.ebioscience.rosemary.controllers.api.SearchController.query
+
+
+# Move these to NSG?
+# Import (API spec exception)
+#POST     /import/get-projects                   nl.amc.ebioscience.rosemary.controllers.DataImport.projects
+#POST     /import/get-data                       nl.amc.ebioscience.rosemary.controllers.DataImport.data
+#GET      /import                                nl.amc.ebioscience.rosemary.controllers.DataImport.index
+
+
+# Notifications
+POST     /notifications/query                   nl.amc.ebioscience.rosemary.controllers.api.NotificationsController.query
+
+
+# Recipes
+GET      /recipes/applications                  nl.amc.ebioscience.rosemary.controllers.api.RecipesController.indexApplications
+PUT      /recipes/pipeline                      nl.amc.ebioscience.rosemary.controllers.api.RecipesController.createPipeline
+POST     /recipes/query                         nl.amc.ebioscience.rosemary.controllers.api.RecipesController.query
+POST     /recipes/query/ids                     nl.amc.ebioscience.rosemary.controllers.api.RecipesController.queryIds
+GET      /recipes/:id                           nl.amc.ebioscience.rosemary.controllers.api.RecipesController.queryId(id: ObjectId)
+PATCH    /recipes/:id                           nl.amc.ebioscience.rosemary.controllers.api.RecipesController.edit(id: ObjectId)
+GET      /recipes/:id/replicas                  nl.amc.ebioscience.rosemary.controllers.api.RecipesController.replicas(id: ObjectId)
+
+
+# Processings
+PUT      /processings                           nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.create
+POST     /processings/for-io                    nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.findByIO
+GET      /processings/:id                       nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.queryId(id: ObjectId)
+POST     /processings/:id/action/abort          nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.abort(id: ObjectId)
+POST     /processings/:id/action/resume         nl.amc.ebioscience.rosemary.controllers.api.ProcessingsController.resume(id: ObjectId)
+
+
+# ProcessingGroups
+PUT      /processing-groups                     nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.create
+POST     /processing-groups/for-io              nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.findByIO
+GET      /processing-groups/action/update       nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.update
+POST     /processing-groups/query/ids           nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.queryIds
+GET      /processing-groups/:id                 nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.queryId(id: ObjectId)
+GET      /processing-groups/:id/children        nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.children(id: ObjectId)
+POST     /processing-groups/:id/action/abort    nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.abort(id: ObjectId)
+POST     /processing-groups/:id/action/resume   nl.amc.ebioscience.rosemary.controllers.api.ProcessingGroupsController.resume(id: ObjectId)
+
+
+# Resources
+GET      /resources                             nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.index
+PUT      /resources                             nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.create
+GET      /resources/:id                         nl.amc.ebioscience.rosemary.controllers.api.ResourcesController.queryId(id: ObjectId)
+
+
+# Tags
+POST     /tags/action/tag-entities              nl.amc.ebioscience.rosemary.controllers.api.TagsController.tagEntities
+POST     /tags/action/untag-entities            nl.amc.ebioscience.rosemary.controllers.api.TagsController.untagEntities
+GET      /tags/query/access                     nl.amc.ebioscience.rosemary.controllers.api.TagsController.queryAccess
+POST     /tags/query/summary                    nl.amc.ebioscience.rosemary.controllers.api.TagsController.summaryWorkspaceTags
+PUT      /tags/workspace-tag                    nl.amc.ebioscience.rosemary.controllers.api.TagsController.createWorkspaceTag
+PUT      /tags/user-tag                         nl.amc.ebioscience.rosemary.controllers.api.TagsController.createUserTag
+GET      /tags/datum-categories                 nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexDatumCategories
+GET      /tags/processing-categories            nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexProcessingCategories
+GET      /tags/processing-status-tags           nl.amc.ebioscience.rosemary.controllers.api.TagsController.indexProcessingStatusTags
+GET      /tags/public/initialize                nl.amc.ebioscience.rosemary.controllers.api.TagsController.initializePublicTags
+GET      /tags/:id                              nl.amc.ebioscience.rosemary.controllers.api.TagsController.queryId(id: ObjectId)
+DELETE   /tags/:id                              nl.amc.ebioscience.rosemary.controllers.api.TagsController.delete(id: ObjectId)
+POST     /tags/:id/action/add-members           nl.amc.ebioscience.rosemary.controllers.api.TagsController.addMembers(id: ObjectId)
+POST     /tags/:id/action/remove-members        nl.amc.ebioscience.rosemary.controllers.api.TagsController.removeMembers(id: ObjectId)
+
+
+# Threads
+PUT      /threads                               nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.create
+POST     /threads                               nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.query
+POST     /threads/action/subscription           nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.subscription
+GET      /threads/:id                           nl.amc.ebioscience.rosemary.controllers.api.ThreadsController.queryId(id: ObjectId)
+
+
+# Users
+GET      /users                                 nl.amc.ebioscience.rosemary.controllers.api.UsersController.index
+PUT      /users                                 nl.amc.ebioscience.rosemary.controllers.api.UsersController.create
+POST     /users/query/ids                       nl.amc.ebioscience.rosemary.controllers.api.UsersController.queryIds
+GET      /users/:id                             nl.amc.ebioscience.rosemary.controllers.api.UsersController.queryId(id: ObjectId)
+POST     /users/:id/action/add-credential       nl.amc.ebioscience.rosemary.controllers.api.UsersController.addCredential(id: ObjectId)
+POST     /users/:id/action/change-role          nl.amc.ebioscience.rosemary.controllers.api.UsersController.changeRole(id: ObjectId)
+
+
+# Upload and Download
+#POST     /upload                                nl.amc.ebioscience.rosemary.controllers.api.TempFilesController.upload
+#GET      /download/:id                          nl.amc.ebioscience.rosemary.controllers.api.TempFilesController.download(id: ObjectId)
