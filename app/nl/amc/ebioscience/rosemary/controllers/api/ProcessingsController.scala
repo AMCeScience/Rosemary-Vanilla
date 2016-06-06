@@ -27,7 +27,6 @@ import play.api.{ Application => PlayApplication, _ }
 import play.api.mvc._
 import play.api.libs.json._
 import scala.reflect.runtime.universe
-import nl.amc.ebioscience.rosemary.core.processing._
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._

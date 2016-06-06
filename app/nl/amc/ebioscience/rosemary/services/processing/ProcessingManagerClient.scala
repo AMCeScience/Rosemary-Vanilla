@@ -28,8 +28,8 @@ import dispatch.Defaults._
 import play.api.libs.json._
 import play.api.data.validation.ValidationError
 import play.api.Logger
-import nl.amc.ebioscience.processingmanager.types.messaging.{ ActionMessage, ProcessingMessage, StatusContainerMessage, GroupStatusMessage }
 import org.bson.types.ObjectId
+import nl.amc.ebioscience.processingmanager.types.messaging.{ ActionMessage, ProcessingMessage, StatusContainerMessage, GroupStatusMessage }
 import nl.amc.ebioscience.rosemary.services.ConfigService
 
 @Singleton

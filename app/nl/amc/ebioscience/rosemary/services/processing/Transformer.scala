@@ -20,16 +20,16 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.processing
+package nl.amc.ebioscience.rosemary.services.processing
 
 import nl.amc.ebioscience.rosemary.models.{ Application, Datum, Tag, Replica, Processing, Resource, PortKind }
 import nl.amc.ebioscience.processingmanager.types.messaging.StatusContainerMessage
 import play.api.Logger
 
 /**
-  * This class wraps [[controllers.api.Processings.SubmitRequest]] information
-  * to avoid multiple database queries.
-  */
+ * This class wraps [[controllers.api.Processings.SubmitRequest]] information
+ * to avoid multiple database queries.
+ */
 case class Cybertronian(
   application: Application,
   dataPorts: Map[String, Seq[Datum]],
@@ -50,26 +50,26 @@ case class IOInflatedConcretePort(
 abstract class Transformer(val planet: Resource) {
 
   /**
-    * Checks the validity of the processing request according to the domain information
-    * For example, the Tracula application accepts Experiments (image sessions) that contain exactly
-    * two scans: one of type DTI and another of type MRI.
-    * @return Some Map of Port IDs and their corresponding error messages. None if everything was OK.
-    */
+   * Checks the validity of the processing request according to the domain information
+   * For example, the Tracula application accepts Experiments (image sessions) that contain exactly
+   * two scans: one of type DTI and another of type MRI.
+   * @return Some Map of Port IDs and their corresponding error messages. None if everything was OK.
+   */
   def revealDecepticons(cybertronian: Cybertronian): Option[Map[String, String]]
 
   /**
-    * Transforms a user request (wrapped in [[Cybertronian]]) into a Sequence of [[IOInflatedConcretePort]]
-    * This transformation requires domain knowledge too, for example, for the Tracula application,
-    * three experiments are converted into 3 Processings, each with two scans as its input files.
-    * @return Sequence of [[IOInflatedConcretePort]] to construct [[ProcessingMessage]] and send to the [[ProcessingManagerClient]]
-    */
+   * Transforms a user request (wrapped in [[Cybertronian]]) into a Sequence of [[IOInflatedConcretePort]]
+   * This transformation requires domain knowledge too, for example, for the Tracula application,
+   * three experiments are converted into 3 Processings, each with two scans as its input files.
+   * @return Sequence of [[IOInflatedConcretePort]] to construct [[ProcessingMessage]] and send to the [[ProcessingManagerClient]]
+   */
   def transform(cybertronian: Cybertronian): Seq[IOInflatedConcretePort]
 
   /**
-    * Get information from a [[processingmanager.types.messaging.StatusContainerMessage]]
-    * and updates the related Processing in the model based on that. It also updates the status.
-    * @return The updated [[models.Processing]] if it could find a related Processing to update, None otherwise
-    */
+   * Get information from a [[processingmanager.types.messaging.StatusContainerMessage]]
+   * and updates the related Processing in the model based on that. It also updates the status.
+   * @return The updated [[models.Processing]] if it could find a related Processing to update, None otherwise
+   */
   def getSpark(statusContainerMsg: StatusContainerMessage): Option[Processing]
 
   // Helper functions
@@ -77,8 +77,8 @@ abstract class Transformer(val planet: Resource) {
   protected def hasReplicaOnThisPlanet(datum: Datum): Boolean = datum.getReplica(planet.id).isDefined
   protected def getReplicaOnThisPlanet(datum: Datum): Replica = datum.getReplica(planet.id).get
   /**
-    * Make sure each port has at least one data or parameter value, this is generic
-    */
+   * Make sure each port has at least one data or parameter value, this is generic
+   */
   protected def getMissingPorts(cybertronian: Cybertronian): Map[String, String] = {
     val result = scala.collection.mutable.HashMap.empty[String, String]
     val application = cybertronian.application
@@ -104,9 +104,9 @@ abstract class Transformer(val planet: Resource) {
   }
 
   /**
-    * Generic function that tests if the category tag of
-    * the datum is equal to a specific DatumCategory
-    */
+   * Generic function that tests if the category tag of
+   * the datum is equal to a specific DatumCategory
+   */
   protected def isCategory(datum: Datum, cat: Tag.DatumCategories.Value): Boolean =
     datum.getCategoryName match {
       case Some(datumCat) => if (datumCat == cat.toString) true else false
