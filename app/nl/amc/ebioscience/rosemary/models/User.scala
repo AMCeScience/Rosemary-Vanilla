@@ -64,7 +64,7 @@ case class Credential(
 
 object User extends DefaultModelBase[User]("users") {
   // TODO: uniqueness is applied for the combined index, which means it is possible to have multiple users with the same email! should be fixed...
-  collection.ensureIndex(("email" -> 1, "_id" -> 1), "user_email", unique = true)
+  collection.createIndex(("email" -> 1, "_id" -> 1), ("name" -> "user_email", "unique" -> true))
 
   /** DynamicVariable is used, when you need to do a computation within an enclosed scope,
     * where every thread has it's own copy of the variable's value.

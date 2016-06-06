@@ -29,14 +29,15 @@ import play.api.Logger
 import com.mongodb.casbah.Imports._
 import java.nio.charset.StandardCharsets
 
-/** Datum is a meta-data entry in the Rosemary
-  *
-  * @param children To enable hierarchical relationships
-  * @param resource Where the meta-data for this data is originated from
-  * @param path Relative path to query
-  * @param replicas Where are the files for this data are saved
-  * @param tags User and system tags
-  */
+/**
+ * Datum is a meta-data entry in the Rosemary
+ *
+ * @param children To enable hierarchical relationships
+ * @param resource Where the meta-data for this data is originated from
+ * @param path Relative path to query
+ * @param replicas Where are the files for this data are saved
+ * @param tags User and system tags
+ */
 case class Datum(
     name: String,
     children: Set[Datum.Id] = Set.empty, // ID of its children
@@ -79,7 +80,7 @@ case class Datum(
 
 object Datum extends DefaultModelBase[Datum]("data") with TagsQueries[Datum] {
 
-  collection.ensureIndex(("tags" -> 1))
+  collection.createIndex(("tags" -> 1))
 
   def findAll(workspaceTag: WorkspaceTag) =
     find("tags" -> workspaceTag.id).toList.map { datum => datum.hideInfoFields(workspaceTag) }
