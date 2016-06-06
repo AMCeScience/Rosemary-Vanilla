@@ -1,0 +1,79 @@
+<div class="row">
+  <div class="col-sm-6">
+    <div class="box box-success">
+      <div class="box-header with-border">
+        <h3 class="box-title">Filter</h3>
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+        </div>
+      </div>
+      <div class="box-body">
+        <form role="form">
+          <div class="form-group">
+            <div class="controls">
+              <div class="input-group date col-sm-12">
+                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                <input type="text" class="form-control" placeholder="Filter on data information" ng-model="root.search.query" ng-model-options="{ updateOn: 'default blur', debounce: {'default': 200, 'blur': 0} }">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="controls">
+              <div class="input-group date col-sm-12">
+                <span class="input-group-addon"><i class="fa fa-filter"></i></span>
+                <select class="form-control type" ng-model="root.search.type" ng-options="option.name for option in ctrl.search_options track by option.id"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="controls">
+              <div class="input-group date col-sm-12">
+                <span class="input-group-addon"><i class="fa fa-tags"></i></span>
+                <input type="text" class="form-control" placeholder="Filter on tags" ng-model="ctrl.filter_tag_model">
+              </div>
+            </div>
+            <div class="suggestions" ng-show="ctrl.filter_tag_suggestions.length > 0">
+              <i class="fa fa-share fa-flip-vertical"></i>
+              <tag model="suggestion" ng-repeat="suggestion in ctrl.filter_tag_suggestions" click="ctrl.addSearchTag"></tag>
+            </div>
+          </div>
+
+          <div class="form-group" ng-if="root.search.tags.length">
+            <div class="controls">
+              Current filter tags:
+              <span ng-repeat="tag in root.search.tags">
+                <tag model="tag" delete="ctrl.delete"></tag>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <div class="row btn_row">
+              <div class="col-sm-6"><button class="btn btn-block btn-primary" ng-click="ctrl.filter()">Apply filter</button></div>
+              <div class="col-sm-6"><button class="btn btn-block" ng-click="ctrl.clear()">Clear</button></div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6">
+    <basket mode="ctrl.mode" data="ctrl.data"></basket>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="box box-warning">
+      <div class="box-header with-border">
+        <h3 class="box-title">Result</h3>
+      </div>
+      <div class="box-body">
+        <data selected="root.basket" loadmore="ctrl.loadMore" loading="ctrl.loading" data="ctrl.data" final="ctrl.final"></data>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+<p class="info" ng-init="detail_status = false">
+  <span ng-init="first_st = (statuses | first)">
+    <span class="key">Started:</span>
+    <span class="value">{{first_st.time | fromnow}}</span>
+    <span class="dot" ng-show="!detail_status" ng-click="detail_status = true; $event.stopPropagation()">•••</span>
+    <span class="dot" ng-show="detail_status">•</span>
+  </span>
+  <span ng-repeat="status in statuses" ng-show="detail_status">
+    <span class="key">{{status.status}}:</span>
+    <span class="value">{{status.time | fromnow}}</span>
+    <span class="dot" ng-if="!$last">•</span>
+  </span>
+  <span ng-init="last_st = (statuses | last)" ng-show="!detail_status">
+    <span class="key">{{last_st.status}}:</span>
+    <span class="value">{{last_st.time | fromnow}}</span>
+  </span>
+</p>

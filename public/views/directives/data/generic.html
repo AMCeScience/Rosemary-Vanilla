@@ -1,0 +1,30 @@
+<div class="data" ng-style="ctrl.style">
+  <div class="entry" ng-init="more = false">
+    <div>
+      <div class="title">
+        <div class="icheckbox_square-blue" ng-class="{checked: selectable.selected}" ng-click="selectable.click($event)"></div>
+        <span ng-click="root.nav.datum(datum); $event.stopPropagation()" class="name">{{datum.name}}</span>
+        <tag ng-repeat="tag in datum.tags" model="tag"></tag>
+      </div>
+      <p class="info" ng-class="{clamped: !more}">
+          <span ng-repeat="(key, value) in datum.info.dict">
+            <span class="key">{{key}}:</span>
+            <span class="value">{{value.value}}</span>
+            <span class="dot" ng-if="!$last">•</span>
+          </span>
+          <span class="ellipsis" ng-click="more = !more; $event.preventDefault(); $event.stopPropagation();">
+            <i class="fa" ng-class="{'fa-angle-double-down': !more, 'fa-angle-double-up': more}"></i>
+          </span>
+          <span class="fill" ng-show="!more"></span>
+      </p>
+    </div>
+    <div class="show-children" ng-show="ctrl.children_detail && datum.children.length > 0" ng-click="ctrl.children()">
+      <i class="fa fa-share-alt"></i> Show Sub-items
+    </div>
+  </div>
+</div>
+<div ng-repeat="child in ctrl.children" style="margin-left: 20px">
+  <selectable datum="child">
+    <datageneric selectable="$$childHead.ctrl" datum="child" color="{{$parent.ctrl.childColor()}}"></datageneric>
+  </selectable>
+</div>

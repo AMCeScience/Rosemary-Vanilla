@@ -1,0 +1,41 @@
+<!-- Control Sidebar -->
+<aside class="control-sidebar control-sidebar-dark visible-lg">
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <!-- Home tab content -->
+    <div ng-show="ctrl.hasLive()">
+      <h3 class="control-sidebar-heading">
+        Live
+
+        <span class="spinner">
+          <span class="bounce"></span>
+        </span>
+      </h3>
+
+      <ul class="control-sidebar-menu">
+        <li ng-repeat="item in ctrl.live">
+          <livenotificationimport data="item"></livenotificationimport>
+        </li>
+      </ul>
+    </div>
+
+    <h3 class="control-sidebar-heading">Notifications</h3>
+
+    <ul class="control-sidebar-menu">
+      <li ng-repeat="item in ctrl.messages">
+        <notificationImport data="item.data" ng-if="item.type == 'import'"></notificationImport>
+        <notificationMessage data="item.data" ng-if="item.type == 'message'"></notificationMessage>
+        <notificationUserProcessing data="item.data" ng-if="item.type == 'user_processing'"></notificationUserProcessing>
+        <notificationProcessing data="item.data" ng-if="item.type == 'processing'"></notificationProcessing>
+        <notificationWorkspace data="item.data" ng-if="item.type == 'user_workspace'"></notificationWorkspace>
+      </li>
+      <li>
+        <a id="load-more">•••</a>
+      </li>
+    </ul>
+  </div>
+</aside>
+<!-- /.control-sidebar -->
+<!-- Add the sidebar's background. This div must be placed
+     immediately after the control sidebar -->
+<div class="control-sidebar-bg visible-lg"></div>

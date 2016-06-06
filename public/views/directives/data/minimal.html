@@ -1,0 +1,21 @@
+<div class="data minimal">
+  <div class="entry" ng-init="more = false">
+    <div>
+      <div class="title">
+        <span ng-click="root.nav.datum(datum); $event.stopPropagation()" class="name">{{datum.name}}</span>
+      </div>
+      <p class="info text" ng-class="{clamped: !more}">
+          <span ng-repeat="(key, value) in datum.info.dict" measure-and-hide-arrow>
+            <span class="key">{{key}}:</span>
+            <span class="value">{{value.value}}</span>
+            <span class="dot" ng-if="!$last">•</span>
+          </span>
+
+          <span class="ellipsis btn-more" ng-click="more = !more; $event.preventDefault(); $event.stopPropagation();">
+            <i class="fa" ng-class="{'fa-angle-double-down': !more, 'fa-angle-double-up': more}"></i>
+          </span>
+          <span class="fill" ng-show="!more"></span>
+      </p>
+    </div>
+  </div>
+</div>

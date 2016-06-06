@@ -1,0 +1,14 @@
+<div ng-repeat="user in users" class="users">
+  <div class="entry">
+    <div>
+      <span class="name">{{user.name}}</span>
+      <span class="dot">•</span>
+      <span class="name">{{user.email}}</span>
+      
+      <div class="user-roles pull-right">
+        Active <span ng-click="ctrl.activate(user); $event.stopPropagation();"><i class="fa" ng-class="{true: 'fa-check text-success', false: 'fa-times text-danger'}[user.active]"></i></span>
+        Approved <span ng-click="ctrl.approve(user); $event.stopPropagation();"><i class="fa" ng-class="{true: 'fa-check text-success', false: 'fa-times text-danger'}[user.approved]"></i></span>
+      </div>
+    </div>
+  </div>
+</div>

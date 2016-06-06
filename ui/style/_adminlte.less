@@ -1,0 +1,98 @@
+//MISC
+//----
+@import "@{adminlte_path}/core.less";
+@import "@{adminlte_path}/variables.less";
+@import "@{adminlte_path}/mixins.less";
+
+// Overrides
+@control-sidebar-width: 350px;
+
+//COMPONENTS
+//----------
+@import "@{adminlte_path}/header.less";
+@import "@{adminlte_path}/sidebar.less";
+@import "@{adminlte_path}/sidebar-mini.less";
+@import "@{adminlte_path}/control-sidebar.less";
+@import "@{adminlte_path}/dropdown.less";
+@import "@{adminlte_path}/forms.less";
+@import "@{adminlte_path}/progress-bars.less";
+@import "@{adminlte_path}/small-box.less";
+@import "@{adminlte_path}/boxes.less";
+@import "@{adminlte_path}/info-box.less";
+// @import "@{adminlte_path}/timeline.less";
+@import "@{adminlte_path}/buttons.less";
+// @import "@{adminlte_path}/callout.less";
+@import "@{adminlte_path}/alerts.less";
+@import "@{adminlte_path}/navs.less";
+// @import "@{adminlte_path}/products.less";
+// @import "@{adminlte_path}/table.less";
+// @import "@{adminlte_path}/labels.less";
+// @import "@{adminlte_path}/direct-chat.less";
+// @import "@{adminlte_path}/users-list.less";
+// @import "@{adminlte_path}/carousel.less";
+// @import "@{adminlte_path}/modal.less";
+// @import "@{adminlte_path}/social-widgets.less";
+
+//PAGES
+//-----
+@import "@{adminlte_path}/mailbox.less";
+// @import "@{adminlte_path}/lockscreen.less";
+@import "@{adminlte_path}/login_and_register.less";
+// @import "@{adminlte_path}/404_500_errors.less";
+// @import "@{adminlte_path}/invoice.less";
+// @import "@{adminlte_path}/profile";
+
+//PLUGINS
+//-------
+// @import "@{adminlte_path}/bootstrap-social.less";
+// @import "@{adminlte_path}/fullcalendar.less";
+// @import "@{adminlte_path}/select2.less";
+
+//MISCELLANEOUS
+//-------------
+@import "@{adminlte_path}/miscellaneous.less";
+// @import "@{adminlte_path}/print.less";
+
+// Overrides/fixes
+// Remove control-sidebar at 1200px
+.control-sidebar-open {
+  @media (max-width: @screen-md-max) {
+    .content-wrapper,
+    .right-side,
+    .main-footer {
+      margin-right: 0;
+    }
+  }
+}
+
+// Remove header text
+.content-header > .breadcrumb {
+  position: relative;
+  top: 0;
+  right: 0;
+  float: none;
+}
+
+// There is an extra element between the li and a
+// (was .control-sidebar-menu>li>a)
+.control-sidebar-dark .control-sidebar-menu>li a {
+  display: block;
+  padding: 10px 15px;
+
+  &:hover {
+    background: @sidebar-dark-hover-bg;
+  }
+}
+
+.control-sidebar-light .control-sidebar-menu>li a {
+  display: block;
+  padding: 10px 15px;
+
+  &:hover {
+    background: @sidebar-light-hover-bg;
+  }
+}
+
+.form-control {
+  color: inherit;
+}

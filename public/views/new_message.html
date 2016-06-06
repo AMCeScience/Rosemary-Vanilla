@@ -1,0 +1,58 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div class="box box-success new_message">
+      <div class="box-header with-border">
+        <h3 class="box-title">New Message</h3>
+      </div>
+      <div class="box-body">
+        <div class="form-group" ng-if="!root.message.thread">
+          <div ng-show="root.message.to.length > 0" class="to">
+            <span class="prefix">To: </span>
+            <span class="user" ng-repeat="user in root.message.to"><i class="fa fa-minus-circle" ng-click="ctrl.removeUser(user)"></i> {{user.name}}</span>
+          </div>
+          <input type="text" class="form-control" placeholder="Add person" ng-model="ctrl.user_search">
+          <div class="results" ng-show="ctrl.user_search_suggestions.length > 0">
+            <div ng-repeat="user in ctrl.user_search_suggestions" ng-click="ctrl.addUser(user)">
+              <i class="fa fa-plus-circle"></i> {{user.name}} <span class="email"> • {{user.email}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Subject" ng-model="root.message.name">
+        </div>
+        <div class="form-group">
+          <textarea class="form-control col-xs-12" rows="12" placeholder="Message" ng-model="root.message.body"></textarea>
+        </div>
+        <div class="form-group right_buttons">
+          <button class="btn btn-success" ng-click="ctrl.send()"><i class="fa fa-envelope"></i> Send message</button>
+          <button class="btn btn-info" ng-click="ctrl.editBasket()"><i class="fa fa-pencil"></i> Edit basket</button>
+          <button class="btn btn-info" ng-click="root.message.attached = !root.message.attached">
+            <span ng-if="!root.message.attached"><i class="fa fa-circle-o"></i> Attach basket</span>
+            <span ng-if="root.message.attached"><i class="fa fa-check-circle"></i> Detach basket</span>
+          </button>
+          <button class="btn btn-danger" ng-click="ctrl.reset()">Cancel</button>
+        </div>
+        <div style="clear: both; line-height: 0;">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12">
+    <div ng-show="root.message.attached">
+      <div class="box box-warning">
+        <div class="box-header with-border">
+          <h3 class="box-title">Basket</h3>
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <data data="root.basket"></data>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+<!-- Left side column. contains the sidebar -->
+<aside class="main-sidebar">
+
+  <!-- Sidebar -->
+  <section class="sidebar">
+        <!-- Sidebar Menu -->
+    <ul class="sidebar-menu">
+      <li ui-sref-active="active">
+        <a ui-sref="main.import">
+          <i class="fa fa-cloud-download"></i> <span>Import</span>
+        </a>
+      </li>
+
+      <li class="treeview active">
+        <a ng-click="root.nav.data()">
+          <i class="fa fa-link"></i> <span>Library</span>
+        </a>
+
+        <!-- Category List -->
+        <ul class="treeview-menu">
+          <li ng-repeat="category in ctrl.categories">
+            <a ng-click="root.nav.data(category)">
+              <i class="fa fa-folder"></i> <span>{{category.name}}</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <li ui-sref-active="active">
+        <a ng-click="root.nav.processingGroups()">
+          <i class="fa fa-cog"></i> <span>Processing Group</span> 
+        </a>
+      </li>
+
+      <li ui-sref-active="active">
+        <a ui-sref="main.communication">
+          <i class="fa fa-user"></i> <span>Communication</span> 
+        </a>
+      </li>
+    </ul>
+
+  </section>
+
+</aside>

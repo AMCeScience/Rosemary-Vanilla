@@ -1,0 +1,25 @@
+// Standard bootstrap styles
+@import "../../public/bower/bootstrap/less/bootstrap.less";
+
+// Import like this to override build-in font path
+@fontawesome_path: "../../public/bower/fontawesome/less/";
+
+@import "_fontawesome.less";
+
+// Page loader animation
+@import "_loader.less";
+
+// Admin-lte theme
+@adminlte_path: "_admin-lte/";
+@adminlte_skins_path: "_admin-lte-skins/";
+
+@import "_adminlte.less";
+@import "_adminlte-skin.less";
+
+@theme-color: @light-blue;
+
+// iCheck
+@import "../bower/jquery-icheck/skins/square/blue.css";
+
+// Custom styles
+@import "_pages.less";
