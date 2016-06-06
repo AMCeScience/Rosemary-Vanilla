@@ -22,14 +22,10 @@
  */
 package nl.amc.ebioscience.rosemary.core
 
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.json4s._
 import play.api.libs.json._
-import java.math.BigInteger
 
-object JJson extends ObjectMapper {
-  registerModule(DefaultScalaModule)
+object JJson {
 
   /**
    * Converts Jackson JSONs to Play JSONs

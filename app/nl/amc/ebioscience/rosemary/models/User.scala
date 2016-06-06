@@ -58,7 +58,7 @@ case class User(
   def addCredential(cred: Credential) =
     copy(credentials = cred :: credentials.filterNot(_.resource == cred.resource)).update
 
-  def hashPassword = copy(password = BCrypt.hashpw(password, User.salt))
+  def hashPassword = copy(password = BCrypt.hashpw(password, BCrypt.gensalt()))
 }
 
 case class Credential(
@@ -69,8 +69,6 @@ case class Credential(
 object User extends DefaultModelBase[User]("users") {
   // TODO: uniqueness is applied for the combined index, which means it is possible to have multiple users with the same email! should be fixed...
   collection.createIndex(("email" -> 1, "_id" -> 1), ("name" -> "user_email", "unique" -> true))
-
-  val salt = BCrypt.gensalt()
 
   /**
    * DynamicVariable is used, when you need to do a computation within an enclosed scope,
@@ -98,8 +96,9 @@ object User extends DefaultModelBase[User]("users") {
   def find(email: String): Option[User] = findOne(("email" -> email))
 
   def authenticate(email: String, password: String): Option[User] = {
-    val hashedPassword = BCrypt.hashpw(password, salt)
-    findOne(("email" -> email, "password" -> hashedPassword, "active" -> true, "approved" -> true))
+    findOne(("email" -> email, "active" -> true, "approved" -> true)).map { user =>
+      if (BCrypt.checkpw(password, user.password)) Some(user) else None
+    }.flatten
   }
 }
 

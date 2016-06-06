@@ -31,7 +31,6 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
-import nl.amc.ebioscience.rosemary.core.JJson
 import nl.amc.ebioscience.processingmanager.types.ProcessingLifeCycle
 import nl.amc.ebioscience.rosemary.services.SecurityService
 
@@ -46,7 +45,7 @@ class TagsController @Inject() (securityService: SecurityService) extends Contro
 
   def delete(id: Tag.Id) = securityService.HasToken(parse.empty) { implicit request =>
     Tag.findOneById(id).map { tag =>
-      if (tag.rights.isOwner(User.current.id)) Ok(JJson.writeValueAsString(Tag.removeTag(id)))
+      if (tag.rights.isOwner(User.current.id)) Ok(Tag.removeTag(id))
       else Conflict("You cannot delete this workspace because you are not its owner!")
     } getOrElse Conflict(s"Could not find tag_id $id")
   }

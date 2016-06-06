@@ -1,3 +1,25 @@
+/*
+ * Copyright (C) 2016  Academic Medical Center of the University of Amsterdam (AMC)
+ * 
+ * This program is semi-free software: you can redistribute it and/or modify it
+ * under the terms of the Rosemary license. You may obtain a copy of this
+ * license at:
+ * 
+ * https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * You should have received a copy of the Rosemary license
+ * along with this program. If not, 
+ * see https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md.
+ * 
+ *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
+ *        AMC eScience Website: http://www.ebioscience.amc.nl/
+ */
 package nl.amc.ebioscience.rosemary.controllers
 
 import javax.inject._
@@ -30,25 +52,25 @@ class InitController @Inject() extends Controller {
     // Inject Processings
     injectProcessings
 
-    Ok(nl.amc.ebioscience.rosemary.views.html.index("Your new application is ready."))
+    Redirect("/")
   }
 
   def initDB = {
     Logger.info("Initialising the database...")
 
     // Admin User
-    var adminUser = User("admin@rosemary.nl", "secret", "Admin Admin", true, true, Role.Admin).insert
+    var adminUser = User("admin@rosemary.nl", "secret", "Admin Admin", true, true, Role.Admin).hashPassword.insert
     val adminWorkspace = WorkspaceTag("Admin's Workspace", Membered(adminUser.id)).insert
 
     // Test users
     // Approved, enabled user, and their workspace
-    var approvedUser = User("approved-user@rosemary.nl", "secret", "Approved User", true).insert
+    var approvedUser = User("approved-user@rosemary.nl", "secret", "Approved User", true).hashPassword.insert
     val approvedWorkspace = WorkspaceTag("Approved's Workspace", Membered(approvedUser.id)).insert
     // Unapproved, enabled user, and their workspace
-    var unapprovedUser = User("unapproved-user@rosemary.nl", "secret", "Unapproved User", false).insert
+    var unapprovedUser = User("unapproved-user@rosemary.nl", "secret", "Unapproved User", false).hashPassword.insert
     val unapprovedWorkspace = WorkspaceTag("Unapproved's Workspace", Membered(unapprovedUser.id)).insert
     // Approved, disabled user, and their workspace
-    var disabledUser = User("disabled-user@rosemary.nl", "secret", "Disabled User", true, false).insert
+    var disabledUser = User("disabled-user@rosemary.nl", "secret", "Disabled User", true, false).hashPassword.insert
     val disabledWorkspace = WorkspaceTag("Disabled's Workspace", Membered(disabledUser.id)).insert
     // Shared workspace with one owner and two members
     val multiWorkspace = WorkspaceTag("Multi-user Workspace", Membered(approvedUser.id, Set(disabledUser.id, adminUser.id))).insert

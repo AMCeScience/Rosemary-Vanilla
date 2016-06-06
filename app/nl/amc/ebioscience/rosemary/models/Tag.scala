@@ -194,6 +194,7 @@ object Tag extends DefaultModelBase[Tag]("tags") {
     Notification.purgeTag(id)
     Recipe.purgeTag(id)
     Tag.removeById(id)
+    "done"
   }
 
   /** List of datum category tags (DB objects with proper id) */
