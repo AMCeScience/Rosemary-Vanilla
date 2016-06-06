@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
   cache,
 //  ws,
   "org.keyczar" % "keyczar" % "0.71h",
+  "org.mindrot" % "jbcrypt" % "0.4",
   "com.github.shayanlinux" %% "play-plugins-salat" % "1.6.0",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.1",
   "org.apache.lucene" % "lucene-core" % "4.9.1",
