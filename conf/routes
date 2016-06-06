@@ -2,12 +2,15 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# API Routes
+->    /api/v1         api.Routes
+
+GET   /socket         nl.amc.ebioscience.rosemary.controllers.WebSocketController.socket
+
 # An example controller showing a sample home page
-GET     /                           nl.amc.ebioscience.rosemary.controllers.HomeController.index
-# An example controller showing how to use dependency injection
-GET     /count                      nl.amc.ebioscience.rosemary.controllers.CountController.count
+GET   /               nl.amc.ebioscience.rosemary.controllers.HomeController.index
 # An example controller showing how to write asynchronous code
-GET     /message                    nl.amc.ebioscience.rosemary.controllers.AsyncController.message
+GET   /message        nl.amc.ebioscience.rosemary.controllers.AsyncController.message
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET   /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)
