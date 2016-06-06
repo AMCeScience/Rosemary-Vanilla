@@ -20,10 +20,9 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.search
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer
-import org.apache.lucene.index.IndexWriterConfig
 import org.apache.lucene.util.Version
 import org.apache.lucene.store.NIOFSDirectory
 import java.io.File

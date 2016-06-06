@@ -20,16 +20,16 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.search
 
-import nl.amc.ebioscience.rosemary.models.{ Tag, Datum, Processing, ProcessingGroup, Searchable }
+import nl.amc.ebioscience.rosemary.models.{ Datum, Processing, ProcessingGroup }
 import org.apache.lucene.util.{ Bits, OpenBitSet }
 import org.apache.lucene.search.{ Filter, DocIdSet, DocIdSetIterator }
 import org.apache.lucene.index.{ AtomicReaderContext, Term }
 import play.api.Logger
 import java.time.{ Clock, Instant }
 
-class TagsFilter(workspaceTags: List[Tag.Id], tags: List[Tag.Id], kind: Option[SupportedTypes.Value]) extends Filter {
+class TypeFilter(requestedType: SupportedTypes.Value) extends Filter {
 
   /**
    * Creates a DocIdSet enumerating the documents that should be permitted in search results.
@@ -43,33 +43,13 @@ class TagsFilter(workspaceTags: List[Tag.Id], tags: List[Tag.Id], kind: Option[S
 
 //    val start: Instant = Clock.systemDefaultZone.instant
 
-    val (ditems, pitems, pgitems) = (workspaceTags, tags) match {
-      case (Nil, Nil) =>
-        (Datum.emptyCursor,
-          Processing.emptyCursor,
-          ProcessingGroup.emptyCursor)
-
-      case (Nil, ts) =>
-        // The searchable items that has all these tags 
-        (Datum.findWithAllTagsNoPage(ts.toSet),
-          Processing.findWithAllTagsNoPage(ts.toSet),
-          ProcessingGroup.findWithAllTagsNoPage(ts.toSet))
-
-      case (wts, Nil) =>
-        // The searchable items that has any of workspace tags
-        (Datum.findWithAnyTagsNoPage(wts.toSet),
-          Processing.findWithAnyTagsNoPage(wts.toSet),
-          ProcessingGroup.findWithAnyTagsNoPage(wts.toSet))
-
-      case (wts, ts) =>
-        // The searchable items that has any of the workspace tags and all other tags
-        (Datum.findWithAnyWorkspaceTagAndWithAllTagsNoPage(wts, ts),
-          Processing.findWithAnyWorkspaceTagAndWithAllTagsNoPage(wts, ts),
-          ProcessingGroup.findWithAnyWorkspaceTagAndWithAllTagsNoPage(wts, ts))
+    val items = requestedType match {
+      case SupportedTypes.Datum           => Datum.findAll()
+      case SupportedTypes.Processing      => Processing.findAll()
+      case SupportedTypes.ProcessingGroup => ProcessingGroup.findAll()
     }
-    val (ditemIds, pitemIds, pgitemIds) = (ditems.map(_.id), pitems.map(_.id), pgitems.map(_.id))
-
-    if (ditemIds.isEmpty && pitemIds.isEmpty && pgitemIds.isEmpty) {
+    val itemIds = items.map { x => x.id }
+    if (itemIds.isEmpty) {
       null
     } else {
       val reader = context.reader
@@ -79,14 +59,7 @@ class TagsFilter(workspaceTags: List[Tag.Id], tags: List[Tag.Id], kind: Option[S
       val bits = new OpenBitSet(reader.maxDoc)
 
       // Find the ID for this document in Lucene's index and add it to bits
-      val itemIdsList: List[Searchable.Id] = kind match {
-        case None => ditemIds.toList ::: pitemIds.toList ::: pgitemIds.toList
-        case Some(requestedType) => requestedType match {
-          case SupportedTypes.Datum           => ditemIds.toList
-          case SupportedTypes.Processing      => pitemIds.toList
-          case SupportedTypes.ProcessingGroup => pgitemIds.toList
-        }
-      }
+      val itemIdsList = itemIds.toList
 
       itemIdsList.foreach { itemId =>
         val term = new Term(SearchConfig.ID_FIELD, itemId.toString)
@@ -98,15 +71,19 @@ class TagsFilter(workspaceTags: List[Tag.Id], tags: List[Tag.Id], kind: Option[S
           }
         }
       }
-      Logger.trace(s"TagsFilter: Item Ids size = ${itemIdsList.size}")
+      Logger.trace(s"TypeFilter: Item Ids size = ${itemIdsList.size}")
 
-      Logger.trace(s"TagsFilter: bits cardinality = ${bits.cardinality}")
+      Logger.trace(s"TypeFilter: bits cardinality = ${bits.cardinality}")
 
 //      val stop: Instant = Clock.systemDefaultZone.instant
 //      val runningTime: Long = stop.getEpochSecond - start.getEpochSecond
-//      Logger.trace(s"Tags filter took ${runningTime} miliseconds")
+//      Logger.trace(s"Type filter took ${runningTime} miliseconds")
 
       if (bits.isEmpty) null else bits
     }
   }
+}
+
+object SupportedTypes extends Enumeration {
+  val Datum, Processing, ProcessingGroup = Value
 }

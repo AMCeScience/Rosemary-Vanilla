@@ -20,7 +20,7 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.search
 
 import play.api.Logger
 import nl.amc.ebioscience.rosemary.models.{ Tag }
