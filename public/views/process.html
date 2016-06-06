@@ -1,0 +1,93 @@
+<wizard class="select_application">
+  <step name="Select application" order="1">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Select application</h3>
+          </div>
+
+          <div class="box-body program_info">
+            <table>
+              <tr>
+                <td>Select program</td>
+                <td><select class="form-control" ng-model="ctrl.program" ng-options="program as name for (name, program) in ctrl.programs"></select></td>
+              </tr>
+              <tr>
+                <td>Select version</td>
+                <td><select class="form-control" ng-model="ctrl.select" ng-options="program.version for program in ctrl.program"></select></td>
+              </tr>
+            </table>
+          </div>
+          <div class="box-footer next">
+            <button class="btn btn-primary btn-xs next" ng-click="ctrl.next()">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </step>
+  <step name="Specify parameters" ng-if="ctrl.select.iParamPort.length > 0" order="2">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Specify parameters for {{ctrl.select.name}} {{ctrl.select.version}}</h3>
+          </div>
+
+          <div class="box-body parameters">
+            <table>
+              <tr ng-repeat="param in ctrl.select.iParamPort">
+                <td>{{param.name}}</td>
+                <td><input type="text" class="form-control" ng-model="param.value"></td>
+              </tr>
+            </table>
+          </div>
+          <div class="box-footer next">
+            <button class="btn btn-primary btn-xs next" ng-click="ctrl.next()">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </step>
+  <step name="Submit job" order="3">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Submit job</h3>
+          </div>
+
+          <div class="box-body form-inline summary">
+            Please enter a short description: <input type="text" class="form-control" ng-model="ctrl.description" placeholder="My processing description">
+            <h2>Summary</h2>
+            Are you sure you want to send <i>{{root.basket.length}} data item(s)</i>
+            <span ng-if="ctrl.select.iParamPort.length > 0">and</span>
+            <i>
+              <span ng-repeat="param in ctrl.select.iParamPort">
+                {{param.name}}: {{param.value}}
+              </span>
+            </i>
+            to <i>{{ctrl.select.name}} {{ctrl.select.version}}</i> under the name "<i>{{ctrl.description}}</i>"?
+          </div>
+          <div class="box-footer next">
+            <button class="btn btn-primary btn-xs next" ng-click="ctrl.submit()">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </step>
+</wizard>
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="box box-warning">
+      <div class="box-header with-border">
+        <h3 class="box-title">Data</h3>
+      </div>
+
+      <div class="box-body">
+        <data data="root.basket"></data>
+      </div>
+    </div>
+  </div>
+</div>

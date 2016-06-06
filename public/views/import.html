@@ -1,0 +1,88 @@
+<wizard class="data_import">
+  <step name="Select resource">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Select resource</h3>
+          </div>
+
+          <div class="box-body resources">
+            <div ng-repeat="resource in ctrl.resources" class="row" ng-init="credentials = false">
+              <div class="col-sm-2 logo">
+                <img ng-if="resource.kind == 'Xnat'" src="/images/resources/xnat.png">
+                <img ng-if="resource.kind == 'Webdav'" src="/images/resources/webdav.png">
+              </div>
+              <div class="col-sm-10">
+                <button class="btn btn-info" ng-click="ctrl.selectResource(resource)">Select</button>
+                <button class="btn" ng-click="credentials = !credentials">Manage credentials</button>
+
+                <div class="name">{{resource.name}}</div>
+                <div class="detail">{{resource.host}}</div>
+              </div>
+              <div class="col-sm-12 form-inline" ng-show="credentials">
+                <center>
+                  <input type="text" class="form-control" placeholder="Username" ng-model="resource.username" ng-change="ctrl.change(resource)">
+                  <input type="password" class="form-control" placeholder="Password" ng-model="resource.password" ng-change="ctrl.change(resource)">
+                </center>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </step>
+  <step name="Select project">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Select project</h3>
+          </div>
+
+          <div class="box-body projects">
+            <div ng-repeat="project in ctrl.projects" class="row">
+              <div class="col-sm-12">
+                <button class="btn btn-info" ng-click="ctrl.selectproject(project)">Select</button>
+                <div class="name">{{project.name}}</div>
+                <div class="detail">{{project.pathOnResource}}</div>
+              </div>
+            </div>
+            <div class="loader" ng-show="ctrl.loading"></div>
+            <div class="nodata" ng-show="!ctrl.loading && ctrl.projects.length == 0">No projects</div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </step>
+  <step name="Summary">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Start import</h3>
+          </div>
+
+          <div class="box-body">
+            <div class="row">
+              <div class="col-sm-12">
+                <center>
+                Are you sure you want to import project <span class="emph">{{ctrl.project.name}}</span> from <span class="emph">{{ctrl.resource.name}}</span> into workspace <span class="emph">{{root.workspace.name}}</span>?
+                <br>
+                <span class="hint">
+                If you want to import into a new of different workspace, please use the workspace manager in the top-right corner.
+                </span>
+                <br><br><br>
+                <button class="btn btn-primary" ng-click="ctrl.import()">Yes, import!</button>
+                <button class="btn btn-danger" ng-click="ctrl.reset()">No</button>
+                </center>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </step>
+</wizard>

@@ -3,13 +3,17 @@ package nl.amc.ebioscience.rosemary.controllers
 import play.api.libs.json._
 import scala.language.implicitConversions
 
-// With an enumeration like...
-// object Color extends Enumeration{...}
-// Create a format (or reads or writes) like this:
-// val fmt = EnumJson.enumFormat(Color);
-
-// The implementation: https://gist.github.com/agile-jordi/6809100
-
+/**
+ * With an enumeration like...
+ * 
+ * <pre>object Color extends Enumeration{...}</pre>
+ * 
+ * Create a format (or reads or writes) like this:
+ * 
+ * <pre>val fmt = EnumJson.enumFormat(Color);</pre>
+ * 
+ * The implementation: https://gist.github.com/agile-jordi/6809100
+ */
 object EnumJson {
 
   def enumReads[E <: Enumeration](enum: E): Reads[E#Value] = new Reads[E#Value] {

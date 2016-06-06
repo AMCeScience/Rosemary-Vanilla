@@ -1,0 +1,58 @@
+<div class="box box-danger">
+  <div class="box-header with-border">
+    <h3 class="box-title">Basket</h3>
+    <div class="box-tools pull-right">
+      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+    </div>
+  </div>
+
+  <div class="box-body">
+    <p>You have
+    <span ng-if="root.basket.length == 0">no items</span>
+    <span ng-if="root.basket.length > 0">
+      <span ng-repeat="(type, count) in ctrl.category_selected">
+        <span ng-if="$index > 0"> and </span>
+        <strong>
+          <span ng-if="count == 1">
+            one {{type | lowercase}}
+          </span>
+          <span ng-if="count > 1">
+            {{count}} {{type | lowercase}}s
+          </span>
+        </strong>
+      </span>
+    </span>
+    in your basket.</p>
+    <div ng-show="ctrl.mode == 'default'">
+      <div class="row btn_row">
+        <div class="col-sm-6"><button class="btn btn-block" ng-click="root.ctrl.setBasket(data)">Select all</button></div>
+        <div class="col-sm-6"><button ng-show="root.basket.length > 0" class="btn btn-block" ng-click="root.ctrl.clearBasket()">Clear basket</button></div>
+      </div>
+      <div class="row btn_row">
+        <div class="col-sm-4"><button ng-show="root.basket.length > 0" class="btn btn-block btn-primary" ui-sref="main.process"><i class="fa fa-cog"></i> Process</button></div>
+        <div class="col-sm-4"><button ng-show="root.basket.length > 0" class="btn btn-block btn-primary" ng-click="ctrl.mode = 'tagging'"><i class="fa fa-tags"></i> Tag basket</button></div>
+        <div class="col-sm-4"><button ng-show="root.basket.length > 0" class="btn btn-block btn-primary" ng-click="ctrl.sendData()"><i class="fa fa-envelope"></i> Send data</button></div>
+      </div>
+    </div>
+    <div ng-show="ctrl.mode == 'tagging'">
+      <div class="input-group date col-sm-12">
+        <span class="input-group-addon"><i class="fa fa-tags"></i></span>
+        <input type="text" class="form-control" placeholder="Find or create tag" ng-model="ctrl.basket_tag_model">
+        <span class="input-group-btn">
+          <button class="btn" ng-click="ctrl.mode = 'default'">Cancel</button>
+          <button class="btn btn-primary" ng-click="ctrl.tag_create()">Create tag!</button>
+        </span>
+      </div>
+      <div class="suggestions" ng-show="ctrl.basket_tag_suggestions.length > 0">
+        <i class="fa fa-share fa-flip-vertical"></i>
+        <tag model="suggestion" click="ctrl.tag" ng-repeat="suggestion in ctrl.basket_tag_suggestions"></tag>
+      </div>
+    </div>
+    <div ng-show="ctrl.mode == 'message'">
+      <div class="row btn_row">
+        <div class="col-sm-6"><button class="btn btn-block btn-primary" ui-sref="main.new_message">Back to message</button></div>
+        <div class="col-sm-6"><button class="btn btn-block btn-danger" ng-click="ctrl.mode = 'default'">Cancel</button></div>
+      </div>
+    </div>
+  </div>
+</div>

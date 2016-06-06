@@ -1,0 +1,35 @@
+<div class="data" ng-style="ctrl.style">
+  <div class="entry">
+    <div>
+      <div class="title">
+        <div class="icheckbox_square-blue" ng-click="selectable.click($event)" ng-class="{checked: selectable.selected}"></div>
+        <span ng-click="root.nav.processingGroup(processinggroup); $event.stopPropagation()" class="name">{{processinggroup.name}}</span>
+        <tag ng-repeat="tag in processinggroup.tags" model="tag"></tag>
+      </div>
+
+      <div class="col-md-4">
+        <progressbar value="processinggroup.progress" type="{{(processinggroup.statuses | last).status | status_to_color}}"></progressbar>
+        <status statuses="processinggroup.statuses"></status>
+      </div>
+
+      <div class="col-md-8">
+        <div ng-repeat="input in processinggroup.inputs">
+          <dataminimal datum="input.datum.datum"></dataminimal>
+        </div>
+      </div>
+
+      <div class="clear"></div>
+    </div>
+
+    <div class="show-children" ng-click="show = !show; ctrl.getChildren()">
+      <i class="fa fa-share-alt"></i>
+      {{show ? 'Hide' : 'Show'}} Children
+    </div>
+  </div>
+</div>
+
+<div ng-repeat="processing in processinggroup.processings" style="margin-left: 20px" ng-if="show">
+  <selectable datum="processing">
+    <dataprocessing processing="processing" selectable="$$childHead.ctrl" color="{{$parent.ctrl.childColor()}}"></dataprocessing>
+  </selectable>
+</div>

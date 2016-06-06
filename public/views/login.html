@@ -1,0 +1,39 @@
+<div class="login-logo">
+  <a href="/"><b>Rosemary</b></a>
+</div>
+
+<div class="login-box-body">
+  <p class="login-box-msg">Login</p>
+
+  <form>
+    <div class="form-group has-feedback">
+      <input type="email" class="form-control" placeholder="Email" ng-model="ctrl.credentials.email">
+      <span class="fa fa-envelope form-control-feedback"></span>
+    </div>
+    <div class="form-group has-feedback">
+      <input type="password" class="form-control" placeholder="Password" ng-model="ctrl.credentials.password">
+      <span class="fa fa-key form-control-feedback"></span>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <div>
+          <label>
+            <input type="checkbox"> Remember Me
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12">
+        <button type="submit" class="btn btn-primary btn-block btn-flat" ng-click="ctrl.login()">Sign In</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12">
+        <a class="pull-right" ui-sref="open.register()">Register!</a>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,3 +1,25 @@
+/*
+ * Copyright (C) 2016  Academic Medical Center of the University of Amsterdam (AMC)
+ * 
+ * This program is semi-free software: you can redistribute it and/or modify it
+ * under the terms of the Rosemary license. You may obtain a copy of this
+ * license at:
+ * 
+ * https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * You should have received a copy of the Rosemary license
+ * along with this program. If not, 
+ * see https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md.
+ * 
+ *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
+ *        AMC eScience Website: http://www.ebioscience.amc.nl/
+ */
 package nl.amc.ebioscience.rosemary.controllers.api
 
 import javax.inject._
@@ -5,16 +27,15 @@ import play.api.{ Application => PlayApplication, _ }
 import play.api.mvc._
 import play.api.libs.json._
 import scala.reflect.runtime.universe
-import nl.amc.ebioscience.rosemary.core.processing._
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
 import nl.amc.ebioscience.rosemary.core.{ WebSockets, HelperTools }
-import nl.amc.ebioscience.rosemary.core.search.{ SearchReader, SearchWriter, SupportedTypes }
 import nl.amc.ebioscience.rosemary.services.SecurityService
 import nl.amc.ebioscience.rosemary.services.processing._
+import nl.amc.ebioscience.rosemary.services.search._
 import nl.amc.ebioscience.processingmanager.types.messaging.{ ProcessingMessage, PortMessagePart }
 import nl.amc.ebioscience.processingmanager.types.{ ProcessingLifeCycle, PortType, Credentials }
 import java.util.Date
@@ -23,7 +44,8 @@ import java.util.Date
 class ProcessingsController @Inject() (
     securityService: SecurityService,
     processingManagerClient: ProcessingManagerClient,
-    processingHelper: ProcessingHelper) extends Controller with JsonHelpers {
+    processingHelper: ProcessingHelper,
+    searchWriter: SearchWriter) extends Controller with JsonHelpers {
 
   case class SubmitProcessingRequest(
       workspace: Tag.Id,
@@ -240,9 +262,9 @@ class ProcessingsController @Inject() (
                   tags = processingGroup.tags + abortedStatusTag.id).insert // all failed
 
                 // Index Processings and their ProcessingGroup
-                SearchWriter.add(processingGroup)
-                insertedPs.foreach(SearchWriter.add(_))
-                SearchWriter.commit
+                searchWriter.add(processingGroup)
+                insertedPs.foreach(searchWriter.add(_))
+                searchWriter.commit
 
                 // Create and save user action notification
                 val upNotification = UserProcessingNotification(

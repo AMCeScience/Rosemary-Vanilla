@@ -1,0 +1,11 @@
+<div class="form-group has-feedback">
+	
+  <input type="{{type}}" class="form-control" placeholder="{{placeholder}}" ng-model="model" />
+  <span class="fa {{icon}} form-control-feedback"></span>
+	
+  <div class="errors row" ng-show="errors.length > 0">
+    <div class="error" ng-repeat="error in errors">
+      {{ error | replace:{ 'name': (placeholder | lowercase) } }}
+    </div>
+  </div>
+</div>

@@ -1,3 +1,25 @@
+/*
+ * Copyright (C) 2016  Academic Medical Center of the University of Amsterdam (AMC)
+ * 
+ * This program is semi-free software: you can redistribute it and/or modify it
+ * under the terms of the Rosemary license. You may obtain a copy of this
+ * license at:
+ * 
+ * https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * You should have received a copy of the Rosemary license
+ * along with this program. If not, 
+ * see https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md.
+ * 
+ *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
+ *        AMC eScience Website: http://www.ebioscience.amc.nl/
+ */
 package nl.amc.ebioscience.rosemary.models
 
 import nl.amc.ebioscience.rosemary.models.core._
@@ -104,10 +126,10 @@ case class MessageTag(
 }
 
 /**
-  * SystemTag is to group some entities, for example:
-  * data that has been imported : put importer userid in info
-  * data that has been used in a processing : put processing id in info
-  */
+ * SystemTag is to group some entities, for example:
+ * data that has been imported : put importer userid in info
+ * data that has been used in a processing : put processing id in info
+ */
 case class SystemTag(
     name: String,
     kind: String, // import, processing-input, processing-output
@@ -122,8 +144,7 @@ case class SystemTag(
 
 object Tag extends DefaultModelBase[Tag]("tags") {
 
-  collection.ensureIndex(("name" -> "text", "_id" -> 1, "_t" -> 1),
-    ("default_language" -> "none"))
+  collection.createIndex(("name" -> "text", "_id" -> 1, "_t" -> 1), ("default_language" -> "none"))
 
   def findSuperWorkspaceTag() = {
     find("visible" $eq Set("all")).toList match {
@@ -173,6 +194,7 @@ object Tag extends DefaultModelBase[Tag]("tags") {
     Notification.purgeTag(id)
     Recipe.purgeTag(id)
     Tag.removeById(id)
+    "done"
   }
 
   /** List of datum category tags (DB objects with proper id) */
@@ -200,7 +222,7 @@ object Tag extends DefaultModelBase[Tag]("tags") {
   /** Names used to initialize data category tags and find them in the datumCategoriesMap */
   object DatumCategories extends Enumeration {
     // val Study, Subject, Sample, Extract, Sequence = Value
-    val Project, Subject, Experiment, Scan, Reconstruction, Resource, File = Value
+    val GrandFather, Father, Child = Value
   }
 
   /** Names used to initialize data category tags and find them in the processingCategoriesMap */

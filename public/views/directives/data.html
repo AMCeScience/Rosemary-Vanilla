@@ -1,0 +1,15 @@
+<selection selected="selected">
+  <div infinite-scroll="loadmore()">
+    <div ng-repeat="datum in data track by datum.$$ID$$">
+      <selectable datum="datum" ng-switch="datum | to_type">
+        <datageneric ng-switch-when="datum" selectable="$parent.$$childHead.ctrl" datum="datum"></datageneric>
+        <dataprocessing ng-switch-when="processing" selectable="$parent.$$childHead.ctrl" processing="datum"></dataprocessing>
+        <dataprocessinggroup ng-switch-when="processing_group" selectable="$parent.$$childHead.ctrl" processinggroup="datum"></dataprocessinggroup>
+      </selectable>
+    </div>
+    <div class="loader" ng-show="loading">Loading...</div>
+    <div class="nodata" ng-show="data.length == 0 && !loading">No Data</div>
+    <div class="nodata" ng-show="data.length > 0 && final">No more Data</div>
+    <div class="nodata" ng-show="loadmore && !final">Scroll for more</div>
+  </div>
+</selection>

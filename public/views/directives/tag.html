@@ -1,0 +1,9 @@
+<div class="label" ng-class="ctrl.label" ng-if="ctrl.visible">
+  <span ng-click="ctrl.click($event)">
+    {{ctrl.tag.name}}
+  </span>
+  <span ng-if="delete" ng-click="delete(ctrl.tag)">
+    &nbsp;
+    <i class="fa fa-minus-square"></i>
+  </span>
+</div>

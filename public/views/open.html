@@ -1,0 +1,19 @@
+<div class="row open">
+  <div id="content" class="col-sm-12 full">
+    <div class="row" ng-if="root.loading">
+      <div class="spinner_big">
+        <div class="double-bounce1"></div>
+        <div class="double-bounce2"></div>
+      </div>
+    </div>
+    <div class="row" ng-if="!root.loading">
+      <rmalerts></rmalerts>
+
+      <div class="login-box" ng-if="!root.loading">
+        <div ui-view></div>
+
+        <div class="clearfix"></div>
+      </div>
+    </div>
+  </div>
+</div>

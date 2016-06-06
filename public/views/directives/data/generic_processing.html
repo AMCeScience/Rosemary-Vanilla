@@ -1,0 +1,26 @@
+<div class="data">
+  <div class="entry">
+    <div>
+      <div class="title" ng-switch="processing | to_type">
+        <span ng-switch-when="processing" ng-click="root.nav.processing(processing); $event.stopPropagation()" class="name">{{processing.name}}</span>
+        <span ng-switch-when="processing_group" ng-click="root.nav.processingGroup(processing); $event.stopPropagation()" class="name">{{processing.name}}</span>
+        <tag ng-repeat="tag in processing.tags" model="tag"></tag>
+      </div>
+
+      <div class="application" ng-repeat="recipe in processing.recipes">
+        <span class="name">{{recipe.name}}</span>
+        <span ng-if="!$last">,</span>
+      </div>
+
+      <div class="col-md-4">
+        <status statuses="processing.statuses"></status>
+      </div>
+
+      <div class="col-md-8">
+        <progressbar value="processing.progress" type="{{(processing.statuses | last).status | status_to_color}}"></progressbar>
+      </div>
+
+      <div class="clear"></div>
+    </div>
+  </div>
+</div>

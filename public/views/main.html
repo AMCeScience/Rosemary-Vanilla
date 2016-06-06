@@ -1,0 +1,76 @@
+<header class="main-header">
+  <a class="logo" href="/">
+    <!-- mini logo for sidebar mini 50x50 pixels -->
+    <span class="logo-mini">R</span>
+    <!-- logo for regular state and mobile devices -->
+    <span class="logo-lg">Rosemary</span>
+  </a>
+
+  <nav class="navbar navbar-static-top" role="navigation">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+
+      <!-- Search -->
+      <div class="col-lg-3 visible-lg" id="search">
+        <select class="form-control type" ng-model="root.search.type" ng-options="option.name for option in ctrl.search_options track by option.id"></select>
+        <form ng-submit="root.nav.search()">
+          <input placeholder="Search" type="text" ng-model="root.search.query">
+        </form>
+        <i class="fa fa-search"></i>
+      </div>
+
+      <!-- Navbar Right Menu -->
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+          <li>
+            <a class="btn account">
+              <div class="user">
+                <span class="hello">Welcome!</span>
+                <span class="name">{{ctrl.name}}</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="btn" ng-click="ctrl.logout()">
+              <i class="fa fa-sign-out"></i>
+            </a>
+          </li>
+          <li class="visible-lg">
+            <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+</header>
+
+<!-- Left-side navigation sidebar -->
+<main-sidebar></main-sidebar>
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <!-- Page breadcrumb -->
+    <ol class="breadcrumb visible-lg">
+      <li><a href="/"><i class="fa fa-home"></i> Rosemary</a></li>
+      <li class="active" ng-repeat="breadcrumb in root.breadcrumb">{{breadcrumb}}</li>
+    </ol>
+
+    <!-- Workspace switch/create/edit -->
+    <workspace-controls></workspace-controls>
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+
+    <rmalerts></rmalerts>
+
+    <div ui-view></div>
+
+  </section>
+</div>
+
+<!-- Right-side notification sidebar -->
+<activity-sidebar class="visible-lg"></activity-sidebar>

@@ -1,0 +1,98 @@
+<div class="row data">
+  <div class="col-sm-6">
+    <div class="box box-success">
+      <div class="box-header with-border">
+        <h3 class="box-title">Processing Group</h3>
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+        </div>
+      </div>
+      
+      <div class="box-body processing_detail">
+        <span class="title">
+          <span class="name">{{ctrl.processing_group.name}}</span>
+        </span>
+
+        <div class="controls">
+          <button ng-if="ctrl.last_status == 'On Hold'" class="btn btn-block btn-primary" ng-click="ctrl.resume()">Resume</button>
+          <button ng-if="ctrl.last_status == 'In Preparation' || ctrl.last_status == 'Stage In' || ctrl.last_status == 'Stage Out' || ctrl.last_status == 'Submitting' || ctrl.last_status == 'In Progress' || ctrl.last_status == 'On Hold'" class="btn btn-block btn-danger" ng-click="ctrl.abort()">Abort</button>
+        </div>
+
+        <p class="application">
+          Programs:
+          <span ng-repeat="recipe in ctrl.processing_group.recipes">
+            <span >{{recipe.name}}</span>
+            <span ng-if="!$last">,</span>
+          </span>
+        </p>
+
+        <p class="info">
+          <span class="text">
+            <span>
+              <span class="key">Started:</span>
+              <span class="value">{{(ctrl.processing_group.statuses | first).time | fromnow}}</span>
+              <span class="dot" ng-show="!detail_status" ng-click="detail_status = true; $event.stopPropagation()">•••</span>
+              <span class="dot" ng-show="detail_status">•</span>
+            </span>
+          </span>
+          <span class="text" ng-show="detail_status">
+            <span ng-repeat="status in ctrl.processing_group.statuses">
+              <span class="key">{{status.status}}:</span>
+              <span class="value">{{status.time | fromnow}}</span>
+              <span class="dot" ng-if="!$last">•</span>
+            </span>
+          </span>
+          <span class="text" ng-show="!detail_status">
+            <span>
+              <span class="key">{{(ctrl.processing_group.statuses | last).status}}:</span>
+              <span class="value">{{(ctrl.processing_group.statuses | last).time | fromnow}}</span>
+            </span>
+          </span>
+        </p>
+        <progressbar value="ctrl.processing_group.progress" type="{{(ctrl.processing_group.statuses | last).status | status_to_color}}"></progressbar>
+
+        <div class="tags">
+          <tag ng-repeat="tag in ctrl.processing_group.tags" model="tag"></tag>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" ng-if="ctrl.inputs.length > 0">
+  <div class="col-sm-12">
+    <div class="box box-warning">
+      <div class="box-header with-border">
+        <h3 class="box-title">Inputs</h3>
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+        </div>
+      </div>      
+
+      <div class="box-body">
+        <div ng-repeat="input in ctrl.inputs">
+          <datageneric datum="input"></datageneric>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" ng-if="ctrl.children.length > 0">
+  <div class="col-sm-12">
+    <div class="box box-danger">
+      <div class="box-header with-border">
+        <h3 class="box-title">Processings</h3>
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+        </div>
+      </div>
+
+      <div class="box-body">
+        <div ng-repeat="processing in ctrl.children">
+          <dataprocessing processing="processing"></dataprocessing>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

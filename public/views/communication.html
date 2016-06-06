@@ -1,0 +1,84 @@
+<div class="row inbox">
+  <div class="col-sm-6">
+    <div class="box box-primary messages">
+      <div class="box-header with-border">
+        <h3 class="box-title">Messages</h3>
+      </div>
+        
+      <div class="box-body no-padding">
+        <div class="mailbox-controls">
+          <button class="btn btn-success" ui-sref="main.new_message"><i class="fa fa-envelope"></i> New</button>
+          <button class="btn btn-default"><span class="fa fa-bookmark-o"></span></button>
+          
+          <button class="btn btn-default"><span class="fa fa-trash-o"></span></button>
+          <button class="btn btn-default"><span class="fa fa-tags"></span></button>
+                      
+          <span class="btn-group pull-right">
+              <button class="btn btn-default"><span class="fa fa-chevron-left"></span></button>
+              <button class="btn btn-default"><span class="fa fa-chevron-right"></span></button>
+          </span>
+        </div>
+
+        <div class="table-responsive mailbox-messages">
+          <table class="table table-hover table-striped">
+            <tr ng-repeat="thread in ctrl.threads" ng-click="ctrl.select(thread)" ng-class="{active: thread == ctrl.selected}">
+              <td><input type="checkbox"></td>
+              <td class="mailbox-star"><i class="fa fa-star-o text-yellow"></i></td>
+              <td class="mailbox-name"><a>{{thread.last.rights.owner.name}}</a></td>
+              <td class="mailbox-subject"><b>{{thread.last.name}}</b> - {{thread.last.body | prune:50}}</td>
+              <td class="mailbox-attachment"><i ng-show="thread.last.info.dict.countData > 0" class="fa fa-paperclip"></i></td>
+              <td class="mailbox-date">{{thread.last.info.created | moment | fromnow}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6">
+    <div class="box box-success">
+      <div class="box-header with-border">
+        <h3 class="box-title">Read Mail</h3>
+      </div>
+
+      <div class="box-body no-padding">
+        <div class="message" ng-repeat="message in ctrl.selected.messages">
+          <div class="mailbox-read-info">
+            <h3>{{ctrl.selected.last.name | capitalize}}</h3>
+            <h5>
+              From: {{message.rights.owner.name}}<br/>
+              <span class="mailbox-read-time">{{message.rights.owner.email}}</span>
+              <span class="mailbox-read-time pull-right">{{message.info.created | moment | fromnow}}</span>
+            </h5>
+          </div>
+
+          <!-- <div class="mailbox-controls with-border text-center">
+            <div class="btn-group">
+              <button type="button" class="btn btn-default btn-sm" data-toggle="tooltip" data-container="body" title="Delete"><i class="fa fa-trash-o"></i></button>
+              <button type="button" class="btn btn-default btn-sm" data-toggle="tooltip" data-container="body" title="Reply"><i class="fa fa-reply"></i></button>
+              <button type="button" class="btn btn-default btn-sm" data-toggle="tooltip" data-container="body" title="Forward"><i class="fa fa-share"></i></button>
+            </div>
+
+            <button type="button" class="btn btn-default btn-sm" data-toggle="tooltip" title="Print"><i class="fa fa-print"></i></button>
+          </div> -->
+
+          <div class="mailbox-read-message">
+            {{message.body}}
+          </div>
+          
+          <div class="data" ng-click="ctrl.showData(message)" ng-if="message.info.dict.countData > 0"><i class="fa fa-paperclip"></i> Show {{message.info.dict.countData}} data item(s)</div>
+          <div class="data" ng-click="ctrl.showProcessing(message)" ng-if="message.info.dict.countProcessing > 0"><i class="fa fa-paperclip"></i> Show {{message.info.dict.countProcessing}} processing(s)</div>
+          <div class="data" ng-click="ctrl.showProcessingGroup(message)" ng-if="message.info.dict.countProcessingGroup > 0"><i class="fa fa-paperclip"></i> Show {{message.info.dict.countProcessing}} processing group(s)</div>
+
+          <center class="separator" ng-if="!$last">•••</center>
+        </div>
+      </div>
+      <div class="box-footer">
+        <textarea class="form-control col-xs-12" rows="4" placeholder="Click here to reply" ng-model="ctrl.reply"></textarea>
+
+        <button class="btn btn-success" ng-click="ctrl.send()">Send message</button>
+        <button class="btn btn-info" ng-click="ctrl.moreOptions()">More options</button>
+      </div>
+    </div>
+  </div>
+</div>

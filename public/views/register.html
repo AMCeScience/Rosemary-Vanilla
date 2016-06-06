@@ -1,0 +1,28 @@
+<div class="login-logo">
+  <a href="/"><b>Rosemary</b></a>
+</div>
+
+<div class="login-box-body">
+  <p class="login-box-msg">Register</p>
+
+  <form>
+    <div class="form-group has-feedback">
+      <open-input icon="'fa-envelope'" placeholder="'Email-address'" model="ctrl.credentials.email" errors="ctrl.errors.email" type="text"></open-input>
+      <open-input icon="'fa-user'" placeholder="'Name'" model="ctrl.credentials.name" errors="ctrl.errors.name" type="text"></open-input>
+      <open-input icon="'fa-key'" placeholder="'Password'" model="ctrl.credentials.password" errors="ctrl.errors.password" type="password"></open-input>
+      <open-input icon="'fa-check'" placeholder="'Password check'" model="ctrl.credentials.password_check" errors="ctrl.errors.password_check" type="password"></open-input>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12">
+        <button type="submit" class="btn btn-primary btn-block btn-flat" ng-click="ctrl.register()">Register</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12">
+        <a class="pull-right" ui-sref="open.login">Login!</a>
+      </div>
+    </div>
+  </form>
+</div>
