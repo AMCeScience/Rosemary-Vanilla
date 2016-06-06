@@ -29,6 +29,7 @@ import java.time.Clock
 import nl.amc.ebioscience.rosemary.actors._
 import nl.amc.ebioscience.rosemary.services._
 import nl.amc.ebioscience.rosemary.services.dao._
+import nl.amc.ebioscience.rosemary.services.search._
 import nl.amc.ebioscience.rosemary.services.processing._
 
 /**
@@ -65,9 +66,12 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     // Ask Guice to create a singleton instance of MongoContext containing the context as implicit value
     bind(classOf[MongoContext])
     bind(classOf[ResourceDAO])
-    
+
     bind(classOf[ProcessingManagerClient])
     bind(classOf[ProcessingHelper])
+
+    bind(classOf[SearchReader])
+    bind(classOf[SearchWriter])
   }
 
 }

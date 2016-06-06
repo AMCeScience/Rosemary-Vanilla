@@ -53,6 +53,7 @@ class ProcessingGroupsController @Inject() (
     securityService: SecurityService,
     processingManagerClient: ProcessingManagerClient,
     processingHelper: ProcessingHelper,
+    searchWriter: SearchWriter,
     actorSystem: ActorSystem) extends Controller with JsonHelpers {
 
   case class SubmitProcessingGroupRequest(
@@ -283,9 +284,9 @@ class ProcessingGroupsController @Inject() (
                   tags = processingGroup.tags + abortedStatusTag.id).insert // all failed
 
                 // Index Processings and their ProcessingGroup
-                SearchWriter.add(processingGroup)
-                insertedPs.foreach(SearchWriter.add(_))
-                SearchWriter.commit
+                searchWriter.add(processingGroup)
+                insertedPs.foreach(searchWriter.add(_))
+                searchWriter.commit
 
                 // Create and save user action notification
                 val upNotification = UserProcessingNotification(

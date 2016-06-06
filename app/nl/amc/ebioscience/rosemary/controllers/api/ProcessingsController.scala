@@ -44,7 +44,8 @@ import java.util.Date
 class ProcessingsController @Inject() (
     securityService: SecurityService,
     processingManagerClient: ProcessingManagerClient,
-    processingHelper: ProcessingHelper) extends Controller with JsonHelpers {
+    processingHelper: ProcessingHelper,
+    searchWriter: SearchWriter) extends Controller with JsonHelpers {
 
   case class SubmitProcessingRequest(
       workspace: Tag.Id,
@@ -261,9 +262,9 @@ class ProcessingsController @Inject() (
                   tags = processingGroup.tags + abortedStatusTag.id).insert // all failed
 
                 // Index Processings and their ProcessingGroup
-                SearchWriter.add(processingGroup)
-                insertedPs.foreach(SearchWriter.add(_))
-                SearchWriter.commit
+                searchWriter.add(processingGroup)
+                insertedPs.foreach(searchWriter.add(_))
+                searchWriter.commit
 
                 // Create and save user action notification
                 val upNotification = UserProcessingNotification(
