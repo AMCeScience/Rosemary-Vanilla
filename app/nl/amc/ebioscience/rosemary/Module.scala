@@ -62,6 +62,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     // Akka actors
     bindActor[ConnectionParentActor]("connectionParentActor")
     bindActorFactory[ConnectionActor, ConnectionActor.Factory]
+    bindActor[ProcessingStatusCheckActor]("processingStatusCheckActor")
 
     // Ask Guice to create a singleton instance of MongoContext containing the context as implicit value
     bind(classOf[MongoContext])
@@ -69,6 +70,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
 
     bind(classOf[ProcessingManagerClient])
     bind(classOf[ProcessingHelper])
+    bind(classOf[ProcessingStatusCheckDaemon]).asEagerSingleton()
 
     bind(classOf[SearchReader])
     bind(classOf[SearchWriter])
