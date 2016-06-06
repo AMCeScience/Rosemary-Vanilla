@@ -20,7 +20,7 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.search
 
 import nl.amc.ebioscience.rosemary.models.{ Tag, Datum, Processing, ProcessingGroup, Searchable }
 import org.apache.lucene.util.{ Bits, OpenBitSet }
@@ -41,7 +41,7 @@ class TagsFilter(workspaceTags: List[Tag.Id], tags: List[Tag.Id], kind: Option[S
    */
   override def getDocIdSet(context: AtomicReaderContext, acceptDocs: Bits): DocIdSet = {
 
-//    val start: Instant = Clock.systemDefaultZone.instant
+    //    val start: Instant = Clock.systemDefaultZone.instant
 
     val (ditems, pitems, pgitems) = (workspaceTags, tags) match {
       case (Nil, Nil) =>
@@ -102,9 +102,9 @@ class TagsFilter(workspaceTags: List[Tag.Id], tags: List[Tag.Id], kind: Option[S
 
       Logger.trace(s"TagsFilter: bits cardinality = ${bits.cardinality}")
 
-//      val stop: Instant = Clock.systemDefaultZone.instant
-//      val runningTime: Long = stop.getEpochSecond - start.getEpochSecond
-//      Logger.trace(s"Tags filter took ${runningTime} miliseconds")
+      //      val stop: Instant = Clock.systemDefaultZone.instant
+      //      val runningTime: Long = stop.getEpochSecond - start.getEpochSecond
+      //      Logger.trace(s"Tags filter took ${runningTime} miliseconds")
 
       if (bits.isEmpty) null else bits
     }

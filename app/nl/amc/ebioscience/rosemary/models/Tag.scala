@@ -126,10 +126,10 @@ case class MessageTag(
 }
 
 /**
-  * SystemTag is to group some entities, for example:
-  * data that has been imported : put importer userid in info
-  * data that has been used in a processing : put processing id in info
-  */
+ * SystemTag is to group some entities, for example:
+ * data that has been imported : put importer userid in info
+ * data that has been used in a processing : put processing id in info
+ */
 case class SystemTag(
     name: String,
     kind: String, // import, processing-input, processing-output
@@ -144,8 +144,7 @@ case class SystemTag(
 
 object Tag extends DefaultModelBase[Tag]("tags") {
 
-  collection.ensureIndex(("name" -> "text", "_id" -> 1, "_t" -> 1),
-    ("default_language" -> "none"))
+  collection.createIndex(("name" -> "text", "_id" -> 1, "_t" -> 1), ("default_language" -> "none"))
 
   def findSuperWorkspaceTag() = {
     find("visible" $eq Set("all")).toList match {

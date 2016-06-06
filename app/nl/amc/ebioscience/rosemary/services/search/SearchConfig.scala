@@ -20,13 +20,24 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.processing
+package nl.amc.ebioscience.rosemary.services.search
 
-import nl.amc.ebioscience.rosemary.models.{ Datum, Replica }
+import org.apache.lucene.analysis.standard.StandardAnalyzer
+import org.apache.lucene.util.Version
+import org.apache.lucene.store.NIOFSDirectory
+import java.io.File
 
-sealed abstract class Container
+object SearchConfig {
 
-case class Param(constant: String) extends Container
-case class ConcreteDatum(datum: Datum, replica: Replica) extends Container
-case class FutureDatum(url: String) extends Container
-case class OnlyDatum(datum: Datum) extends Container
+  val LOCATION = "search"
+  val ID_FIELD = "$I"
+  val ALL_FIELD = "$A"
+  val NAME_FIELD = "name"
+
+  val version = Version.LUCENE_4_9
+
+  val analyzer = new StandardAnalyzer(version)
+
+  val directory = new NIOFSDirectory(new File(LOCATION))
+
+}

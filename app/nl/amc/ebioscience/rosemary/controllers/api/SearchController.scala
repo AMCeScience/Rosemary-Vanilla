@@ -31,12 +31,14 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.{ JsonHelpers, EnumJson }
-import nl.amc.ebioscience.rosemary.core.search.{ SearchReader, SearchWriter, SupportedTypes }
 import nl.amc.ebioscience.rosemary.core.HelperTools
 import nl.amc.ebioscience.rosemary.services.SecurityService
+import nl.amc.ebioscience.rosemary.services.search._
 
 @Singleton
-class SearchController @Inject() (securityService: SecurityService) extends Controller with JsonHelpers {
+class SearchController @Inject() (
+    securityService: SecurityService,
+    searchReader: SearchReader) extends Controller with JsonHelpers {
 
   /** body of JSON requests to query data or processing */
   case class QueryRequest(
@@ -79,7 +81,7 @@ class SearchController @Inject() (securityService: SecurityService) extends Cont
         val result = queryRequest.query match {
 
           case Some(query) if !query.isEmpty =>
-            SearchReader.search(
+            searchReader.search(
               query,
               workspaceTags = workspaceTagIds,
               tags = otherTagIds,

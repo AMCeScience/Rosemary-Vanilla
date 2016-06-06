@@ -20,7 +20,7 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.search
 
 import nl.amc.ebioscience.rosemary.models.{ Datum, Processing, ProcessingGroup }
 import org.apache.lucene.util.{ Bits, OpenBitSet }
@@ -41,7 +41,7 @@ class TypeFilter(requestedType: SupportedTypes.Value) extends Filter {
    */
   override def getDocIdSet(context: AtomicReaderContext, acceptDocs: Bits): DocIdSet = {
 
-//    val start: Instant = Clock.systemDefaultZone.instant
+    //    val start: Instant = Clock.systemDefaultZone.instant
 
     val items = requestedType match {
       case SupportedTypes.Datum           => Datum.findAll()
@@ -75,9 +75,9 @@ class TypeFilter(requestedType: SupportedTypes.Value) extends Filter {
 
       Logger.trace(s"TypeFilter: bits cardinality = ${bits.cardinality}")
 
-//      val stop: Instant = Clock.systemDefaultZone.instant
-//      val runningTime: Long = stop.getEpochSecond - start.getEpochSecond
-//      Logger.trace(s"Type filter took ${runningTime} miliseconds")
+      //      val stop: Instant = Clock.systemDefaultZone.instant
+      //      val runningTime: Long = stop.getEpochSecond - start.getEpochSecond
+      //      Logger.trace(s"Type filter took ${runningTime} miliseconds")
 
       if (bits.isEmpty) null else bits
     }

@@ -30,6 +30,12 @@ import nl.amc.ebioscience.rosemary.models.core.DefaultDAO
 import nl.amc.ebioscience.rosemary.models.ResourceKind
 import nl.amc.ebioscience.rosemary.models.Resource
 
+/**
+ * An example of how to use DI for DAOs.
+ * 
+ * WIP: DAOs for all of the collections are not yet implemented.
+ * Use scala objects and import nl.amc.ebioscience.rosemary.models.core.Implicits._  
+ */
 class ResourceDAO @Inject() (configService: ConfigService, mctx: MongoContext, pls: PlaySalat)
     extends DefaultDAO[Resource]("resources", mctx, pls) {
 

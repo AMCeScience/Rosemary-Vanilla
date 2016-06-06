@@ -20,19 +20,28 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.search
 
+import javax.inject._
+import scala.concurrent.Future
+import play.api.Logger
+import play.api.inject.ApplicationLifecycle
 import nl.amc.ebioscience.rosemary.models.Searchable
 import nl.amc.ebioscience.rosemary.models.core.Valunit
 import org.apache.lucene.document.{ Document, StringField, Field, TextField }
 import org.apache.lucene.index.{ IndexWriter, IndexWriterConfig }
-import play.api.Logger
 
-object SearchWriter {
+@Singleton
+class SearchWriter @Inject() (lifecycle: ApplicationLifecycle) {
 
   val writerConfig = new IndexWriterConfig(SearchConfig.version, SearchConfig.analyzer)
-  // config.setRAMBufferSizeMB(256.0)
+  // writerConfig.setRAMBufferSizeMB(256.0)
   val writer = new IndexWriter(SearchConfig.directory, writerConfig)
+  commit
+
+  lifecycle.addStopHook { () =>
+    Future.successful(close)
+  }
 
   def add(item: Searchable) {
     Logger.debug(s"Indexing Item: ${item.id}")
@@ -61,20 +70,21 @@ object SearchWriter {
     }
   }
 
-  /** Sample input:
-    * <pre><code>
-    * Map(this/is/a/test -> Valunit(value1,None),
-    *   key -> Valunit(value2,None),
-    *   foo/bar -> Valunit(value3,Some(unit)))
-    * </code></pre>
-    *
-    * Sample output:
-    * <pre><code>
-    * Map(test -> value1, a/test -> value1, is/a/test -> value1, this/is/a/test -> value1,
-    *   key -> value2,
-    *   bar -> value3, foo/bar -> value3)
-    * </code></pre>
-    */
+  /**
+   * Sample input:
+   * <pre><code>
+   * Map(this/is/a/test -> Valunit(value1,None),
+   *   key -> Valunit(value2,None),
+   *   foo/bar -> Valunit(value3,Some(unit)))
+   * </code></pre>
+   *
+   * Sample output:
+   * <pre><code>
+   * Map(test -> value1, a/test -> value1, is/a/test -> value1, this/is/a/test -> value1,
+   *   key -> value2,
+   *   bar -> value3, foo/bar -> value3)
+   * </code></pre>
+   */
   private def generateTextFieldsWithPermutatedKeys(dict: Map[String, Valunit]): Iterable[TextField] =
     for {
       entry <- dict

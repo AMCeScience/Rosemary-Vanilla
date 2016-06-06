@@ -91,5 +91,5 @@ case class MessageNotification(
 
 object Notification extends DefaultModelBase[Notification]("notifications") with TagsQueries[Notification] {
 
-  collection.ensureIndex(("_id" -> 1, "_t" -> 1), ("default_language" -> "none"))
+  collection.createIndex(("_id" -> 1, "_t" -> 1), ("default_language" -> "none"))
 }

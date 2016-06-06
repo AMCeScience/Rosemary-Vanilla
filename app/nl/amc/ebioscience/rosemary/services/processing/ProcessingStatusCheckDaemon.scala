@@ -20,25 +20,22 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.processing
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer
-import org.apache.lucene.index.IndexWriterConfig
-import org.apache.lucene.util.Version
-import org.apache.lucene.store.NIOFSDirectory
-import java.io.File
+import javax.inject._
+import nl.amc.ebioscience.rosemary.services.ConfigService
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import scala.concurrent.duration._
+import akka.actor.{ ActorSystem, ActorRef }
 
-object SearchConfig {
+@Singleton
+class ProcessingStatusCheckDaemon @Inject() (
+    @Named("processingStatusCheckActor") processingStatusCheckActor: ActorRef,
+    configService: ConfigService,
+    actorSystem: ActorSystem) {
 
-  val LOCATION = "search"
-  val ID_FIELD = "$I"
-  val ALL_FIELD = "$A"
-  val NAME_FIELD = "name"
+  val startInterval = configService.getIntConfig("processingmanager.status.start.interval")
+  val pullInterval = configService.getIntConfig("processingmanager.status.pull.interval")
 
-  val version = Version.LUCENE_4_9
-
-  val analyzer = new StandardAnalyzer(version)
-
-  val directory = new NIOFSDirectory(new File(LOCATION))
-
+  val cancellable = actorSystem.scheduler.schedule(startInterval.seconds, pullInterval.minutes, processingStatusCheckActor, "pmDaemon")
 }
