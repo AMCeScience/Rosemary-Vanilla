@@ -72,8 +72,8 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[ProcessingHelper])
     bind(classOf[ProcessingStatusCheckDaemon]).asEagerSingleton()
 
+    bind(classOf[SearchWriter]).asEagerSingleton()
     bind(classOf[SearchReader])
-    bind(classOf[SearchWriter])
   }
 
 }

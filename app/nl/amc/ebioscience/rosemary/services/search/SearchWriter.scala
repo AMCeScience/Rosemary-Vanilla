@@ -35,9 +35,10 @@ import org.apache.lucene.index.{ IndexWriter, IndexWriterConfig }
 class SearchWriter @Inject() (lifecycle: ApplicationLifecycle) {
 
   val writerConfig = new IndexWriterConfig(SearchConfig.version, SearchConfig.analyzer)
-  // config.setRAMBufferSizeMB(256.0)
+  // writerConfig.setRAMBufferSizeMB(256.0)
   val writer = new IndexWriter(SearchConfig.directory, writerConfig)
-  
+  commit
+
   lifecycle.addStopHook { () =>
     Future.successful(close)
   }
@@ -69,20 +70,21 @@ class SearchWriter @Inject() (lifecycle: ApplicationLifecycle) {
     }
   }
 
-  /** Sample input:
-    * <pre><code>
-    * Map(this/is/a/test -> Valunit(value1,None),
-    *   key -> Valunit(value2,None),
-    *   foo/bar -> Valunit(value3,Some(unit)))
-    * </code></pre>
-    *
-    * Sample output:
-    * <pre><code>
-    * Map(test -> value1, a/test -> value1, is/a/test -> value1, this/is/a/test -> value1,
-    *   key -> value2,
-    *   bar -> value3, foo/bar -> value3)
-    * </code></pre>
-    */
+  /**
+   * Sample input:
+   * <pre><code>
+   * Map(this/is/a/test -> Valunit(value1,None),
+   *   key -> Valunit(value2,None),
+   *   foo/bar -> Valunit(value3,Some(unit)))
+   * </code></pre>
+   *
+   * Sample output:
+   * <pre><code>
+   * Map(test -> value1, a/test -> value1, is/a/test -> value1, this/is/a/test -> value1,
+   *   key -> value2,
+   *   bar -> value3, foo/bar -> value3)
+   * </code></pre>
+   */
   private def generateTextFieldsWithPermutatedKeys(dict: Map[String, Valunit]): Iterable[TextField] =
     for {
       entry <- dict
