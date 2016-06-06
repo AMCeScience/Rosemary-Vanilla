@@ -20,19 +20,27 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.search
 
+import javax.inject._
+import scala.concurrent.Future
+import play.api.Logger
+import play.api.inject.ApplicationLifecycle
 import nl.amc.ebioscience.rosemary.models.Searchable
 import nl.amc.ebioscience.rosemary.models.core.Valunit
 import org.apache.lucene.document.{ Document, StringField, Field, TextField }
 import org.apache.lucene.index.{ IndexWriter, IndexWriterConfig }
-import play.api.Logger
 
-object SearchWriter {
+@Singleton
+class SearchWriter @Inject() (lifecycle: ApplicationLifecycle) {
 
   val writerConfig = new IndexWriterConfig(SearchConfig.version, SearchConfig.analyzer)
   // config.setRAMBufferSizeMB(256.0)
   val writer = new IndexWriter(SearchConfig.directory, writerConfig)
+  
+  lifecycle.addStopHook { () =>
+    Future.successful(close)
+  }
 
   def add(item: Searchable) {
     Logger.debug(s"Indexing Item: ${item.id}")

@@ -20,9 +20,12 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.search
+package nl.amc.ebioscience.rosemary.services.search
 
+import javax.inject._
+import scala.concurrent.Future
 import play.api.Logger
+import play.api.inject.ApplicationLifecycle
 import nl.amc.ebioscience.rosemary.models.{ Tag }
 import nl.amc.ebioscience.rosemary.models.Searchable
 import org.apache.lucene.queryparser.classic.{ QueryParser, ParseException }
@@ -33,12 +36,17 @@ import org.apache.lucene.util.Version
 import org.bson.types.ObjectId
 import java.time.{ Clock, Instant }
 
-object SearchReader {
+@Singleton
+class SearchReader @Inject() (lifecycle: ApplicationLifecycle) {
 
   val ITEMS_PER_PAGE = 10
 
   val reader = DirectoryReader.open(SearchConfig.directory)
   val searcher = new IndexSearcher(reader)
+
+  lifecycle.addStopHook { () =>
+    Future.successful(close)
+  }
 
   def search(
     query: String,

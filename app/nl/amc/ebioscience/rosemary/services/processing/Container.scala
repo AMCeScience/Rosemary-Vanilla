@@ -20,7 +20,7 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.processing
+package nl.amc.ebioscience.rosemary.services.processing
 
 import nl.amc.ebioscience.rosemary.models.{ Datum, Replica }
 

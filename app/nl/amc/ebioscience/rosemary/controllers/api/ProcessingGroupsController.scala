@@ -38,12 +38,11 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
-import nl.amc.ebioscience.rosemary.core.processing._
 import nl.amc.ebioscience.rosemary.core.{ WebSockets, HelperTools }
-import nl.amc.ebioscience.rosemary.core.search.{ SearchReader, SearchWriter, SupportedTypes }
 import nl.amc.ebioscience.rosemary.actors.ProcessingStatusCheckActor
 import nl.amc.ebioscience.rosemary.services.SecurityService
 import nl.amc.ebioscience.rosemary.services.processing._
+import nl.amc.ebioscience.rosemary.services.search._
 import nl.amc.ebioscience.processingmanager.types.messaging.{ ProcessingMessage, PortMessagePart }
 import nl.amc.ebioscience.processingmanager.types.{ ProcessingLifeCycle, PortType, Credentials }
 import java.util.Date
@@ -54,6 +53,7 @@ class ProcessingGroupsController @Inject() (
     securityService: SecurityService,
     processingManagerClient: ProcessingManagerClient,
     processingHelper: ProcessingHelper,
+    searchWriter: SearchWriter,
     actorSystem: ActorSystem) extends Controller with JsonHelpers {
 
   case class SubmitProcessingGroupRequest(
@@ -284,9 +284,9 @@ class ProcessingGroupsController @Inject() (
                   tags = processingGroup.tags + abortedStatusTag.id).insert // all failed
 
                 // Index Processings and their ProcessingGroup
-                SearchWriter.add(processingGroup)
-                insertedPs.foreach(SearchWriter.add(_))
-                SearchWriter.commit
+                searchWriter.add(processingGroup)
+                insertedPs.foreach(searchWriter.add(_))
+                searchWriter.commit
 
                 // Create and save user action notification
                 val upNotification = UserProcessingNotification(

@@ -20,9 +20,9 @@
  *        Project: https://github.com/AMCeScience/Rosemary-Vanilla
  *        AMC eScience Website: http://www.ebioscience.amc.nl/
  */
-package nl.amc.ebioscience.rosemary.core.processing.transformers
+package nl.amc.ebioscience.rosemary.services.processing.transformers
 
-import nl.amc.ebioscience.rosemary.core.processing._
+import nl.amc.ebioscience.rosemary.services.processing._
 import nl.amc.ebioscience.rosemary.models.{ Processing, Resource }
 import nl.amc.ebioscience.processingmanager.types.messaging.StatusContainerMessage
 

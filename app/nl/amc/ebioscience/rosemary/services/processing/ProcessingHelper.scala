@@ -28,7 +28,6 @@ import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
-import nl.amc.ebioscience.rosemary.core.processing._
 import nl.amc.ebioscience.rosemary.core.WebSockets
 import nl.amc.ebioscience.processingmanager.types.ProcessingLifeCycle
 import scala.reflect.runtime.universe
