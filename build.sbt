@@ -10,7 +10,7 @@ scalaVersion := "2.11.7"
 
 scalacOptions ++= Seq("-feature","-language:reflectiveCalls")
 
-playRunHooks <+= baseDirectory.map(base => Gulp(base))
+PlayKeys.playRunHooks <+= baseDirectory.map(base => Gulp(base))
 
 libraryDependencies ++= Seq(
   cache,
