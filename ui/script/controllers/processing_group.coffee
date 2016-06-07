@@ -1,3 +1,24 @@
+# Copyright (C) 2016  Academic Medical Center of the University of Amsterdam (AMC)
+#  
+# This program is semi-free software: you can redistribute it and/or modify it
+# under the terms of the Rosemary license. You may obtain a copy of this
+# license at:
+# 
+# https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#  
+# You should have received a copy of the Rosemary license
+# along with this program. If not, 
+# see https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md.
+#  
+#        Project: https://github.com/AMCeScience/Rosemary-Vanilla
+#        AMC eScience Website: http://www.ebioscience.amc.nl/
+
 module = angular.module 'Rosemary'
 module.controller 'ProcessingGroupController', ($scope, $rootScope, $q, $state, $stateParams, User, Remote, Object, Tags, Auth) ->
 
@@ -55,9 +76,14 @@ module.controller 'ProcessingGroupController', ($scope, $rootScope, $q, $state, 
             @processing_group.recipes[key] = index[Object.toId recipe]
 
     getIO: =>
-      Remote.post Object.toId(@root.workspace) + '/data/query/ids',
-        ids: _.map @processing_group.inputs, (obj) -> Object.toId obj.datum.datum
-      .then (@inputs) =>
+      ids = _.compact _.map @processing_group.inputs, (obj) ->  
+        if obj.datum?
+          Object.toId obj.datum.datum
+
+      if ids.length > 0
+        Remote.post Object.toId(@root.workspace) + '/data/query/ids',
+          ids: ids
+        .then (@inputs) =>
 
     abort: =>
       Remote.post 'processing-groups/' + $state.params.id + '/action/abort', {}
