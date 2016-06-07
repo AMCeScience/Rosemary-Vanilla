@@ -3,17 +3,16 @@
 # ~~~~
 
 # API Routes
-->    /api/v1         api.Routes
+->    /api/v1       api.Routes
 
-GET   /socket         nl.amc.ebioscience.rosemary.controllers.WebSocketController.socket
+GET   /socket       nl.amc.ebioscience.rosemary.controllers.WebSocketController.socket
 
-GET   /init           nl.amc.ebioscience.rosemary.controllers.InitController.init
+GET   /initialize   nl.amc.ebioscience.rosemary.controllers.InitController.init
+
+GET   /reindex      nl.amc.ebioscience.rosemary.controllers.api.SearchController.reindex
 
 # An example controller showing a sample home page
 GET   /             controllers.Assets.at(path="/public", file="index.html")
 
-# An example controller showing how to write asynchronous code
-GET   /message        nl.amc.ebioscience.rosemary.controllers.AsyncController.message
-
 # Map static resources from the /public folder to the / URL path
-GET   /*file   controllers.Assets.versioned(path="/public", file)
+GET   /*file        controllers.Assets.versioned(path="/public", file)
