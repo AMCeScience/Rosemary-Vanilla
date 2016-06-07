@@ -32,13 +32,14 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.processingmanager.types.ProcessingLifeCycle
+import nl.amc.ebioscience.rosemary.services.CryptoService
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
 @Singleton
-class InitController @Inject() extends Controller {
+class InitController @Inject() (cryptoService: CryptoService) extends Controller {
 
   def init = Action {
     playSalat.db().dropDatabase()
@@ -111,7 +112,7 @@ class InitController @Inject() extends Controller {
       host = "localhost",
       basePath = Some("/webdav/files"),
       username = Some("webdav"),
-      password = Some("secret")).insert
+      password = Some(cryptoService.encrypt("secret"))).insert
 
     // Mock application
     val mockPmIPorts = Set(

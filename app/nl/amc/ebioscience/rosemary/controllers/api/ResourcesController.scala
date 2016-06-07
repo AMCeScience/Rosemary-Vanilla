@@ -31,10 +31,12 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
-import nl.amc.ebioscience.rosemary.services.SecurityService
+import nl.amc.ebioscience.rosemary.services.{ SecurityService, CryptoService }
 
 @Singleton
-class ResourcesController @Inject() (securityService: SecurityService) extends Controller with JsonHelpers {
+class ResourcesController @Inject() (
+    securityService: SecurityService,
+    cryptoService: CryptoService) extends Controller with JsonHelpers {
 
   def index = securityService.HasToken(parse.empty) { implicit request =>
     Ok(Resource.findAll.toList.map(_.copy(username = None, password = None)).toJson)
@@ -81,7 +83,7 @@ class ResourcesController @Inject() (securityService: SecurityService) extends C
                 port = req.port.getOrElse(80),
                 basePath = req.basePath,
                 username = req.username,
-                password = req.password).insert
+                password = req.password.map(cryptoService.encrypt(_))).insert
               Ok(res.toJson)
             case Left(error) => Conflict(error)
           }
