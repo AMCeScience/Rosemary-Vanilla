@@ -29,13 +29,18 @@ import play.api.Logger
 import play.api.libs.json._
 import scala.collection.JavaConverters._
 import com.github.sardine.DavResource
+import nl.amc.ebioscience.rosemary.services.CryptoService
 
 /**
-  * @param resource The WebDAV resource to connect to
-  * @socket The WebSocket to send the notifications
-  * @importId The ImportID to include in the notifications
-  */
-class Webdav(val resource: Resource, socket: Option[Socket] = None, importId: Option[String] = None) {
+ * @param resource The WebDAV resource to connect to
+ * @socket The WebSocket to send the notifications
+ * @importId The ImportID to include in the notifications
+ */
+class Webdav(
+    val resource: Resource,
+    socket: Option[Socket] = None,
+    importId: Option[String] = None)(
+        implicit cryptoService: CryptoService) {
 
   /** Credential of the current user for the resource */
   private val userCredential: Option[Credential] = User.credentialFor(resource.id)
@@ -43,10 +48,10 @@ class Webdav(val resource: Resource, socket: Option[Socket] = None, importId: Op
   val baseUri: String = resource.uri
 
   private val sardine = userCredential map { cred =>
-    SardineFactory.begin(cred.username, cred.password)
+    SardineFactory.begin(cred.username, cryptoService.decrypt(cred.password))
   } getOrElse {
     Logger.debug(s"${User.current.email} has no credential for ${resource.name}, trying community credentials...")
-    val communityCredential = for (user <- resource.username; pass <- resource.password) yield (user, pass)
+    val communityCredential = for (user <- resource.username; pass <- resource.password) yield (user, cryptoService.decrypt(pass))
     communityCredential match {
       case Some(tup) => SardineFactory.begin(tup._1, tup._2)
       case None => {
@@ -76,9 +81,9 @@ class Webdav(val resource: Resource, socket: Option[Socket] = None, importId: Op
     }
 
   /**
-    * @param basePath should not be with leading `/`
-    * @param dir should not be with leading `/`
-    */
+   * @param basePath should not be with leading `/`
+   * @param dir should not be with leading `/`
+   */
   def createDirUnder(basePath: String, dir: String) = {
     val url = s"${baseUri}/${basePath}/${dir}"
     Logger.debug(s"Creating directory $url")
@@ -93,8 +98,8 @@ class Webdav(val resource: Resource, socket: Option[Socket] = None, importId: Op
   }
 
   /**
-    * @param path should not be with `/` as suffix or prefix
-    */
+   * @param path should not be with `/` as suffix or prefix
+   */
   def getDirectoryList(path: String): List[DavResource] = {
     val url = s"${baseUri}/${path}/"
     Logger.debug(s"Getting Directory Listing for $url")
