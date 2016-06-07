@@ -32,6 +32,7 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.processingmanager.types.ProcessingLifeCycle
+import org.kohsuke.randname.RandomNameGenerator
 import nl.amc.ebioscience.rosemary.services.CryptoService
 
 /**
@@ -53,7 +54,7 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     // Inject Processings
     injectProcessings
 
-    Redirect("/")
+    Redirect("/reindex")
   }
 
   private def initDB = {
@@ -137,6 +138,7 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
   }
 
   private def injectData = {
+    import nl.amc.ebioscience.rosemary.models.core.ValunitConvertors._
     Logger.info("Injecting datums into database...")
 
     // Get a user whose workspace we're going to fill
@@ -151,38 +153,54 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
 
     val resource = Resource.getLocalMongoResource
 
-    // Grandfather datums
-    for (gfi <- 1 to 5) {
-      val fatherIds = scala.collection.mutable.Set.empty[Datum.Id]
+    val rnd = new RandomNameGenerator()
 
-      // Father datums
-      for (fi <- 1 to Random.nextInt(5)) {
-        val childIds = scala.collection.mutable.Set.empty[Datum.Id]
+    val grandFathers = for {
+      gfi <- 1 to 5
+    } yield Datum(
+      name = s"GrandFatherDatum_${gfi}",
+      resource = Some(resource.id),
+      tags = Set(workspace.id, grandFatherTag),
+      info = Info(
+        dict = Map(
+          "gf/number" -> Random.nextInt(100).toString(),
+          "gf/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+          "gf/who" -> rnd.next()).toValunit)).insert
 
-        // Child datums
-        for (ci <- 1 to Random.nextInt(5)) {
-          val childDatum = Datum(
-            name = s"ChildDatum_${ci}",
-            resource = Some(resource.id),
-            tags = Set(workspace.id, childTag)).insert
+    grandFathers.map { grandFather =>
+      val fathers = for {
+        fi <- 1 to Random.nextInt(5)
+      } yield Datum(
+        name = s"FatherDatum_${fi}",
+        resource = Some(resource.id),
+        tags = Set(workspace.id, fatherTag),
+        info = Info(
+          dict = Map(
+            "f/number" -> Random.nextInt(100).toString(),
+            "f/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+            "f/who" -> rnd.next()).toValunit,
+          inheritedDict = grandFather.info.dict ++ grandFather.info.inheritedDict,
+          ascendents = grandFather.info.ascendents ::: List(Catname(grandFather.getCategoryName.getOrElse("unknown"), grandFather.name)))).insert
 
-          childIds += childDatum.id
-        }
-
-        val fatherDatum = Datum(
-          name = s"FatherDatum_${fi}",
-          children = childIds.toSet,
+      fathers.map { father =>
+        val children = for {
+          ci <- 1 to Random.nextInt(5)
+        } yield Datum(
+          name = s"ChildDatum_${ci}",
           resource = Some(resource.id),
-          tags = Set(workspace.id, fatherTag)).insert
+          tags = Set(workspace.id, childTag),
+          info = Info(
+            dict = Map(
+              "c/number" -> Random.nextInt(100).toString(),
+              "c/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+              "c/who" -> rnd.next()).toValunit,
+            inheritedDict = father.info.dict ++ father.info.inheritedDict,
+            ascendents = father.info.ascendents ::: List(Catname(father.getCategoryName.getOrElse("unknown"), father.name)))).insert
 
-        fatherIds += fatherDatum.id
+        father.copy(children = father.children ++ children.map(_.id).toSet).update
       }
 
-      Datum(
-        name = s"GrandFatherDatum_${gfi}",
-        children = fatherIds.toSet,
-        resource = Some(resource.id),
-        tags = Set(workspace.id, grandFatherTag)).insert
+      grandFather.copy(children = grandFather.children ++ fathers.map(_.id).toSet).update
     }
 
     Logger.info("Done injecting datums into database")

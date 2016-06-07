@@ -48,7 +48,7 @@ class SearchController @Inject() (
     Processing.findAll().toList.map(processing => searchWriter.add(processing))
     ProcessingGroup.findAll().toList.map(processingGroup => searchWriter.add(processingGroup))
     searchWriter.commit
-    Ok("Done!")
+    Redirect("/")
   }
 
   /** body of JSON requests to query data or processing */
