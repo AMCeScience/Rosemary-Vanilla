@@ -8,6 +8,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.7"
 
+javaOptions ++= Seq("-Xmx2G", "-Xms1G", "-XX:+UseG1GC", "-XX:MaxPermSize=512M", "-XX:+CMSClassUnloadingEnabled")
+
 scalacOptions ++= Seq("-feature","-language:reflectiveCalls")
 
 PlayKeys.playRunHooks <+= baseDirectory.map(base => Gulp(base))
