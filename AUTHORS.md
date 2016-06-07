@@ -2,7 +2,14 @@
 
 List of contributors to the Rosemary project.
 
-## Internal
+## Management
+
+- Silvia Olabarriaga
+- Shayan Shahand
+
+## Programmers
+
+### Internal
 
 Contributions are made while employed by the AMC:
 
@@ -11,7 +18,7 @@ Contributions are made while employed by the AMC:
 - Jorrit Posthuma
 - Juan Luis Font
 
-## External
+### External
 
 Contributions are made on voluntary basis:
 
