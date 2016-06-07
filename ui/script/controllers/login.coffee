@@ -8,7 +8,7 @@ module.controller 'LoginController', ($scope, $rootScope, $state, Auth, Session)
     ###########################
 
     credentials:
-     email: "admin@rosemary.nl"
+     email: "admin@rosemary.ebioscience.amc.nl"
      password: "secret"
 
     ###########################
