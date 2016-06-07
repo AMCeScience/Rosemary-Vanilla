@@ -18,18 +18,14 @@ import scala.concurrent.Future
  * in the [[Module]] class to see how this happens.
  *
  * This class needs to run code when the server stops. It uses the
- * application's [[ApplicationLifecycle]] to register a stop hook.
+ * application's [[play.api.inject.ApplicationLifecycle]] to register a stop hook.
  */
 @Singleton
-class ApplicationTimer @Inject() (clock: Clock, appLifecycle: ApplicationLifecycle, cryptoService: CryptoService) {
+class ApplicationTimer @Inject() (clock: Clock, appLifecycle: ApplicationLifecycle) {
 
   // This code is called when the application starts.
   private val start: Instant = clock.instant
   Logger.info(s"ApplicationTimer demo: Starting application at $start.")
-  val ciphertext = cryptoService.encrypt("Secret Message")
-  val plaintext = cryptoService.decrypt(ciphertext)
-  Logger.info(s"cipher text = $ciphertext")
-  Logger.info(s"plain text = $plaintext")
 
   // When the application starts, register a stop hook with the
   // ApplicationLifecycle object. The code inside the stop hook will

@@ -26,9 +26,10 @@ import dispatch._
 import dispatch.Defaults._
 import nl.amc.ebioscience.rosemary.models._
 import play.api.Logger
+import nl.amc.ebioscience.rosemary.services.CryptoService
 
 /** General dispatch setup, methods, and configuration */
-abstract class BaseDataSource(resource: Resource) {
+abstract class BaseDataSource(resource: Resource)(implicit cryptoService: CryptoService) {
 
   /** Credential of the current user for the resource */
   val userCredential: Option[Credential] = User.credentialFor(resource.id)
@@ -43,10 +44,10 @@ abstract class BaseDataSource(resource: Resource) {
 
   /** with the Req.as method, username and password are only sent if the response handler indicates that */
   protected def auth(req: Req) = userCredential map { cred =>
-    req.as(cred.username, cred.password)
+    req.as(cred.username, cryptoService.decrypt(cred.password))
   } getOrElse {
     Logger.debug(s"${User.current.email} has no credential for ${resource.name}, trying community credentials...")
-    val communityCredential = for (user <- resource.username; pass <- resource.password) yield (user, pass)
+    val communityCredential = for (user <- resource.username; pass <- resource.password) yield (user, cryptoService.decrypt(pass))
     communityCredential match {
       case Some(tup) => req.as(tup._1, tup._2)
       case None => {

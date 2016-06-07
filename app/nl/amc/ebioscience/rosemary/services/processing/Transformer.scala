@@ -27,8 +27,8 @@ import nl.amc.ebioscience.processingmanager.types.messaging.StatusContainerMessa
 import play.api.Logger
 
 /**
- * This class wraps [[controllers.api.Processings.SubmitRequest]] information
- * to avoid multiple database queries.
+ * This class wraps the information in [[SubmitProcessingGroupRequest]] and
+ * [[SubmitProcessingRequest]] to avoid multiple database queries.
  */
 case class Cybertronian(
   application: Application,
