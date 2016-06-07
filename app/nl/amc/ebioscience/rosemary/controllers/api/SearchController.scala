@@ -64,7 +64,7 @@ class SearchController @Inject() (
 
   def query = securityService.HasToken(parse.json) { implicit request =>
     val json = request.body
-    Logger.trace(s"Request: $json")
+    Logger.debug(s"Request: $json")
     json.validate[QueryRequest].fold(
       valid = { queryRequest =>
 
