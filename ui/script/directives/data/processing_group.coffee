@@ -68,10 +68,12 @@ module.directive 'dataprocessinggroup', (RecursionHelper) ->
             _.forEach data, (d) -> index[Object.toId d] = d
 
             _.forEach @scope.processinggroup.inputs, (d) ->
-              d.datum.datum = index[Object.toId d.datum.datum] 
+              if d.datum?
+                d.datum.datum = index[Object.toId d.datum.datum] 
 
             _.forEach @scope.processinggroup.outputs, (d) ->
-              d.datum.datum = index[Object.toId d.datum.datum]
+              if d.datum?
+                d.datum.datum = index[Object.toId d.datum.datum]
 
       getChildren: =>
         if @processing_data then return

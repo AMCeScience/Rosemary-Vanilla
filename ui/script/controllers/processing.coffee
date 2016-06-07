@@ -28,7 +28,7 @@ module.controller 'ProcessingController', ($scope, $rootScope, $q, $state, $stat
     # Instance variables      #
     ###########################
 
-    @processing = 'noh';
+    @processing = {}
 
     ###########################
     # constructor & init      #
@@ -76,12 +76,20 @@ module.controller 'ProcessingController', ($scope, $rootScope, $q, $state, $stat
             @processing.recipes[key] = index[Object.toId recipe]
 
     getIO: =>
-      Remote.post Object.toId(@root.workspace) + '/data/query/ids',
-        ids: _.map @processing.inputs, (obj) -> Object.toId obj.datum.datum
-      .then (@inputs) =>
+      input_ids = _.compact _.map @processing.inputs, (obj) -> 
+        if obj.datum?
+          Object.toId obj.datum.datum
 
       Remote.post Object.toId(@root.workspace) + '/data/query/ids',
-        ids: _.map @processing.outputs, (obj) -> Object.toId obj.datum.datum
+        ids: input_ids 
+      .then (@inputs) =>
+
+      output_ids = _.compact _.map @processing.outputs, (obj) -> 
+        if obj.datum?
+          Object.toId obj.datum.datum
+
+      Remote.post Object.toId(@root.workspace) + '/data/query/ids',
+        ids: output_ids
       .then (@outputs) =>
 
     getParent: =>

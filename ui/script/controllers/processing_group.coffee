@@ -76,9 +76,14 @@ module.controller 'ProcessingGroupController', ($scope, $rootScope, $q, $state, 
             @processing_group.recipes[key] = index[Object.toId recipe]
 
     getIO: =>
-      Remote.post Object.toId(@root.workspace) + '/data/query/ids',
-        ids: _.map @processing_group.inputs, (obj) -> Object.toId obj.datum.datum
-      .then (@inputs) =>
+      ids = _.compact _.map @processing_group.inputs, (obj) ->  
+        if obj.datum?
+          Object.toId obj.datum.datum
+
+      if ids.length > 0
+        Remote.post Object.toId(@root.workspace) + '/data/query/ids',
+          ids: ids
+        .then (@inputs) =>
 
     abort: =>
       Remote.post 'processing-groups/' + $state.params.id + '/action/abort', {}
