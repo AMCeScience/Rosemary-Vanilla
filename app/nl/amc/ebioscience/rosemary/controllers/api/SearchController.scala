@@ -38,7 +38,18 @@ import nl.amc.ebioscience.rosemary.services.search._
 @Singleton
 class SearchController @Inject() (
     securityService: SecurityService,
-    searchReader: SearchReader) extends Controller with JsonHelpers {
+    searchReader: SearchReader,
+    searchWriter: SearchWriter) extends Controller with JsonHelpers {
+
+  def reindex = Action {
+    searchWriter.deleteAllAndCommit
+    Logger.info("Reindexing the database")
+    Datum.findAll().toList.map(datum => searchWriter.add(datum))
+    Processing.findAll().toList.map(processing => searchWriter.add(processing))
+    ProcessingGroup.findAll().toList.map(processingGroup => searchWriter.add(processingGroup))
+    searchWriter.commit
+    Redirect("/")
+  }
 
   /** body of JSON requests to query data or processing */
   case class QueryRequest(
@@ -53,7 +64,7 @@ class SearchController @Inject() (
 
   def query = securityService.HasToken(parse.json) { implicit request =>
     val json = request.body
-    Logger.trace(s"Request: $json")
+    Logger.debug(s"Request: $json")
     json.validate[QueryRequest].fold(
       valid = { queryRequest =>
 

@@ -8,6 +8,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.7"
 
+javaOptions ++= Seq("-Xmx2G", "-Xms1G", "-XX:+UseG1GC", "-XX:MaxPermSize=512M", "-XX:+CMSClassUnloadingEnabled")
+
 scalacOptions ++= Seq("-feature","-language:reflectiveCalls")
 
 PlayKeys.playRunHooks <+= baseDirectory.map(base => Gulp(base))
@@ -17,6 +19,7 @@ libraryDependencies ++= Seq(
 //  ws,
   "org.keyczar" % "keyczar" % "0.71h",
   "org.mindrot" % "jbcrypt" % "0.4",
+  "org.kohsuke" % "wordnet-random-name" % "1.3",
   "com.github.shayanlinux" %% "play-plugins-salat" % "1.6.0",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.1",
   "org.apache.lucene" % "lucene-core" % "4.9.1",

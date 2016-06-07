@@ -33,10 +33,12 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
-import nl.amc.ebioscience.rosemary.services.SecurityService
+import nl.amc.ebioscience.rosemary.services.{ SecurityService, CryptoService }
 
 @Singleton
-class UsersController @Inject() (securityService: SecurityService) extends Controller with JsonHelpers {
+class UsersController @Inject() (
+    securityService: SecurityService, 
+    cryptoService: CryptoService) extends Controller with JsonHelpers {
 
   def index = securityService.HasToken(parse.empty) { implicit request =>
     Ok(User.findAll.toList.map(_.copy(password = "", credentials = Nil)).toJson)
@@ -61,7 +63,7 @@ class UsersController @Inject() (securityService: SecurityService) extends Contr
             val user = User(
               email = registrationRequest.email,
               password = registrationRequest.password,
-              name = registrationRequest.name).save
+              name = registrationRequest.name).hashPassword.insert
             val name = registrationRequest.name.split(' ')(0)
             val namePossessive = if (name.endsWith("s")) s"$name'" else s"$name's"
             WorkspaceTag(s"$namePossessive Workspace", Membered(user.id)).save
@@ -97,7 +99,7 @@ class UsersController @Inject() (securityService: SecurityService) extends Contr
     json.validate[CredentialRequest].fold(
       valid = { credRequest =>
         Resource.findOneById(credRequest.resource) map { resource =>
-          val cred = Credential(resource.id, credRequest.username, credRequest.password)
+          val cred = Credential(resource.id, credRequest.username, cryptoService.encrypt(credRequest.password))
           // TODO use passed id
           Ok(User.current.addCredential(cred).toJson)
         } getOrElse Conflict(s"Could not find resource_id ${credRequest.resource}")

@@ -23,7 +23,7 @@
 package nl.amc.ebioscience.rosemary.controllers
 
 import javax.inject._
-import play.api.Logger 
+import play.api.Logger
 import play.api.mvc._
 import scala.util.Random
 import java.util.Date
@@ -32,13 +32,15 @@ import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.processingmanager.types.ProcessingLifeCycle
+import org.kohsuke.randname.RandomNameGenerator
+import nl.amc.ebioscience.rosemary.services.CryptoService
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
 @Singleton
-class InitController @Inject() extends Controller {
+class InitController @Inject() (cryptoService: CryptoService) extends Controller {
 
   def init = Action {
     playSalat.db().dropDatabase()
@@ -52,26 +54,26 @@ class InitController @Inject() extends Controller {
     // Inject Processings
     injectProcessings
 
-    Redirect("/")
+    Redirect("/reindex")
   }
 
-  def initDB = {
+  private def initDB = {
     Logger.info("Initialising the database...")
 
     // Admin User
-    var adminUser = User("admin@rosemary.nl", "secret", "Admin Admin", true, true, Role.Admin).hashPassword.insert
+    var adminUser = User("admin@rosemary.ebioscience.amc.nl", "secret", "Admin Admin", true, true, Role.Admin).hashPassword.insert
     val adminWorkspace = WorkspaceTag("Admin's Workspace", Membered(adminUser.id)).insert
 
     // Test users
     // Approved, enabled user, and their workspace
-    var approvedUser = User("approved-user@rosemary.nl", "secret", "Approved User", true).hashPassword.insert
-    val approvedWorkspace = WorkspaceTag("Approved's Workspace", Membered(approvedUser.id)).insert
+    var approvedUser = User("approved-user@rosemary.ebioscience.amc.nl", "secret", "Approved User", true).hashPassword.insert
+    val approvedWorkspace = WorkspaceTag("Approved User's Workspace", Membered(approvedUser.id)).insert
     // Unapproved, enabled user, and their workspace
-    var unapprovedUser = User("unapproved-user@rosemary.nl", "secret", "Unapproved User", false).hashPassword.insert
-    val unapprovedWorkspace = WorkspaceTag("Unapproved's Workspace", Membered(unapprovedUser.id)).insert
+    var unapprovedUser = User("unapproved-user@rosemary.ebioscience.amc.nl", "secret", "Unapproved User", false).hashPassword.insert
+    val unapprovedWorkspace = WorkspaceTag("Unapproved User's Workspace", Membered(unapprovedUser.id)).insert
     // Approved, disabled user, and their workspace
-    var disabledUser = User("disabled-user@rosemary.nl", "secret", "Disabled User", true, false).hashPassword.insert
-    val disabledWorkspace = WorkspaceTag("Disabled's Workspace", Membered(disabledUser.id)).insert
+    var disabledUser = User("disabled-user@rosemary.ebioscience.amc.nl", "secret", "Disabled User", true, false).hashPassword.insert
+    val disabledWorkspace = WorkspaceTag("Disabled User's Workspace", Membered(disabledUser.id)).insert
     // Shared workspace with one owner and two members
     val multiWorkspace = WorkspaceTag("Multi-user Workspace", Membered(approvedUser.id, Set(disabledUser.id, adminUser.id))).insert
 
@@ -79,7 +81,7 @@ class InitController @Inject() extends Controller {
     val category_grandfather = DatumCategoryTag(Tag.DatumCategories.GrandFather.toString).insert
     val category_father = DatumCategoryTag(Tag.DatumCategories.Father.toString).insert
     val category_child = DatumCategoryTag(Tag.DatumCategories.Child.toString).insert
-    
+
     // Processing Category Tags
     val processing_category_dataprocessing = ProcessingCategoryTag(Tag.ProcessingCategories.DataProcessing.toString).insert
 
@@ -111,8 +113,8 @@ class InitController @Inject() extends Controller {
       host = "localhost",
       basePath = Some("/webdav/files"),
       username = Some("webdav"),
-      password = Some("secret")).insert
-    
+      password = Some(cryptoService.encrypt("secret"))).insert
+
     // Mock application
     val mockPmIPorts = Set(
       AbstractPort(name = "Parameter One", kind = PortKind.Param),
@@ -135,12 +137,12 @@ class InitController @Inject() extends Controller {
     Logger.info("Done initialising the database")
   }
 
-  def injectData = {
+  private def injectData = {
+    import nl.amc.ebioscience.rosemary.models.core.ValunitConvertors._
     Logger.info("Injecting datums into database...")
 
-
     // Get a user whose workspace we're going to fill
-    val adminUser = User.find("admin@rosemary.nl").get
+    val adminUser = User.find("admin@rosemary.ebioscience.amc.nl").get
 
     // Get the workspace
     val workspace = adminUser.getWorkspaceTagsHasAccess.filter(_.name == "Multi-user Workspace").head
@@ -151,51 +153,64 @@ class InitController @Inject() extends Controller {
 
     val resource = Resource.getLocalMongoResource
 
-    // Grandfather datums
-    for (gfi <- 1 to 5) {
-      val fatherIds = scala.collection.mutable.Set.empty[Datum.Id]
+    val rnd = new RandomNameGenerator()
 
-      // Father datums
-      for (fi <- 1 to Random.nextInt(5)) {
-        val childIds = scala.collection.mutable.Set.empty[Datum.Id]
-        
-        // Child datums
-        for (ci <- 1 to Random.nextInt(5)) {
-          val childDatum = Datum(
-            name = s"ChildDatum_${ci}",
-            resource = Some(resource.id),
-            tags = Set(workspace.id, childTag)
-            ).insert
+    val grandFathers = for {
+      gfi <- 1 to 5
+    } yield Datum(
+      name = s"GrandFatherDatum_${gfi}",
+      resource = Some(resource.id),
+      tags = Set(workspace.id, grandFatherTag),
+      info = Info(
+        dict = Map(
+          "gf/number" -> Random.nextInt(100).toString(),
+          "gf/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+          "gf/who" -> rnd.next()).toValunit)).insert
 
-          childIds += childDatum.id
-        }
+    grandFathers.map { grandFather =>
+      val fathers = for {
+        fi <- 1 to Random.nextInt(5)
+      } yield Datum(
+        name = s"FatherDatum_${fi}",
+        resource = Some(resource.id),
+        tags = Set(workspace.id, fatherTag),
+        info = Info(
+          dict = Map(
+            "f/number" -> Random.nextInt(100).toString(),
+            "f/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+            "f/who" -> rnd.next()).toValunit,
+          inheritedDict = grandFather.info.dict ++ grandFather.info.inheritedDict,
+          ascendents = grandFather.info.ascendents ::: List(Catname(grandFather.getCategoryName.getOrElse("unknown"), grandFather.name)))).insert
 
-        val fatherDatum = Datum(
-          name = s"FatherDatum_${fi}",
-          children = childIds.toSet,
+      fathers.map { father =>
+        val children = for {
+          ci <- 1 to Random.nextInt(5)
+        } yield Datum(
+          name = s"ChildDatum_${ci}",
           resource = Some(resource.id),
-          tags = Set(workspace.id, fatherTag)
-          ).insert
+          tags = Set(workspace.id, childTag),
+          info = Info(
+            dict = Map(
+              "c/number" -> Random.nextInt(100).toString(),
+              "c/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+              "c/who" -> rnd.next()).toValunit,
+            inheritedDict = father.info.dict ++ father.info.inheritedDict,
+            ascendents = father.info.ascendents ::: List(Catname(father.getCategoryName.getOrElse("unknown"), father.name)))).insert
 
-        fatherIds += fatherDatum.id
+        father.copy(children = father.children ++ children.map(_.id).toSet).update
       }
 
-      Datum(
-        name = s"GrandFatherDatum_${gfi}",
-        children = fatherIds.toSet,
-        resource = Some(resource.id),
-        tags = Set(workspace.id, grandFatherTag)
-        ).insert
+      grandFather.copy(children = grandFather.children ++ fathers.map(_.id).toSet).update
     }
 
     Logger.info("Done injecting datums into database")
   }
 
-  def injectProcessings = {
+  private def injectProcessings = {
     Logger.info("Injecting processings into database...")
 
     // Get a user whose workspace we're going to fill
-    val adminUser = User.find("admin@rosemary.nl").get
+    val adminUser = User.find("admin@rosemary.ebioscience.amc.nl").get
 
     // Get the workspace
     val workspace = adminUser.getWorkspaceTagsHasAccess.filter(_.name == "Multi-user Workspace").head
@@ -255,16 +270,14 @@ class InitController @Inject() extends Controller {
             ParamOrDatum(
               name = abstractPort.name,
               param = if (abstractPort.kind == PortKind.Param) Some(Random.alphanumeric.take(10).mkString) else None,
-              datum = if (abstractPort.kind == PortKind.File) Some(DatumAndReplica(datum = datum.id)) else None
-            )
+              datum = if (abstractPort.kind == PortKind.File) Some(DatumAndReplica(datum = datum.id)) else None)
           },
           outputs = someOfTheOPorts.map { abstractPort =>
             val datum = resourceData(Random.nextInt(resourceData.size))
             ParamOrDatum(
               name = abstractPort.name,
               param = if (abstractPort.kind == PortKind.Param) Some(Random.alphanumeric.take(10).mkString) else None,
-              datum = if (abstractPort.kind == PortKind.File) Some(DatumAndReplica(datum = datum.id)) else None
-            )
+              datum = if (abstractPort.kind == PortKind.File) Some(DatumAndReplica(datum = datum.id)) else None)
           },
           recipes = Set(application.id),
           tags = Set(workspace.id, dataProcessingTag.id, seqStatusTags(Random.nextInt(seqStatusTags.size))),

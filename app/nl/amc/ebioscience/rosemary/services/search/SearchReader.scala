@@ -35,14 +35,14 @@ import org.apache.lucene.queries.ChainedFilter
 import org.apache.lucene.util.Version
 import org.bson.types.ObjectId
 import java.time.{ Clock, Instant }
+import org.apache.lucene.search.SearcherManager
 
 @Singleton
 class SearchReader @Inject() (lifecycle: ApplicationLifecycle) {
 
   val ITEMS_PER_PAGE = 10
 
-  val reader = DirectoryReader.open(SearchConfig.directory)
-  val searcher = new IndexSearcher(reader)
+  val manager = new SearcherManager(SearchConfig.directory, null)
 
   lifecycle.addStopHook { () =>
     Future.successful(close)
@@ -55,11 +55,12 @@ class SearchReader @Inject() (lifecycle: ApplicationLifecycle) {
     kind: Option[SupportedTypes.Value],
     page: Int): Either[String, List[Searchable.Id]] = {
 
-    val start: Instant = Clock.systemDefaultZone.instant
+    lazy val start: Instant = Clock.systemDefaultZone.instant
+    val searcher = manager.acquire
 
     val pattern = "(\\S*:)(\\S*)".r
 
-    val queryTermList = query.toLowerCase.replace("/", "\\/").split(' ')
+    val queryTermList = query.toLowerCase.replace("/", "\\/").replace("\"", "").split(' ')
     val correctedQueryTermList = for (qt <- queryTermList) yield qt match {
       case str @ ("and" | "or" | "not") => str.toUpperCase
       case pattern(field, term)         => s"$field/.*$term.*/"
@@ -96,20 +97,31 @@ class SearchReader @Inject() (lifecycle: ApplicationLifecycle) {
         new ObjectId(id)
       }).toList
 
-      val stop: Instant = Clock.systemDefaultZone.instant
-      val runningTime: Long = stop.getEpochSecond - start.getEpochSecond
+      lazy val stop: Instant = Clock.systemDefaultZone.instant
+      lazy val runningTime: Long = stop.getEpochSecond - start.getEpochSecond
       Logger.trace(s"Search took ${runningTime} miliseconds")
 
       Right(result)
     } catch {
       case e: ParseException => Left(e.getMessage())
+    } finally {
+      manager.release(searcher)
+    }
+  }
+
+  def refresh {
+    Logger.debug("Refreshing SearcherManager...")
+    try {
+      manager.maybeRefresh
+    } catch {
+      case e: Exception => Logger.error(s"SearchReader refresh exception: ${e.getMessage}")
     }
   }
 
   def close {
     Logger.debug("Closing search reader...")
     try {
-      reader.close
+      manager.close
     } catch {
       case e: Exception => Logger.error(s"SearchReader close exception: ${e.getMessage}")
     }

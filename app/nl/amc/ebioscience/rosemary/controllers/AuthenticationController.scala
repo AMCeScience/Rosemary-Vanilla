@@ -32,6 +32,7 @@ import play.api.i18n.{ MessagesApi, Messages, Lang }
 import play.api.cache.CacheApi
 import play.api.Configuration
 import play.api.mvc._
+import play.api.Logger
 
 @Singleton
 class AuthenticationController @Inject() (configuration: Configuration, messagesApi: MessagesApi, cacheApi: CacheApi)
@@ -43,7 +44,7 @@ class AuthenticationController @Inject() (configuration: Configuration, messages
   private val AuthTokenCookieKey = "XSRF-TOKEN"
 
   private lazy val CacheExpiration =
-    configuration.getInt("cache.expiration").getOrElse(60 /*seconds*/ * 2 /* minutes */ ).seconds
+    configuration.getInt("cache.expiration").getOrElse(60 /*seconds*/ * 60 /* minutes */ ).seconds
 
   case class Login(email: String, password: String)
 
@@ -54,11 +55,13 @@ class AuthenticationController @Inject() (configuration: Configuration, messages
 
   implicit class ResultWithToken(result: Result) {
     def withToken(token: (String, User.Id)): Result = {
+      Logger.trace(s"Adding token to cache: $token with expiration $CacheExpiration")
       cacheApi.set(token._1, token._2, CacheExpiration)
       result.withCookies(Cookie(AuthTokenCookieKey, token._1, None, httpOnly = false))
     }
 
     def discardingToken(token: String): Result = {
+      Logger.trace(s"Discarding token from cache: $token")
       cacheApi.remove(token)
       result.discardingCookies(DiscardingCookie(name = AuthTokenCookieKey))
     }
@@ -84,6 +87,7 @@ class AuthenticationController @Inject() (configuration: Configuration, messages
 
   /** Invalidate the token in the Cache and discard the cookie */
   def logout = Action { implicit request =>
+    Logger.trace(s"Recievned logout request: ${request.headers.toMap}")
     request.headers.get(AuthTokenHeader) map { token =>
       Redirect("/").discardingToken(token)
     } getOrElse BadRequest(Json.obj("err" -> "No Token"))

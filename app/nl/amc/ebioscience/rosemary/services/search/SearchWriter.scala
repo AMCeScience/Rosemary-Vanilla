@@ -32,7 +32,7 @@ import org.apache.lucene.document.{ Document, StringField, Field, TextField }
 import org.apache.lucene.index.{ IndexWriter, IndexWriterConfig }
 
 @Singleton
-class SearchWriter @Inject() (lifecycle: ApplicationLifecycle) {
+class SearchWriter @Inject() (searchReader: SearchReader, lifecycle: ApplicationLifecycle) {
 
   val writerConfig = new IndexWriterConfig(SearchConfig.version, SearchConfig.analyzer)
   // writerConfig.setRAMBufferSizeMB(256.0)
@@ -105,6 +105,7 @@ class SearchWriter @Inject() (lifecycle: ApplicationLifecycle) {
     Logger.debug("Committing search writer...")
     try {
       writer.commit
+      searchReader.refresh
     } catch {
       case e: Exception => Logger.error(s"SearchWriter commit exception: ${e.getMessage}")
     }

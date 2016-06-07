@@ -49,10 +49,20 @@ case class Catname(category: String, name: String)
 
 object ValunitConvertors {
   import scala.language.implicitConversions
+
   implicit class TupleToValunit(t: (String, String)) {
-    def toValunit = t._1 -> Valunit(t._2)
+    def toValunit = t._1 -> t._2.toValunit
   }
+
+  implicit class MapToValunit(ms: Map[String, String]) {
+    def toValunit = ms.mapValues(_.toValunit)
+  }
+
   implicit class ListTupleToListValunit(ts: List[(String, String)]) {
     def toValunit = ts.map(_.toValunit)
+  }
+
+  implicit class StringToValunit(str: String) {
+    def toValunit = Valunit(str)
   }
 }
