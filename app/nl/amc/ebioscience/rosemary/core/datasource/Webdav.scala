@@ -33,8 +33,8 @@ import nl.amc.ebioscience.rosemary.services.CryptoService
 
 /**
  * @param resource The WebDAV resource to connect to
- * @socket The WebSocket to send the notifications
- * @importId The ImportID to include in the notifications
+ * @param socket The WebSocket to send the notifications
+ * @param importId The ImportID to include in the notifications
  */
 class Webdav(
     val resource: Resource,

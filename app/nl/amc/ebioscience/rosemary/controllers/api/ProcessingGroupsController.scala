@@ -56,6 +56,9 @@ class ProcessingGroupsController @Inject() (
     searchWriter: SearchWriter,
     actorSystem: ActorSystem) extends Controller with JsonHelpers {
 
+  /**
+   * Captures information required to submit a new ProcessingGroup
+   */
   case class SubmitProcessingGroupRequest(
       workspace: Tag.Id,
       application: Recipe.Id,

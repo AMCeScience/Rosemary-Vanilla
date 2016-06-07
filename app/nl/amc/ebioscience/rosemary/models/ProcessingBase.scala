@@ -42,7 +42,7 @@ trait ProcessingBase extends Searchable {
 
   /**
    * Get updated values of [[statuses]], [[progress]], and [[tags]] based on the new status and progress
-   * to use in the [[copy]] method to [[update]] an instance of subclasses
+   * to use in the copy method to update an instance of subclasses
    */
   def getToUpdateStatusesTagsProgress(newStatus: ProcessingLifeCycle.Value, newProgress: Option[Int]) = {
     val lastStatusOpt = statuses.lastOption
