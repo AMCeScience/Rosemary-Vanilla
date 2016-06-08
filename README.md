@@ -27,3 +27,4 @@ Also see: [Contributions](docs/general/contributions.md)
 
 Read more about us [here](http://www.ebioscience.amc.nl/about-us/).
 
+Also see: [Authors](AUTHORS.md)

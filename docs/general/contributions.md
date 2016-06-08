@@ -17,3 +17,5 @@ non-exclusive, no-charge, royalty-free, irrevocable license under
 the contributor’s interest in patent rights covering the contribution, 
 to make, have made, use, sell and otherwise transfer the contribution, 
 alone or in combination with any other code.
+
+Also see: [License](https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md)
