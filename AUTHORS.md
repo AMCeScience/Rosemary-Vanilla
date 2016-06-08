@@ -17,6 +17,7 @@ Contributions are made while employed by the AMC:
 - [Allard van Altena](https://github.com/Flythe)
 - [Jorrit Posthuma](https://github.com/JorritPosthuma)
 - [Juan Luis Font](https://github.com/juanlufont)
+- Mahdi Jaghouri
 
 ### External
 
