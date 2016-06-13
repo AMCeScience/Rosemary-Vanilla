@@ -27,16 +27,31 @@ import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import com.mongodb.casbah.Imports._
 
+/**
+ * Thread keeps a series of `MessageTag`s and watchers
+ *
+ * @param watchers Set of user IDs of those who watch this thread specifically
+ * @param messages List of [[MessageTag]] IDs in chronological order
+ * @param tags WorkspaceTag IDs to attach this thread to a workspace
+ * @param id ID of this Thread, system provided
+ * @param info Metadata bout this Thread
+ */
 case class Thread(
-    watchers: Set[User.Id], // Those who watch this thread and receive notification for every message posted
-    messages: List[Tag.Id], // List of MessageTags in chronological order
-    tags: Set[Tag.Id], // To relate this thread to a workspace (WorkspaceTag)
+    watchers: Set[User.Id],
+    messages: List[Tag.Id],
+    tags: Set[Tag.Id],
     id: Thread.Id = new Thread.Id,
     info: Info = new Info) extends BaseEntity with WithTags {
 
+  /**
+   * Get the messages in this thread in chronological order
+   */
   def getMessages = Tag.findByIds(messages.toSet).toList.sortBy(_.info.created).reverse
 }
 
+/**
+ * Thread companion object that contains database queries specific to the `threads` collection.
+ */
 object Thread extends DefaultModelBase[Thread]("threads") with TagsQueries[Thread] {
 
   def addMessage(threadId: Thread.Id, messageId: Tag.Id) = update(
@@ -45,26 +60,32 @@ object Thread extends DefaultModelBase[Thread]("threads") with TagsQueries[Threa
 
   def getMessages(threadId: Thread.Id) = Thread.findOneById(threadId).map(_.getMessages)
 
-  /** Get at most 10 threads sorted in reverse chronological order
-    * starting from the specified page
-    */
+  /**
+   * Get at most 10 threads sorted in reverse chronological order
+   * starting from the specified page
+   */
   def getThreads(workspaceId: Tag.Id, page: Int) =
     findWithAnyTags(Set(workspaceId), page).toList
 
-  /** Add the author and all subscribers to the watchers of the specified thread.
-    * If they are already watching they won't be added again.
-    */
+  /**
+   * Add the author and all subscribers to the watchers of the specified thread.
+   * If they are already watching they won't be added again.
+   */
   def addWatchers(threadId: Thread.Id, subscribers: Set[User.Id]) = update(
     "_id" $eq threadId,
     $addToSet("watchers") $each subscribers)
 
-  /** Removes the specified unsubscribers from the watchers of the specified thread */
+  /**
+   * Removes the specified unsubscribers from the watchers of the specified thread
+   */
   def removeWatchers(threadId: Thread.Id, unsubscribers: Set[User.Id]) = update(
     "_id" $eq threadId,
     $pullAll("watchers" -> unsubscribers))
 
-  /** Get the workspace id of a thread */
-  // TODO implement better
+  /**
+   * Get the workspace id of a thread
+   */
   def getWorkspace(threadId: Thread.Id): Option[Tag.Id] =
+    // TODO implement better
     for (thread <- findOneById(threadId) if thread.tags.size == 1) yield thread.tags.head
 }
