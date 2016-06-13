@@ -85,7 +85,8 @@ class ProcessingManagerClient @Inject() (configService: ConfigService) {
 
   // Requests related to a Processing
   def submitProcessing(processingMsg: ProcessingMessage): Either[String, Option[ProcessingMessage]] = {
-    Logger.debug(Json.prettyPrint(Json.toJson(processingMsg)))
+    import HidePasswords._
+    Logger.debug(Json.prettyPrint(Json.toJson(processingMsg.hidePassword)))
     val res = query(requestAsJson(baseReq).PUT / "processing" << Json.stringify(Json.toJson(processingMsg)))
 
     res.right.map { json =>
@@ -153,5 +154,27 @@ class ProcessingManagerClient @Inject() (configService: ConfigService) {
   private def logErrorsAndReturnNone(fieldErrors: Seq[(JsPath, Seq[ValidationError])]) = {
     fieldErrors.foreach(x => { Logger.error("field: " + x._1 + ", errors: " + x._2) })
     None
+  }
+}
+
+object HidePasswords {
+
+  implicit class HideForCredentials(credentials: Option[Credentials]) {
+    def hidePassword = credentials.map(_.copy(password = "HiddenFromLog"))
+  }
+
+  implicit class HideForInputsOrOutputs(listPortMessagePart: List[PortMessagePart]) {
+    def hidePassword = listPortMessagePart.map { portMessagePart =>
+      portMessagePart.copy(
+        readCreds = portMessagePart.readCreds.hidePassword,
+        writeCreds = portMessagePart.writeCreds.hidePassword)
+    }
+  }
+
+  implicit class HideForProcessingMessage(processingMessage: ProcessingMessage) {
+    def hidePassword = processingMessage.copy(
+      inputs = processingMessage.inputs.hidePassword,
+      outputs = processingMessage.outputs.hidePassword,
+      platformCreds = processingMessage.platformCreds.hidePassword)
   }
 }

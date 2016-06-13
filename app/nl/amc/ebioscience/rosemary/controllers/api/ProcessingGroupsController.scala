@@ -40,7 +40,7 @@ import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
 import nl.amc.ebioscience.rosemary.core.{ WebSockets, HelperTools }
 import nl.amc.ebioscience.rosemary.actors.ProcessingStatusCheckActor
-import nl.amc.ebioscience.rosemary.services.SecurityService
+import nl.amc.ebioscience.rosemary.services.{ SecurityService, CryptoService }
 import nl.amc.ebioscience.rosemary.services.processing._
 import nl.amc.ebioscience.rosemary.services.search._
 import nl.amc.ebioscience.processingmanager.types.messaging.{ ProcessingMessage, PortMessagePart }
@@ -51,6 +51,7 @@ import akka.actor.ActorSystem
 @Singleton
 class ProcessingGroupsController @Inject() (
     securityService: SecurityService,
+    cryptoService: CryptoService,
     processingManagerClient: ProcessingManagerClient,
     processingHelper: ProcessingHelper,
     searchWriter: SearchWriter,
@@ -177,7 +178,7 @@ class ProcessingGroupsController @Inject() (
                   for (user <- transformer.planet.username; pass <- transformer.planet.password) yield Credential(
                     resource = transformer.planet.id,
                     username = user,
-                    password = pass)
+                    password = cryptoService.decrypt(pass))
                 }
                 val pmcreds = creds.map { c =>
                   Credentials(
