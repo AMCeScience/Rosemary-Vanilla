@@ -54,7 +54,6 @@ class ResourcesController @Inject() (
 
     def validateKind = kind.toLowerCase match {
       case "webdav" => Right(ResourceKind.Webdav)
-      case "irods"  => Right(ResourceKind.Irods)
       case k @ _    => Left(s"Unsupported kind $k")
     }
 

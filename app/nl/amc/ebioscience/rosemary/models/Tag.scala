@@ -221,13 +221,11 @@ object Tag extends DefaultModelBase[Tag]("tags") {
 
   /** Names used to initialize data category tags and find them in the datumCategoriesMap */
   object DatumCategories extends Enumeration {
-    // val Study, Subject, Sample, Extract, Sequence = Value
     val GrandFather, Father, Child = Value
   }
 
   /** Names used to initialize data category tags and find them in the processingCategoriesMap */
   object ProcessingCategories extends Enumeration {
-    // val Protocol, Assay, DataProcessing = Value
     val DataProcessing = Value
   }
 }
