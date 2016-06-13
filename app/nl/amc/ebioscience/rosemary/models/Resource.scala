@@ -28,9 +28,19 @@ import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import play.api.Play
 
 /**
+ * Resource captures information about data or computing resources
+ *
+ * @param name Name of this resource
+ * @param kind one of the [[ResourceKind]]s
+ * @param protocol Protocol String e.g., http or https
+ * @param host Host address
+ * @param port Port number
  * @param basePath Base Path for this resource, for example, Some("/my/webdav")
- * @param username Community-specific username
- * @param password Community-specific password
+ * @param username System-wide username
+ * @param password System-wide password
+ * @param tags Workspace tags to capture availability for workspaces (not implemented)
+ * @param id ID of this Resource, system provided
+ * @param info Captures metadata of this Resource
  */
 case class Resource(
     name: String,
@@ -39,12 +49,16 @@ case class Resource(
     host: String,
     port: Int = 80,
     basePath: Option[String] = None,
-    // TODO Think about community credentials
     username: Option[String] = None,
     password: Option[String] = None,
+    // TODO Think about community credentials
+    tags: Set[Tag.Id] = Set.empty,
     id: Resource.Id = new Resource.Id,
-    info: Info = new Info) extends BaseEntity {
+    info: Info = new Info) extends BaseEntity with WithTags{
 
+  /**
+   * @return URI of this resource, e.g., "https://localhost:9000/my/files"
+   */
   val uri = {
     val bp = basePath.getOrElse("")
     val uri = port match {
@@ -56,7 +70,10 @@ case class Resource(
   }
 }
 
-object Resource extends DefaultModelBase[Resource]("resources") {
+/**
+ * Resource companion object that contains database queries specific to the `resources` collection.
+ */
+object Resource extends DefaultModelBase[Resource]("resources") with TagsQueries[Resource] {
   def findResourceByHostname(hostname: String) = findOne(("host" -> hostname))
 
   val defaultWebdavHost = Play.current.configuration.getString("webdav.host.default").getOrElse("orange.ebioscience.amc.nl")
@@ -66,6 +83,5 @@ object Resource extends DefaultModelBase[Resource]("resources") {
 }
 
 object ResourceKind extends Enumeration {
-  // val Xnat, Webdav, Irods, Mongodb = Value
-  val Webdav, Irods, Mongodb = Value
+  val Webdav, Mongodb = Value
 }
