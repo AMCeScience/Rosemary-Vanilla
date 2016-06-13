@@ -23,6 +23,7 @@
 package nl.amc.ebioscience.rosemary
 
 import com.google.inject.AbstractModule
+import com.google.inject.name.Names
 import play.api.libs.concurrent.AkkaGuiceSupport
 import java.time.Clock
 
@@ -31,6 +32,7 @@ import nl.amc.ebioscience.rosemary.services._
 import nl.amc.ebioscience.rosemary.services.dao._
 import nl.amc.ebioscience.rosemary.services.search._
 import nl.amc.ebioscience.rosemary.services.processing._
+import nl.amc.ebioscience.rosemary.services.processing.transformers._
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -71,6 +73,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[ProcessingManagerClient])
     bind(classOf[ProcessingHelper])
     bind(classOf[ProcessingStatusCheckDaemon]).asEagerSingleton()
+    bind(classOf[Transformer]).annotatedWith(Names.named("mockTransformer")).to(classOf[MockTransformer])
 
     bind(classOf[SearchWriter]).asEagerSingleton()
     bind(classOf[SearchReader])

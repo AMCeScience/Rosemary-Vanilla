@@ -23,10 +23,10 @@
 package nl.amc.ebioscience.rosemary.controllers.api
 
 import javax.inject._
+import play.api.inject.{ QualifierInstance, BindingKey }
 import play.api.{ Application => PlayApplication, _ }
 import play.api.mvc._
 import play.api.libs.json._
-import scala.reflect.runtime.universe
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
@@ -39,6 +39,7 @@ import nl.amc.ebioscience.rosemary.services.search._
 import nl.amc.ebioscience.processingmanager.types.messaging.{ ProcessingMessage, PortMessagePart }
 import nl.amc.ebioscience.processingmanager.types.{ ProcessingLifeCycle, PortType, Credentials }
 import java.util.Date
+import com.google.inject.name.Names
 
 @Singleton
 class ProcessingsController @Inject() (
@@ -46,7 +47,8 @@ class ProcessingsController @Inject() (
     cryptoService: CryptoService,
     processingManagerClient: ProcessingManagerClient,
     processingHelper: ProcessingHelper,
-    searchWriter: SearchWriter) extends Controller with JsonHelpers {
+    searchWriter: SearchWriter,
+    playApplication: Provider[PlayApplication]) extends Controller with JsonHelpers {
 
   case class SubmitProcessingRequest(
       workspace: Tag.Id,
@@ -122,9 +124,9 @@ class ProcessingsController @Inject() (
             val application = objectMap(submitReq.application).asInstanceOf[Application]
 
             // run-time binding using the Scala reflection API
-            val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
-            val module = runtimeMirror.staticModule(application.transformer)
-            val transformer = runtimeMirror.reflectModule(module).instance.asInstanceOf[Transformer]
+            val qualifier = Some(QualifierInstance(Names.named(application.transformer)))
+            val bindingKey = BindingKey[Transformer](classOf[Transformer], qualifier)
+            val transformer = playApplication.get.injector.instanceOf[Transformer](bindingKey)
 
             // to avoid multiple queries to the DB, wrap it in the Cybertronian
             val cybertronian = Cybertronian(

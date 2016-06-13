@@ -132,7 +132,7 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
       platform = Some("Dirac"),
       iPorts = mockUiIPorts,
       pmApplication = mockPmApp,
-      transformer = "nl.amc.ebioscience.rosemary.core.processing.transformers.MockTransformer").insert
+      transformer = "mockTransformer").insert
 
     Logger.info("Done initialising the database")
   }
