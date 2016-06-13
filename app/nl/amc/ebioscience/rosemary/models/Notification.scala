@@ -30,48 +30,92 @@ import com.mongodb.casbah.Imports._
 import nl.amc.ebioscience.processingmanager.types.ProcessingLifeCycle
 
 @Salat
-sealed trait Notification extends BaseEntity with WithTags {
-}
+sealed trait Notification extends BaseEntity with WithTags
 
-/** {actor} {action} {affected} to/from {workspace} */
+/**
+ * {actor} {action} {affected} to/from {workspace}
+ *
+ * @param actor ID of the user who added or removed somebody to/from a Workspace
+ * @param action "added" or "removed"
+ * @param affected ID of the user who is added or removed to/from a workspace
+ * @param workspace ID of the `WorkspaceTag` to/from which somebody is added/removed
+ * @param tags Set of `WorkspaceTag` IDs for visibility of this notification
+ * @param id ID of this `Notification`, system provided
+ * @param info Metadata about this `Notification`
+ */
 case class UserWorkspaceNotification(
   actor: User.Id,
-  action: String, // added | removed
+  action: String,
   affected: User.Id,
-  workspace: Tag.Id, // WorkspaceTag
+  workspace: Tag.Id,
   tags: Set[Tag.Id],
   id: Notification.Id = new Notification.Id,
   info: Info = new Info) extends Notification
 
-/** {actor} imported {summary} from {resource} to {workspace}, see {imported} */
+/**
+ * {actor} imported {summary} from {resource} to {workspace}, see {imported}
+ *
+ * @param actor ID of the user who initiated the import
+ * @param resource ID of the resource from which the data is imported
+ * @param workspace ID of the `WorkspaceTag` that the data is imported to
+ * @param imported ID of the `SystemTag` that is added to the newly imported data
+ * @param tags Set of `WorkspaceTag` IDs for visibility of this notification
+ * @param id ID of this `Notification`, system provided
+ * @param info Metadata about this `Notification`
+ */
 case class ImportNotification(
   actor: User.Id,
   resource: Resource.Id,
-  workspace: Tag.Id, // WorkspaceTag
-  imported: Tag.Id, // SystemTag
+  workspace: Tag.Id,
+  imported: Tag.Id,
   tags: Set[Tag.Id],
   id: Notification.Id = new Notification.Id,
   info: Info = new Info // 1 project, 20 subjects, 20 image sessions, 80 scans, 160 files
   ) extends Notification
 
-/** New data is available */
+/**
+ * {processing} generated {newdata}
+ *
+ * @param processing ID of the `ProcessingGroup` that generated the new data
+ * @param newdata ID of the `SystemTag` that is added to the newly generated data
+ * @param tags Set of `WorkspaceTag` IDs for visibility of this notification
+ * @param id ID of this `Notification`, system provided
+ * @param info Metadata about this `Notification`
+ */
 case class NewDataNotification(
   processing: ProcessingGroup.Id,
-  newdata: Tag.Id, // SystemTag
+  newdata: Tag.Id,
   tags: Set[Tag.Id],
   id: Notification.Id = new Notification.Id,
   info: Info = new Info) extends Notification
 
-/** {actor} {action} {processing} */
+/**
+ * {actor} {action} {processing}
+ *
+ * @param actor ID of the user who initiated the action
+ * @param action "submitted", "resumed", or "aborted"
+ * @param processing ID of the `ProcessingGroup` who is affected
+ * @param tags Set of `WorkspaceTag` IDs for visibility of this notification
+ * @param id ID of this `Notification`, system provided
+ * @param info Metadata about this `Notification`
+ */
 case class UserProcessingNotification(
   actor: User.Id,
-  action: String, // submitted | resumed | cancled
+  action: String,
   processing: ProcessingGroup.Id,
   tags: Set[Tag.Id],
   id: Notification.Id = new Notification.Id,
   info: Info = new Info) extends Notification
 
-/** {processing} is {status} */
+/**
+ * {processing} status changed to {status}
+ *
+ * @param processing ID of the `ProcessingGroup` with the new status
+ * @param status The new status
+ * @param tags Set of `WorkspaceTag` IDs for visibility of this notification
+ * @param id ID of this `Notification`, system provided
+ * @param info Metadata about this `Notification`
+ */
 case class ProcessingNotification(
   processing: ProcessingGroup.Id,
   status: ProcessingLifeCycle.Value,
@@ -79,16 +123,29 @@ case class ProcessingNotification(
   id: Notification.Id = new Notification.Id,
   info: Info = new Info) extends BaseEntity with Notification
 
-/** {actor} sent a {message} [with {} data and {} processings] to {receivers} */
+/**
+ * {actor} sent a {message} [with {} data and {} processings] to {receivers}
+ *
+ * @param actor ID of the user who authored this message, n.b. if `None`, it is the System
+ * @param message ID of the `MessageTag`
+ * @param thread ID of the `Thread` that includes the message
+ * @param receivers Set of IDs of the users to whom this message is sent directly, n.b. this might be different than watchers
+ * @param tags Set of `WorkspaceTag` IDs for visibility of this notification
+ * @param id ID of this `Notification`, system provided
+ * @param info Metadata about this `Notification`
+ */
 case class MessageNotification(
-  actor: Option[User.Id], // if None, it's System
-  message: Tag.Id, // MessageTag
+  actor: Option[User.Id],
+  message: Tag.Id,
   thread: Thread.Id,
-  receivers: Set[User.Id], // this might be different than watchers
+  receivers: Set[User.Id],
   tags: Set[Tag.Id],
   id: Notification.Id = new Notification.Id,
   info: Info = new Info) extends Notification
 
+/**
+ * Notification companion object that contains database queries specific to the `notifications` collection.
+ */
 object Notification extends DefaultModelBase[Notification]("notifications") with TagsQueries[Notification] {
 
   collection.createIndex(("_id" -> 1, "_t" -> 1), ("default_language" -> "none"))
