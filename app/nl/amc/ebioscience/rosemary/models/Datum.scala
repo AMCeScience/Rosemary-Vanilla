@@ -88,7 +88,7 @@ case class Datum(
 }
 
 /**
- * Datum companion object for queries on the `data` collection
+ * Datum companion object that contains database queries specific to the `data` collection.
  */
 object Datum extends DefaultModelBase[Datum]("data") with TagsQueries[Datum] {
 

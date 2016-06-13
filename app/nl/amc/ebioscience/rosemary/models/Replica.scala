@@ -27,9 +27,18 @@ import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import com.novus.salat.annotations._
 
 /**
-  * @param location Relative location, for example "data/project/file.txt"
-  * @param uri Do not use this, it is overwritten by [[WithReplica.getReplicas]] method
-  */
+ * Replica captures location of files on resources
+ *
+ * @param resource ID of the resource in Rosemary
+ * @param location Relative location, for example "data/project/file.txt"
+ * @param originalName Original name of this file, in case it has been uploaded
+ * @param contentType Content type of this file, in case it has been uploaded
+ * @param hash File hash
+ * @param uri Do not use this, it is overwritten by [[WithReplica.getReplicas]] method to include complete URI
+ * @param valid Better to make a replica invalid instead of removing it
+ * @param id ID of this Replica
+ * @param info Metadata about this Replica
+ */
 case class Replica(
   resource: Resource.Id,
   location: String,
