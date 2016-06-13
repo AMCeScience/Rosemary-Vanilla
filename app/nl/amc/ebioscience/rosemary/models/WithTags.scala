@@ -35,7 +35,7 @@ trait WithTags extends BaseEntity {
   def getCategoryTags = {
     Tag.findByIds(tags).filter { t => t.isInstanceOf[DatumCategoryTag] || t.isInstanceOf[ProcessingCategoryTag] }
   }
-  
+
   def getProcessingStatusTags = {
     Tag.findByIds(tags).filter { t => t.isInstanceOf[ProcessingStatusTag] }
   }
@@ -57,7 +57,7 @@ trait WithTags extends BaseEntity {
 }
 
 trait TagsQueries[T <: WithTags] {
-  this: DefaultModelBase[T] =>
+  self: DefaultModelBase[T] =>
 
   val pageSize = 10
 
