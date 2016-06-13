@@ -61,8 +61,6 @@ trait TagsQueries[T <: WithTags] {
 
   val pageSize = 10
 
-  /* UNSAFE/UNFILTERED FUNCTIONS */
-
   def findByIdsAndAllTags(ids: Set[Id], tags: Set[Tag.Id]) =
     find($and(("_id" $in ids), ("tags" $all tags))).toList
 
@@ -88,7 +86,7 @@ trait TagsQueries[T <: WithTags] {
       case (Nil, Nil) => emptyCursor // TODO this should give an empty SalatMongoCursor
       case (wts, Nil) => findWithAnyTagsNoPage(wts.toSet)
       case (Nil, ots) => findWithAllTagsNoPage(ots.toSet)
-      case (wts, ots) => find($and(("tags" $in wsTags), ("tags" $all tags))).sort("name" -> 1)
+      case (wts, ots) => find($and(("tags" $in wsTags), ("tags" $all tags))).sort("name" $eq 1)
     }
 
   def findWithAnyWorkspaceTagAndWithAllTags(wsTags: List[Tag.Id], tags: List[Tag.Id], page: Int) =

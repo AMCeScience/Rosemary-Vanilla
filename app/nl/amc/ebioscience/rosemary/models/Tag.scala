@@ -186,7 +186,7 @@ case class MessageTag(
  * SystemTag is to group some entities, for example:
  * <li> data that has been imported: put importer userid in info
  * <li> data that has been used in a processing: put processing id in info
- * 
+ *
  * @param name Name that describes this Tag
  * @param kind more info about how system should interpret this Tag e.g.: `import`, `processing-input`, `processing-output`
  * @param rights [[Nobody]] owns SystemTags
@@ -210,7 +210,7 @@ case class SystemTag(
  */
 object Tag extends DefaultModelBase[Tag]("tags") {
 
-  collection.createIndex(("name" -> "text", "_id" -> 1, "_t" -> 1), ("default_language" -> "none"))
+  collection.createIndex(("name" $eq "text") ++ ("_id" $eq 1) ++ ("_t" $eq 1), "default_language" $eq "none")
 
   def findSuperWorkspaceTag() = {
     find("visible" $eq Set("all")).toList match {

@@ -42,7 +42,7 @@ import java.nio.charset.StandardCharsets
  * @param replicas Captures the location of files for this datum
  * @param creator ID of the user who imported or created this datum
  * @param remarks Optional high-level description for this datum, mainly for UI
- * @param tags `WorkspaceTags`, `UserTags`, `DatumCategoryTags`, 
+ * @param tags `WorkspaceTags`, `UserTags`, `DatumCategoryTags`,
  * `MessageTags`, and `SystemTags`
  * @param valid If this datum is valid (better to invalidate it rather than delete it)
  * @param id ID of this datum in Rosemary, system provided
@@ -92,10 +92,10 @@ case class Datum(
  */
 object Datum extends DefaultModelBase[Datum]("data") with TagsQueries[Datum] {
 
-  collection.createIndex(("tags" -> 1))
+  collection.createIndex("tags" $eq 1)
 
   def findAll(workspaceTag: WorkspaceTag) =
-    find("tags" -> workspaceTag.id).toList.map { datum => datum.hideInfoFields(workspaceTag) }
+    find("tags" $eq workspaceTag.id).toList.map { datum => datum.hideInfoFields(workspaceTag) }
 
   def findOneById(id: Datum.Id, workspaceTag: WorkspaceTag) = {
     find($and(("_id" -> id), ("tags" -> workspaceTag.id))).toList match {

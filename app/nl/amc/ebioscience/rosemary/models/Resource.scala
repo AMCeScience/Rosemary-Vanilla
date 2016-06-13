@@ -25,6 +25,7 @@ package nl.amc.ebioscience.rosemary.models
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
+import com.mongodb.casbah.Imports._
 import play.api.Play
 
 /**
@@ -54,7 +55,7 @@ case class Resource(
     // TODO Think about community credentials
     tags: Set[Tag.Id] = Set.empty,
     id: Resource.Id = new Resource.Id,
-    info: Info = new Info) extends BaseEntity with WithTags{
+    info: Info = new Info) extends BaseEntity with WithTags {
 
   /**
    * @return URI of this resource, e.g., "https://localhost:9000/my/files"
@@ -74,12 +75,12 @@ case class Resource(
  * Resource companion object that contains database queries specific to the `resources` collection.
  */
 object Resource extends DefaultModelBase[Resource]("resources") with TagsQueries[Resource] {
-  def findResourceByHostname(hostname: String) = findOne(("host" -> hostname))
+  def findResourceByHostname(hostname: String) = findOne("host" $eq hostname)
 
   val defaultWebdavHost = Play.current.configuration.getString("webdav.host.default").getOrElse("orange.ebioscience.amc.nl")
   /** Helper method to get a single WebDAV resource instance */
-  def getDefaultWebdavInstance = findOne(("kind" -> ResourceKind.Webdav.toString, "host" -> defaultWebdavHost)).get
-  def getLocalMongoResource = findOne(("kind" -> ResourceKind.Mongodb.toString)).get
+  def getDefaultWebdavInstance = findOne($and("kind" $eq ResourceKind.Webdav.toString, "host" $eq defaultWebdavHost)).get
+  def getLocalMongoResource = findOne("kind" $eq ResourceKind.Mongodb.toString).get
 }
 
 object ResourceKind extends Enumeration {
