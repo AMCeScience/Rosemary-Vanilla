@@ -30,15 +30,30 @@ import com.novus.salat.annotations._
 import nl.amc.ebioscience.rosemary.core.WebSockets
 import scala.language.postfixOps
 
+/**
+ * Tag integrates various information entities in Rosemary
+ */
 @Salat
 sealed trait Tag extends BaseEntity {
   val name: String
   val rights: Rights
+
   def addMember(id: User.Id): BaseEntity with Tag
   def removeMember(id: User.Id): BaseEntity with Tag
+  /**
+   * Returns IDs of all users that have access to this `Tag`
+   */
   def allUsersThatHaveAccess: Set[User.Id]
 }
 
+/**
+ * User-defined tags to use it in the filter
+ *
+ * @param name Name of this tag
+ * @param rights [[Membered]]: define creator of this tag and who can see it
+ * @param id ID of this [[Tag]]
+ * @param info Metadata about this user-defined tag
+ */
 case class UserTag(
     name: String,
     rights: Membered = new Membered(User.current.id),
@@ -50,6 +65,15 @@ case class UserTag(
   def allUsersThatHaveAccess = rights.members + rights.owner
 }
 
+/**
+ * WorkspaceTag is used to control access to different Rosemary information entities
+ *
+ * @param name Name of the workspace
+ * @param rights [[Membered]]: define owner and memebers of this workspace
+ * @param visible Set of metadata keys that are visible in this workspace
+ * @param id ID of this [[Tag]]
+ * @param info Metadata about this workspace
+ */
 case class WorkspaceTag(
     name: String,
     rights: Membered,
@@ -78,6 +102,14 @@ case class WorkspaceTag(
   }
 }
 
+/**
+ * Tag to specify different categories of datum, to use it in filter
+ *
+ * @param name Name of the datum category
+ * @param rights Everyone can see these tags
+ * @param id ID of this [[Tag]]
+ * @param info Metadata about this datum category tag
+ */
 case class DatumCategoryTag(
     name: String,
     rights: Everyone = new Everyone(),
@@ -89,6 +121,14 @@ case class DatumCategoryTag(
   def allUsersThatHaveAccess = User.findAll.map(_.id).toSet
 }
 
+/**
+ * Tag to specify different categories of processing, to use it in filter
+ *
+ * @param name Name of the processing category
+ * @param rights Everyone can see these tags
+ * @param id ID of this [[Tag]]
+ * @param info Metadata about this processing category tag
+ */
 case class ProcessingCategoryTag(
     name: String,
     rights: Everyone = new Everyone(),
@@ -100,6 +140,14 @@ case class ProcessingCategoryTag(
   def allUsersThatHaveAccess = User.findAll.map(_.id).toSet
 }
 
+/**
+ * Tag to specify the status of a processing, to use it in filter
+ *
+ * @param name Name of the status of the processing
+ * @param rights Everyone can see these tags
+ * @param id ID of this [[Tag]]
+ * @param info Metadata about this processing status tag
+ */
 case class ProcessingStatusTag(
     name: String,
     rights: Everyone = new Everyone(),
@@ -111,10 +159,19 @@ case class ProcessingStatusTag(
   def allUsersThatHaveAccess = User.findAll.map(_.id).toSet
 }
 
+/**
+ * Messages are implemented as Tag in Rosemary to form conversation around other information objects
+ *
+ * @param name Subject of this message
+ * @param body Message body
+ * @param rights [[Personal]] author of this message
+ * @param id ID of this [[Tag]]
+ * @param info Metadata about this message
+ */
 case class MessageTag(
-    name: String, // subject
+    name: String,
     body: String,
-    rights: Personal, // to capture the author
+    rights: Personal,
     id: Tag.Id = new Tag.Id,
     info: Info = new Info) extends Tag {
   lazy val subject = name
@@ -127,12 +184,18 @@ case class MessageTag(
 
 /**
  * SystemTag is to group some entities, for example:
- * data that has been imported : put importer userid in info
- * data that has been used in a processing : put processing id in info
+ * <li> data that has been imported: put importer userid in info
+ * <li> data that has been used in a processing: put processing id in info
+ * 
+ * @param name Name that describes this Tag
+ * @param kind more info about how system should interpret this Tag e.g.: `import`, `processing-input`, `processing-output`
+ * @param rights [[Nobody]] owns SystemTags
+ * @param id ID of this [[Tag]]
+ * @param info Metadata about this message
  */
 case class SystemTag(
     name: String,
-    kind: String, // import, processing-input, processing-output
+    kind: String, // 
     rights: Nobody = new Nobody(),
     id: Tag.Id = new Tag.Id,
     info: Info = new Info) extends Tag {
@@ -142,6 +205,9 @@ case class SystemTag(
   def allUsersThatHaveAccess = Set.empty
 }
 
+/**
+ * Tag companion object that contains database queries specific to the `tags` collection.
+ */
 object Tag extends DefaultModelBase[Tag]("tags") {
 
   collection.createIndex(("name" -> "text", "_id" -> 1, "_t" -> 1), ("default_language" -> "none"))
