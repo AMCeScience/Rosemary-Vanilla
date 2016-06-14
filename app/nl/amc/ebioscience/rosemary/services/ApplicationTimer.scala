@@ -18,7 +18,7 @@ import scala.concurrent.Future
  * in the [[Module]] class to see how this happens.
  *
  * This class needs to run code when the server stops. It uses the
- * application's [[play.api.inject.ApplicationLifecycle]] to register a stop hook.
+ * application's `ApplicationLifecycle` to register a stop hook.
  */
 @Singleton
 class ApplicationTimer @Inject() (clock: Clock, appLifecycle: ApplicationLifecycle) {

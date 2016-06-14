@@ -30,13 +30,13 @@ import com.mongodb.casbah.Imports._
 import play.api.Logger
 import org.mindrot.BCrypt
 
-// TODO: Think about user roles: for global access and view, impersonation. Maybe put in Info?
 case class User(
     email: String,
-    password: String, // TODO: Hash Password
+    password: String,
     name: String,
     approved: Boolean = false,
     active: Boolean = true,
+    // TODO: Think about user roles: for global access and view, impersonation. Maybe put in Info?
     role: Role.Value = Role.TeamMember,
     credentials: List[Credential] = Nil,
     id: User.Id = new User.Id,
