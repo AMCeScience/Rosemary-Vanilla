@@ -42,11 +42,11 @@ import nl.amc.ebioscience.rosemary.services.CryptoService
 @Singleton
 class InitController @Inject() (cryptoService: CryptoService) extends Controller {
 
-  def init = Action {
+  def init = Action { implicit request =>
     playSalat.db().dropDatabase()
 
     // Create structure around the Datums
-    initDB
+    initDB(request)
 
     // Inject Datums
     injectData
@@ -57,7 +57,7 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     Redirect("/reindex")
   }
 
-  private def initDB = {
+  private def initDB(request: Request[AnyContent]) = {
     Logger.info("Initialising the database...")
 
     // Admin User
@@ -96,13 +96,17 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     val processing_status_tag_aborted = ProcessingStatusTag(ProcessingLifeCycle.Aborted.toString).insert
     val processing_status_tag_unknown = ProcessingStatusTag(ProcessingLifeCycle.Unknown.toString).insert
 
+    // Information about the deployment
+    val hp = request.headers.toMap.get("Host").get.head.split(":")
+    Logger.debug(s"Host Information= ${hp mkString " : "}")
+
     // MongoDB Resource for files stored in GridFS
     Resource(
       name = "Local MongoDB",
       kind = ResourceKind.Mongodb,
       protocol = "http",
-      host = "localhost",
-      port = 80,
+      host = hp.head,
+      port = if (hp.length > 1) hp.last.toInt else 80,
       basePath = Some("/api/v1/download")).insert
 
     // WebDAV Resource
