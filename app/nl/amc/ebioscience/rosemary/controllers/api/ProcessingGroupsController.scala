@@ -174,7 +174,9 @@ class ProcessingGroupsController @Inject() (
                   tags = Set(workspace.id, dataProcessingTag.id))
 
                 // Define credentials
-                val creds = User.credentialFor(transformer.planet.id) orElse {
+                val creds = User.credentialFor(transformer.planet.id).map { cred =>
+                  cred.copy(password = cryptoService.decrypt(cred.password))
+                } orElse {
                   Logger.debug(s"${User.current.email} has no credential for ${transformer.planet.name}, trying community credentials...")
                   for (user <- transformer.planet.username; pass <- transformer.planet.password) yield Credential(
                     resource = transformer.planet.id,
