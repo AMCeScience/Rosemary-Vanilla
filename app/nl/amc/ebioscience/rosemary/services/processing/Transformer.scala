@@ -27,8 +27,8 @@ import nl.amc.ebioscience.processingmanager.types.messaging.StatusContainerMessa
 import play.api.Logger
 
 /**
- * This class wraps the information in [[SubmitProcessingGroupRequest]] and
- * [[SubmitProcessingRequest]] to avoid multiple database queries.
+ * This class wraps the information in `SubmitProcessingGroupRequest` and
+ * `SubmitProcessingRequest` to avoid multiple database queries.
  */
 case class Cybertronian(
   application: Application,
@@ -46,13 +46,20 @@ case class IOInflatedConcretePort(
 
 // TODO generalize with Case Classes with constructor instead of objects
 // See this : http://stackoverflow.com/questions/12122939/generating-a-class-from-string-and-instantiating-it-in-scala-2-10
-/** @param planet is the resource on which Datum replicas should and will be stored */
+/**
+ * Implemented Transformer classes are used to check inputs of a given processing,
+ * transform the user inputs into concrete files, and covert the information provided
+ * by the ProcessingManager into [[models.Processing]] entity. 
+ * 
+ * @param planet is the resource on which Datum replicas should and will be stored
+ */
 abstract class Transformer(val planet: Resource) {
 
   /**
    * Checks the validity of the processing request according to the domain information
    * For example, the Tracula application accepts Experiments (image sessions) that contain exactly
    * two scans: one of type DTI and another of type MRI.
+   *
    * @return Some Map of Port IDs and their corresponding error messages. None if everything was OK.
    */
   def revealDecepticons(cybertronian: Cybertronian): Option[Map[String, String]]
@@ -61,13 +68,15 @@ abstract class Transformer(val planet: Resource) {
    * Transforms a user request (wrapped in [[Cybertronian]]) into a Sequence of [[IOInflatedConcretePort]]
    * This transformation requires domain knowledge too, for example, for the Tracula application,
    * three experiments are converted into 3 Processings, each with two scans as its input files.
-   * @return Sequence of [[IOInflatedConcretePort]] to construct [[ProcessingMessage]] and send to the [[ProcessingManagerClient]]
+   *
+   * @return Sequence of [[IOInflatedConcretePort]] to construct `ProcessingMessage` and send to the [[ProcessingManagerClient]]
    */
   def transform(cybertronian: Cybertronian): Seq[IOInflatedConcretePort]
 
   /**
-   * Get information from a [[processingmanager.types.messaging.StatusContainerMessage]]
+   * Get information from a `processingmanager.types.messaging.StatusContainerMessage`
    * and updates the related Processing in the model based on that. It also updates the status.
+   *
    * @return The updated [[models.Processing]] if it could find a related Processing to update, None otherwise
    */
   def getSpark(statusContainerMsg: StatusContainerMessage): Option[Processing]
@@ -76,6 +85,7 @@ abstract class Transformer(val planet: Resource) {
 
   protected def hasReplicaOnThisPlanet(datum: Datum): Boolean = datum.getReplica(planet.id).isDefined
   protected def getReplicaOnThisPlanet(datum: Datum): Replica = datum.getReplica(planet.id).get
+
   /**
    * Make sure each port has at least one data or parameter value, this is generic
    */
