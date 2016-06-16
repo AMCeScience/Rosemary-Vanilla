@@ -36,7 +36,11 @@ module.factory 'Auth', ($injector, $q, $window, $cookies, $rootScope, Remote, Se
 
       success = (user) => 
         @setUser user
-        $rootScope.$emit 'user_login'
+        # Set a watch on the token cookie
+        # Once it has been updated emit the user_login message
+        $rootScope.$watch (-> $cookies["XSRF-TOKEN"]), =>
+          if $cookies["XSRF-TOKEN"]
+            $rootScope.$emit 'user_login'
       error   = ->
         $rootScope.loading = false
         $q.reject "Login failed"

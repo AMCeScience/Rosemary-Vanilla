@@ -34,9 +34,8 @@ module.factory 'Websocket', ($q, $rootScope, Auth) ->
 
     constructor: ->
       @root = $rootScope
-      @connect()
 
-      $rootScope.$on 'user_login', -> @connect()
+      $rootScope.$on 'user_login', => @connect()
 
     ###########################
     # Methods                 #
