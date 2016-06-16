@@ -30,6 +30,12 @@ In `/public/views/index.html` change the body class to the desired value, for ex
   <body class="skin-yellow sidebar-mini control-sidebar-open">
 ```
 
+Or, for the light version:
+
+```html
+  <body class="skin-yellow-light sidebar-mini control-sidebar-open">
+```
+
 ## Step 2
 
 In `/public/views/directives/activity_sidebar.html` change the sidebar class to the desired value (i.e. dark or light):
