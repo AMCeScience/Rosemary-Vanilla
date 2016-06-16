@@ -1,4 +1,4 @@
-# How to add a new page in the frontend
+# How to change the theme color
 
 Using this tutorial we are going to explain everything that is needed to change the colour of the Rosemary theme.
 
