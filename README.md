@@ -8,6 +8,7 @@ It has been planted as part of the [COMMIT project](http://commit-nl.nl/)!
 ### General
 * [Installation](docs/general/install.md)
 * [Deployment](docs/general/deploy.md)
+* [Development](docs/general/development.md)
 
 ## Screenshots
 
