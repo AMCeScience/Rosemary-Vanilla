@@ -23,16 +23,16 @@
 package nl.amc.ebioscience.rosemary.controllers.api
 
 import javax.inject._
+import play.api.inject.{ QualifierInstance, BindingKey }
 import play.api.{ Application => PlayApplication, _ }
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.concurrent.Akka
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import akka.actor.{ Props, PoisonPill }
+import akka.actor.{ ActorSystem, Props, PoisonPill }
 import akka.util.Timeout
 import akka.pattern.ask
 import scala.concurrent.duration._
-import scala.reflect.runtime.universe
 import nl.amc.ebioscience.rosemary.models._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
@@ -40,21 +40,23 @@ import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
 import nl.amc.ebioscience.rosemary.core.{ WebSockets, HelperTools }
 import nl.amc.ebioscience.rosemary.actors.ProcessingStatusCheckActor
-import nl.amc.ebioscience.rosemary.services.SecurityService
+import nl.amc.ebioscience.rosemary.services.{ SecurityService, CryptoService }
 import nl.amc.ebioscience.rosemary.services.processing._
 import nl.amc.ebioscience.rosemary.services.search._
 import nl.amc.ebioscience.processingmanager.types.messaging.{ ProcessingMessage, PortMessagePart }
 import nl.amc.ebioscience.processingmanager.types.{ ProcessingLifeCycle, PortType, Credentials }
 import java.util.Date
-import akka.actor.ActorSystem
+import com.google.inject.name.Names
 
 @Singleton
 class ProcessingGroupsController @Inject() (
     securityService: SecurityService,
+    cryptoService: CryptoService,
     processingManagerClient: ProcessingManagerClient,
     processingHelper: ProcessingHelper,
     searchWriter: SearchWriter,
-    actorSystem: ActorSystem) extends Controller with JsonHelpers {
+    actorSystem: ActorSystem,
+    playApplication: Provider[PlayApplication]) extends Controller with JsonHelpers {
 
   /**
    * Captures information required to submit a new ProcessingGroup
@@ -139,9 +141,9 @@ class ProcessingGroupsController @Inject() (
             val application = objectMap(submitRequest.application).asInstanceOf[Application]
 
             // run-time binding using the Scala reflection API
-            val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
-            val module = runtimeMirror.staticModule(application.transformer)
-            val transformer = runtimeMirror.reflectModule(module).instance.asInstanceOf[Transformer]
+            val qualifier = Some(QualifierInstance(Names.named(application.transformer)))
+            val bindingKey = BindingKey[Transformer](classOf[Transformer], qualifier)
+            val transformer = playApplication.get.injector.instanceOf[Transformer](bindingKey)
 
             // to avoid multiple queries to the DB, wrap it in the Cybertronian
             val cybertronian = Cybertronian(
@@ -172,12 +174,14 @@ class ProcessingGroupsController @Inject() (
                   tags = Set(workspace.id, dataProcessingTag.id))
 
                 // Define credentials
-                val creds = User.credentialFor(transformer.planet.id) orElse {
+                val creds = User.credentialFor(transformer.planet.id).map { cred =>
+                  cred.copy(password = cryptoService.decrypt(cred.password))
+                } orElse {
                   Logger.debug(s"${User.current.email} has no credential for ${transformer.planet.name}, trying community credentials...")
                   for (user <- transformer.planet.username; pass <- transformer.planet.password) yield Credential(
                     resource = transformer.planet.id,
                     username = user,
-                    password = pass)
+                    password = cryptoService.decrypt(pass))
                 }
                 val pmcreds = creds.map { c =>
                   Credentials(

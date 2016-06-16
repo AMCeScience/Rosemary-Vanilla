@@ -30,13 +30,13 @@ import com.mongodb.casbah.Imports._
 import play.api.Logger
 import org.mindrot.BCrypt
 
-// TODO: Think about user roles: for global access and view, impersonation. Maybe put in Info?
 case class User(
     email: String,
-    password: String, // TODO: Hash Password
+    password: String,
     name: String,
     approved: Boolean = false,
     active: Boolean = true,
+    // TODO: Think about user roles: for global access and view, impersonation. Maybe put in Info?
     role: Role.Value = Role.TeamMember,
     credentials: List[Credential] = Nil,
     id: User.Id = new User.Id,
@@ -68,7 +68,9 @@ case class Credential(
 
 object User extends DefaultModelBase[User]("users") {
   // TODO: uniqueness is applied for the combined index, which means it is possible to have multiple users with the same email! should be fixed...
-  collection.createIndex(("email" -> 1, "_id" -> 1), ("name" -> "user_email", "unique" -> true))
+  collection.createIndex(
+    ("email" $eq 1) ++ ("_id" $eq 1),
+    ("name" $eq "user_email") ++ ("unique" $eq true))
 
   /**
    * DynamicVariable is used, when you need to do a computation within an enclosed scope,
@@ -81,7 +83,7 @@ object User extends DefaultModelBase[User]("users") {
    */
   def current: User = {
     current_id.value match {
-      case Some(id) => findOne("_id" -> id) match {
+      case Some(id) => findOne("_id" $eq id) match {
         case Some(user) => user
         case None       => throw new Throwable("Unknown user defined in current thread context.")
       }
@@ -93,10 +95,10 @@ object User extends DefaultModelBase[User]("users") {
     current.credentials.find(credential =>
       credential.resource.equals(resource) && !credential.username.isEmpty && !credential.password.isEmpty)
 
-  def find(email: String): Option[User] = findOne(("email" -> email))
+  def find(email: String): Option[User] = findOne("email" $eq email)
 
   def authenticate(email: String, password: String): Option[User] = {
-    findOne(("email" -> email, "active" -> true, "approved" -> true)).map { user =>
+    findOne($and("email" $eq email, "active" $eq true, "approved" $eq true)).map { user =>
       if (BCrypt.checkpw(password, user.password)) Some(user) else None
     }.flatten
   }

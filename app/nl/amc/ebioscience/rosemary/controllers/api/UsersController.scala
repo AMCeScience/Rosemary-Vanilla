@@ -37,7 +37,7 @@ import nl.amc.ebioscience.rosemary.services.{ SecurityService, CryptoService }
 
 @Singleton
 class UsersController @Inject() (
-    securityService: SecurityService, 
+    securityService: SecurityService,
     cryptoService: CryptoService) extends Controller with JsonHelpers {
 
   def index = securityService.HasToken(parse.empty) { implicit request =>
@@ -119,13 +119,15 @@ class UsersController @Inject() (
     Logger.trace(s"Role change request on user $id: $json")
     json.validate[RoleRequest].fold(
       valid = { roleRequest =>
-        User.findOneById(id) map { user =>
-          roleRequest.role match {
-            case "active"   => Ok("Active status: " + user.toggleActive.active)
-            case "approved" => Ok("Approved status: " + user.toggleApproved.approved)
-            case _          => Conflict(s"No existing role was selected")
-          }
-        } getOrElse Conflict(s"Could not find user_id $id")
+        if (User.current.role == Role.Admin) {
+          User.findOneById(id) map { user =>
+            roleRequest.role match {
+              case "active"   => Ok("Active status: " + user.toggleActive.active)
+              case "approved" => Ok("Approved status: " + user.toggleApproved.approved)
+              case _          => Conflict(s"No existing role was selected")
+            }
+          } getOrElse Conflict(s"Could not find user_id $id")
+        } else Conflict(s"Only those with Admin role can change roles.")
       },
       invalid = {
         errors => BadRequest(Json.toJson(errors))

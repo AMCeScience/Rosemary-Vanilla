@@ -48,7 +48,6 @@ case class Valunit(value: String, unit: Option[String] = None)
 case class Catname(category: String, name: String)
 
 object ValunitConvertors {
-  import scala.language.implicitConversions
 
   implicit class TupleToValunit(t: (String, String)) {
     def toValunit = t._1 -> t._2.toValunit

@@ -22,27 +22,47 @@
  */
 package nl.amc.ebioscience.rosemary.models
 
-trait Rights {
+/**
+ * Define who is the owner and who is the member of [[Tag]]s.
+ */
+sealed trait Rights {
   def isOwner(id: User.Id): Boolean
   def isMember(id: User.Id): Boolean
   def hasAccess(id: User.Id) = isOwner(id) || isMember(id)
 }
 
+/**
+ * Everyone has access to this [[Tag]]
+ */
 case class Everyone() extends Rights {
   def isOwner(id: User.Id) = false
   def isMember(id: User.Id) = true
 }
 
+/**
+ * Nobody has access to this [[Tag]]
+ */
 case class Nobody() extends Rights {
   def isOwner(id: User.Id) = false
   def isMember(id: User.Id) = false
 }
 
+/**
+ * Declares who owns this [[Tag]]
+ * 
+ * @param owner Usually the creator of this [[Tag]]
+ */
 case class Personal(owner: User.Id) extends Rights {
   def isOwner(id: User.Id) = id == owner
   def isMember(id: User.Id) = false
 }
 
+/**
+ * Declares who owns this [[Tag]] and who is a member of that
+ * 
+ * @param owner Usually the creator of this [[Tag]]
+ * @param members Set of User IDs that are member of this [[Tag]]
+ */
 case class Membered(owner: User.Id, members: Set[User.Id] = Set.empty) extends Rights {
   def isOwner(id: User.Id) = id == owner
   def isMember(id: User.Id) = members.contains(id)

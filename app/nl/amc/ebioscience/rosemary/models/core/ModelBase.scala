@@ -80,22 +80,9 @@ class ModelBase[T <: BaseEntity, I <: Any](val name: String)(
 }
 
 /**
- * Vragen:
- *
- * 1. toMDB*: hieronder
- * 2. type alias in object, als parameter van het object zelf -> class[Foo] { type Foo = String }
+ * ModelBase companion object includes implicit converters
  */
 object ModelBase {
-
-  import scala.language.implicitConversions
-
-  /** Transform collection of vectors to MongoDBObjects */
-  implicit def toMDB1[A <: String, B <: Any](elems: ((A, B))) = MongoDBObject(elems)
-  implicit def toMDB2[A <: String, B <: Any](elems: ((A, B), (A, B))) = MongoDBObject(elems._1, elems._2)
-  implicit def toMDB3[A <: String, B <: Any](elems: ((A, B), (A, B), (A, B))) = MongoDBObject(elems._1, elems._2, elems._3)
-  implicit def toMDB4[A <: String, B <: Any](elems: ((A, B), (A, B), (A, B), (A, B))) = MongoDBObject(elems._1, elems._2, elems._3, elems._4)
-  implicit def toMDB5[A <: String, B <: Any](elems: ((A, B), (A, B), (A, B), (A, B), (A, B))) = MongoDBObject(elems._1, elems._2, elems._3, elems._4, elems._5)
-  implicit def toMDB6[A <: String, B <: Any](elems: ((A, B), (A, B), (A, B), (A, B), (A, B), (A, B))) = MongoDBObject(elems._1, elems._2, elems._3, elems._4, elems._5, elems._6)
 
   implicit class TraversableToJson[T <: BaseEntity](l: Traversable[T])(implicit ctx: Context, m: Manifest[T]) {
     def toJsonString = grater[T].toCompactJSONArray(l)

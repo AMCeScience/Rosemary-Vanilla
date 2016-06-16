@@ -26,6 +26,7 @@ import com.novus.salat.annotations._
 import nl.amc.ebioscience.rosemary.models.core._
 import nl.amc.ebioscience.rosemary.models.core.ModelBase._
 import nl.amc.ebioscience.rosemary.models.core.Implicits._
+import com.mongodb.casbah.Imports._
 import play.api.Logger
 
 @Salat
@@ -53,9 +54,9 @@ case class Application(
   ) extends Recipe
 
 /**
-  * @param iPorts Input ports known to the Processing Manager
-  * @param oPorts Output ports known to the Procesing Manager
-  */
+ * @param iPorts Input ports known to the Processing Manager
+ * @param oPorts Output ports known to the Procesing Manager
+ */
 case class PMApplication(
   iPorts: Set[AbstractPort],
   oPorts: Set[AbstractPort],
@@ -97,5 +98,5 @@ object GitResource {
 object Recipe extends DefaultModelBase[Recipe]("recipes") with TagsQueries[Recipe] {
 
   def getApplications = findByType("Application")
-  def findByName(name: String) = findOne("name" -> name)
+  def findByName(name: String) = findOne("name" $eq name)
 }

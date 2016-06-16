@@ -28,7 +28,6 @@ import se.radley.plugin.salat.PlaySalat
 import com.novus.salat.Context
 
 object Implicits {
-  import scala.language.implicitConversions
 
   implicit val app: play.api.Application = play.api.Play.current
 

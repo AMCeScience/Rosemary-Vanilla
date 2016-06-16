@@ -208,11 +208,11 @@ class TagsController @Inject() (securityService: SecurityService) extends Contro
    * Good for adding categories that come later
    */
   def initializePublicTags = Action {
-    for (cat <- Tag.DatumCategories.values if Tag.datumCategoriesNameMap.get(cat.toString).isEmpty) {
-      DatumCategoryTag(cat.toString).save
+    for (dcat <- Tag.DatumCategories.values if Tag.datumCategoriesNameMap.get(dcat.toString).isEmpty) {
+      DatumCategoryTag(dcat.toString).save
     }
-    for (cat <- Tag.ProcessingCategories.values if Tag.processingCategoriesNameMap.get(cat.toString).isEmpty) {
-      ProcessingCategoryTag(cat.toString).save
+    for (pcat <- Tag.ProcessingCategories.values if Tag.processingCategoriesNameMap.get(pcat.toString).isEmpty) {
+      ProcessingCategoryTag(pcat.toString).save
     }
     for (st <- ProcessingLifeCycle.values if Tag.processingStatusTagsNameMap.get(st.toString).isEmpty) {
       ProcessingStatusTag(st.toString).save

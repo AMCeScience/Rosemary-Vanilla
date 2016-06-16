@@ -29,9 +29,13 @@ import play.api.libs.json._
 import play.api.data.validation.ValidationError
 import play.api.Logger
 import org.bson.types.ObjectId
-import nl.amc.ebioscience.processingmanager.types.messaging.{ ActionMessage, ProcessingMessage, StatusContainerMessage, GroupStatusMessage }
+import nl.amc.ebioscience.processingmanager.types.messaging.{ ActionMessage, ProcessingMessage, StatusContainerMessage, GroupStatusMessage, PortMessagePart }
+import nl.amc.ebioscience.processingmanager.types.Credentials
 import nl.amc.ebioscience.rosemary.services.ConfigService
 
+/**
+ * Client that uses the API of the ProcessingManager
+ */
 @Singleton
 class ProcessingManagerClient @Inject() (configService: ConfigService) {
 
@@ -47,17 +51,11 @@ class ProcessingManagerClient @Inject() (configService: ConfigService) {
     setRequestTimeoutInMs(150000))
 
   // Requests related to a ProcessingGroup
-  //  def submitProcessingGroup(processingGroup: PMSubmitRequest): Either[String, Option[PMIds]] = {
-  //    Logger.debug(Json.prettyPrint(Json.toJson(processingGroup)))
-  //    val res = query(requestAsJson(baseReq).PUT << Json.stringify(Json.toJson(processingGroup)))
-  //
-  //    res.right.map { json =>
-  //      Json.parse(json).validate[PMIds].fold(
-  //        valid = { pmIds => Some(pmIds) },
-  //        invalid = { fieldErrors => logErrorsAndReturnNone(fieldErrors) })
-  //    }
-  //  }
-
+  /**
+   * Get status of a `ProcessingGroup`
+   *
+   * @param processingGroupId ID of the ProcessingGroup
+   */
   def statusProcessingGroup(processingGroupId: ObjectId): Either[String, Option[GroupStatusMessage]] = {
     val res = query(baseReq.GET / "group" / processingGroupId.toString)
 
@@ -68,24 +66,44 @@ class ProcessingManagerClient @Inject() (configService: ConfigService) {
     }
   }
 
+  /**
+   * Abort a `ProcessingGroup`
+   *
+   * @param processingGroupId ID of the ProcessingGroup
+   * @param reason Explain why the execution of this ProcessingGroup is aborted
+   */
   def abortProcessingGroup(processingGroupId: ObjectId, reason: String): Either[String, Option[String]] = {
     val res = query(baseReq.addQueryParameter("reason", reason).DELETE / "group" / processingGroupId.toString)
     validateActionMsgAndExtractMsg(res)
   }
 
+  /**
+   * Resume execution of a `ProcessingGroup` that is on hold
+   *
+   * @param processingGroupId ID of the ProcessingGroup
+   */
   def resumeProcessingGroup(processingGroupId: ObjectId): Either[String, Option[String]] = {
     val res = query(baseReq.PATCH / "group" / processingGroupId.toString)
     validateActionMsgAndExtractMsg(res)
   }
 
+  /**
+   * Cleanup intermediate data of a `ProcessingGroup`
+   *
+   * @param processingGroupId ID of the ProcessingGroup
+   */
   def cleanupDataProcessingGroup(processingGroupId: ObjectId): Either[String, Option[String]] = {
     val res = query(baseReq.DELETE / "group/data" / processingGroupId.toString)
     validateActionMsgAndExtractMsg(res)
   }
 
   // Requests related to a Processing
+  /**
+   * Submit a new `Processing`
+   */
   def submitProcessing(processingMsg: ProcessingMessage): Either[String, Option[ProcessingMessage]] = {
-    Logger.debug(Json.prettyPrint(Json.toJson(processingMsg)))
+    import HidePasswords._
+    Logger.debug(Json.prettyPrint(Json.toJson(processingMsg.hidePassword)))
     val res = query(requestAsJson(baseReq).PUT / "processing" << Json.stringify(Json.toJson(processingMsg)))
 
     res.right.map { json =>
@@ -95,6 +113,11 @@ class ProcessingManagerClient @Inject() (configService: ConfigService) {
     }
   }
 
+  /**
+   * Get status of a `Processing`
+   *
+   * @param processingId ID of the Processing
+   */
   def statusProcessing(processingId: ObjectId): Either[String, Option[StatusContainerMessage]] = {
     val res = query(baseReq.GET / "processing" / processingId.toString)
 
@@ -105,16 +128,30 @@ class ProcessingManagerClient @Inject() (configService: ConfigService) {
     }
   }
 
+  /**
+   * Abort a `Processing`
+   *
+   * @param processingId ID of the Processing
+   * @param reason Explain why the execution of this Processing is aborted
+   */
   def abortProcessing(processingId: ObjectId, reason: String): Either[String, Option[String]] = {
     val res = query(baseReq.addQueryParameter("reason", reason).DELETE / "processing" / processingId.toString)
     validateActionMsgAndExtractMsg(res)
   }
 
+  /**
+   * Resume execution of a `Processing` that is on hold
+   */
   def resumeProcessing(processingId: ObjectId): Either[String, Option[String]] = {
     val res = query(baseReq.PATCH / "processing" / processingId.toString)
     validateActionMsgAndExtractMsg(res)
   }
 
+  /**
+   * Cleanup intermediate data of a `Processing`
+   *
+   * @param processingId ID of the Processing
+   */
   def cleanupDataProcessing(processingId: ObjectId): Either[String, Option[String]] = {
     val res = query(baseReq.DELETE / "processing/data" / processingId.toString)
     validateActionMsgAndExtractMsg(res)
@@ -128,8 +165,16 @@ class ProcessingManagerClient @Inject() (configService: ConfigService) {
     val res = Http(req OK as.Response(x => x)).either.apply
     val tres = res match {
       case Right(response) => {
-        Logger.trace(s"Processing Manager Response:\n# Headers: ${response.getHeaders}\n# ContentType: ${response.getContentType}\n# StatusCode: ${response.getStatusCode}\n# StatusText: ${response.getStatusText}\n# ResponseBody: ${response.getResponseBody}")
-        if (response.getStatusCode == 200) Right(response.getResponseBody) else Left(s"Processing Manager service problem (R): ${response.getContentType}")
+        Logger.trace(s"Processing Manager Response:\n" +
+          s"# Headers: ${response.getHeaders}\n" +
+          s"# ContentType: ${response.getContentType}\n" +
+          s"# StatusCode: ${response.getStatusCode}\n" +
+          s"# StatusText: ${response.getStatusText}\n" +
+          s"# ResponseBody: ${response.getResponseBody}")
+        if (response.getStatusCode == 200)
+          Right(response.getResponseBody)
+        else
+          Left(s"Processing Manager service problem (R): ${response.getContentType}")
       }
       case Left(exception) => Left(s"Processing Manager service problem: ${exception.getMessage}")
     }
@@ -153,5 +198,27 @@ class ProcessingManagerClient @Inject() (configService: ConfigService) {
   private def logErrorsAndReturnNone(fieldErrors: Seq[(JsPath, Seq[ValidationError])]) = {
     fieldErrors.foreach(x => { Logger.error("field: " + x._1 + ", errors: " + x._2) })
     None
+  }
+}
+
+object HidePasswords {
+
+  implicit class HideForCredentials(credentials: Option[Credentials]) {
+    def hidePassword = credentials.map(_.copy(password = "HiddenFromLog"))
+  }
+
+  implicit class HideForInputsOrOutputs(listPortMessagePart: List[PortMessagePart]) {
+    def hidePassword = listPortMessagePart.map { portMessagePart =>
+      portMessagePart.copy(
+        readCreds = portMessagePart.readCreds.hidePassword,
+        writeCreds = portMessagePart.writeCreds.hidePassword)
+    }
+  }
+
+  implicit class HideForProcessingMessage(processingMessage: ProcessingMessage) {
+    def hidePassword = processingMessage.copy(
+      inputs = processingMessage.inputs.hidePassword,
+      outputs = processingMessage.outputs.hidePassword,
+      platformCreds = processingMessage.platformCreds.hidePassword)
   }
 }
