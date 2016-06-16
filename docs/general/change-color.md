@@ -15,12 +15,12 @@ The available colours are (see `/ui/style/_admin-lte-skins/`):
 
 Each colour also has a 'light' version, changing the visuals of the menu:
 
-* Light [Black](colour-images/black-light.png)
-* Light [Blue](colour-images/blue-light.png)
-* Light [Green](colour-images/green-light.png)
-* Light [Purple](colour-images/purple-light.png)
-* Light [Red](colour-images/red-light.png)
-* Light [Yellow](colour-images/yellow-light.png)
+* [Light Black](colour-images/black-light.png)
+* [Light Blue](colour-images/blue-light.png)
+* [Light Green](colour-images/green-light.png)
+* [Light Purple](colour-images/purple-light.png)
+* [Light Red](colour-images/red-light.png)
+* [Light Yellow](colour-images/yellow-light.png)
 
 ## Step 1
 
