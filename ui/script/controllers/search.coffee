@@ -52,8 +52,15 @@ module.controller 'SearchController', ($scope, $rootScope, $state, $stateParams,
         'Filter'
       ]
 
-      @root.$watch "workspace", @filter
-      @root.$watchCollection "search", @filter
+      # Destroy old watchers
+      if @root.workspaceWatch?
+        @root.workspaceWatch()
+
+      if @root.searchWatch?
+        @root.searchWatch()
+
+      @root.workspaceWatch = @root.$watch "workspace", @filter
+      @root.searchWatch = @root.$watchCollection "search", @filter
 
       @filter()
       
