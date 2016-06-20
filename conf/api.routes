@@ -26,11 +26,10 @@ GET      /:workspaceId/data/:id/replicas        nl.amc.ebioscience.rosemary.cont
 POST     /query                                 nl.amc.ebioscience.rosemary.controllers.api.SearchController.query
 
 
-# Move these to NSG?
-# Import (API spec exception)
-#POST     /import/get-projects                   nl.amc.ebioscience.rosemary.controllers.DataImport.projects
-#POST     /import/get-data                       nl.amc.ebioscience.rosemary.controllers.DataImport.data
-#GET      /import                                nl.amc.ebioscience.rosemary.controllers.DataImport.index
+#Import for NSG (API spec exception)
+POST     /import/get-projects                   nl.amc.ebioscience.rosemary.controllers.nsg.DataImport.projects
+POST     /import/get-data                       nl.amc.ebioscience.rosemary.controllers.nsg.DataImport.data
+GET      /import                                nl.amc.ebioscience.rosemary.controllers.nsg.DataImport.index
 
 
 # Notifications

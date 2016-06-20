@@ -49,10 +49,10 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     initDB(request)
 
     // Inject Datums
-    injectData
+    //injectData
 
     // Inject Processings
-    injectProcessings
+    //injectProcessings
 
     Redirect("/reindex")
   }
