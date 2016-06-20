@@ -65,10 +65,12 @@ module.directive 'dataprocessing', (RecursionHelper) ->
             _.forEach data, (d) -> index[Object.toId d] = d
 
             _.forEach @scope.processing.inputs, (d) ->
-              d.datum.datum = index[Object.toId d.datum.datum] 
+              if d.datum?
+                d.datum.datum = index[Object.toId d.datum.datum]
 
             _.forEach @scope.processing.outputs, (d) ->
-              d.datum.datum = index[Object.toId d.datum.datum]
+              if d.datum?
+                d.datum.datum = index[Object.toId d.datum.datum]
 
       childColor: =>
         tinycolor(@scope.color).darken(3).toString()
