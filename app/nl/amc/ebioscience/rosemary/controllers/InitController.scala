@@ -228,8 +228,8 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     val childCategory = Tag.datumCategoriesNameMap(Tag.DatumCategories.Child.toString)
 
     // Get some Datums
-    val resourceData = Datum.findWithAllTagsNoPage(Set(workspace.id, fatherCategory.id)).toSeq
-    val experimentData = Datum.findWithAllTagsNoPage(Set(workspace.id, childCategory.id)).toSeq
+    val fatherData = Datum.findWithAllTagsNoPage(Set(workspace.id, fatherCategory.id)).toSeq
+    val childData = Datum.findWithAllTagsNoPage(Set(workspace.id, childCategory.id)).toSeq
 
     // Get Processing Statuses
     val seqStatuses = Seq(ProcessingLifeCycle.InProgress, ProcessingLifeCycle.OnHold, ProcessingLifeCycle.Aborted)
@@ -243,7 +243,7 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
         name = s"Mock_${i}",
         initiator = adminUser.id,
         inputs = application.iPorts.toSeq.map { abstractPort =>
-          val datum = experimentData(Random.nextInt(experimentData.size))
+          val datum = fatherData(Random.nextInt(fatherData.size))
           ParamOrDatum(
             name = abstractPort.name,
             param = if (abstractPort.kind == PortKind.Param) Some(Random.alphanumeric.take(10).mkString) else None,
@@ -270,14 +270,14 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
           name = s"Mock_${i}_${j}",
           initiator = adminUser.id,
           inputs = application.pmApplication.iPorts.map { abstractPort =>
-            val datum = resourceData(Random.nextInt(resourceData.size))
+            val datum = childData(Random.nextInt(childData.size))
             ParamOrDatum(
               name = abstractPort.name,
               param = if (abstractPort.kind == PortKind.Param) Some(Random.alphanumeric.take(10).mkString) else None,
               datum = if (abstractPort.kind == PortKind.File) Some(DatumAndReplica(datum = datum.id)) else None)
           },
           outputs = someOfTheOPorts.map { abstractPort =>
-            val datum = resourceData(Random.nextInt(resourceData.size))
+            val datum = childData(Random.nextInt(childData.size))
             ParamOrDatum(
               name = abstractPort.name,
               param = if (abstractPort.kind == PortKind.Param) Some(Random.alphanumeric.take(10).mkString) else None,
