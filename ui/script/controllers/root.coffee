@@ -36,6 +36,8 @@ module.factory 'Root', ($rootScope, Nav, Import, Object) ->
       @scope.message =
         to: []
       @scope.breadcrumb = []
+      @scope.workspaceWatch = null
+      @scope.searchWatch = null
 
     clearBasket: =>
       @scope.basket = []
