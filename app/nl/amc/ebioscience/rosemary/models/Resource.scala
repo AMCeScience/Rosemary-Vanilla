@@ -84,5 +84,5 @@ object Resource extends DefaultModelBase[Resource]("resources") with TagsQueries
 }
 
 object ResourceKind extends Enumeration {
-  val Webdav, Mongodb = Value
+  val Webdav, Mongodb, Xnat = Value
 }

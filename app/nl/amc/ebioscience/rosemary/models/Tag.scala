@@ -287,7 +287,7 @@ object Tag extends DefaultModelBase[Tag]("tags") {
 
   /** Names used to initialize data category tags and find them in the datumCategoriesMap */
   object DatumCategories extends Enumeration {
-    val GrandFather, Father, Child = Value
+    val Project, Subject, Experiment, Scan, Reconstruction, Resource, File = Value
   }
 
   /** Names used to initialize data category tags and find them in the processingCategoriesMap */
