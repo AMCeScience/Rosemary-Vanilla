@@ -1,8 +1,8 @@
 package nl.amc.ebioscience.rosemary.controllers.nsg
 
 import javax.inject._
-import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import scala.collection.mutable.HashMap
+import scala.concurrent.{ Future, ExecutionContext }
 import nl.amc.ebioscience.rosemary.controllers.JsonHelpers
 import nl.amc.ebioscience.rosemary.core.{ Tools, WebSockets }
 import nl.amc.ebioscience.rosemary.core.Tools.Slugify
@@ -15,17 +15,16 @@ import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.services.{ SecurityService, CryptoService }
 import nl.amc.ebioscience.rosemary.services.search.SearchWriter
 import play.api.Logger
-import play.api.{ Application => PlayApplication}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import scala.collection.mutable.HashMap
 import java.net.InetAddress
 
 @Singleton
 class DataImport @Inject() (
     securityService: SecurityService,
-    searchWriter: SearchWriter,
-    implicit val cryptoService: CryptoService) extends Controller with JsonHelpers {
+    searchWriter: SearchWriter)(
+        implicit cryptoService: CryptoService,
+        exec: ExecutionContext) extends Controller with JsonHelpers {
 
   val importMap = new HashMap[String, Xnat]
 
@@ -104,8 +103,13 @@ class DataImport @Inject() (
 
                 // Import them all!
                 val futureEitherProject = xnat.getProject(dataRequest.projecturi, workspace.id, importTag.id)
+                futureEitherProject.recover { eitherProject =>
+                  eitherProject match {
+                    case e: Exception => Logger.error(e.getMessage)
+                  }
+                }
                 futureEitherProject.map { eitherProject =>
-                  Logger.debug("hi! from future!")
+                  Logger.trace("hi! from successful future!")
                   eitherProject match {
                     // Welcome to the future! Now you are inside the future!
                     case Right(project) => {
@@ -139,7 +143,7 @@ class DataImport @Inject() (
                         }
 
                         for (xresource <- resources) {
-                          Logger.debug(s"Replicating ${xresource.name}")
+                          Logger.debug(s"Replicating ${xresource.nameOpt.get}")
                           xresource.datumWithChildren.getReplica(resource.id) map { replica =>
                             Logger.trace(s"Replica found: ${replica.location}")
                             xnat.downloadZip(replica.location) match {
@@ -153,11 +157,11 @@ class DataImport @Inject() (
                                 val hostname = InetAddress.getLocalHost.getHostName
                                 val dirs = List(hostname.slugify,
                                   workspace.name.slugify.concat("_").concat(workspace.id.toString),
-                                  xproject.name.slugify,
-                                  xsubject.name.slugify,
-                                  xexperiment.name.slugify,
-                                  xscan.name.slugify)
-                                webdav.replicate(dirs, s"${xresource.name}.zip", bytes) map { newReplicaLocation =>
+                                  xproject.nameOpt.get.slugify,
+                                  xsubject.nameOpt.get.slugify,
+                                  xexperiment.nameOpt.get.slugify,
+                                  xscan.nameOpt.get.slugify)
+                                webdav.replicate(dirs, s"${xresource.nameOpt.get}.zip", bytes) map { newReplicaLocation =>
                                   val newReplica = Replica(resource = webdav.resource.id, location = newReplicaLocation)
                                   val existingReplicas = xresource.datumWithChildren.replicas
                                   xresource.datumWithChildren.copy(replicas = existingReplicas + newReplica).update
@@ -200,6 +204,7 @@ class DataImport @Inject() (
                   }
                 } // You are leaving the future! Thank you for time travelling with us!
 
+                Logger.debug(s"Sending back import id: ${importId}")
                 Ok(Json.obj("id" -> importId))
               }
               case None => Conflict(s"Could not find workspace_id ${dataRequest.workspace}")

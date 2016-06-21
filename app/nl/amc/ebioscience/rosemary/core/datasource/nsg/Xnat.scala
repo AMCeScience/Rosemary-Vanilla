@@ -2,7 +2,6 @@ package nl.amc.ebioscience.rosemary.core.datasource.nsg
 
 import dispatch._
 import dispatch.Defaults._
-import com.fasterxml.jackson.databind.JsonNode
 import scala.collection.JavaConversions.{ asScalaIterator, iterableAsScalaIterable }
 import nl.amc.ebioscience.rosemary.core.{ JJson, HelperTools }
 import nl.amc.ebioscience.rosemary.models._
@@ -46,7 +45,7 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
       res match {
         case Right(str) =>
           val node = Json.parse(str)
-          Logger.debug("Query Result:" + Json.prettyPrint(node))
+          Logger.trace("Query Result:" + Json.prettyPrint(node))
           Right(node)
         case Left(exc) => Left(s"XNAT service problem: ${exc.getMessage}")
       })
@@ -56,7 +55,7 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
 
     protected def nodeToListKeyVal(node: JsValue, prefix: Option[String]) = {
       socket.map(_.send("import", Json.obj("id" -> importId, "type" -> prefix, "state" -> "running")))
-      Logger.debug(Json.prettyPrint(node))
+      Logger.trace("nodeToListKeyVal:" + Json.prettyPrint(node))
       var result: List[(String, String)] = Nil
 
       node.as[JsObject].fields.foreach(entry => {
@@ -74,7 +73,7 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
     protected def process(data: JsValue, prefix: String): List[(String, Valunit)] = {
 
       socket.map(_.send("import", Json.obj("id" -> importId, "type" -> prefix, "state" -> "running")))
-      Logger.debug(Json.prettyPrint(data))
+      Logger.trace("process: " + Json.prettyPrint(data))
 
       var result: List[(String, Valunit)] = Nil
 
@@ -88,6 +87,7 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
        * }}}
        */
       def dataFieldToKeyVal(node: JsValue) = {
+        Logger.trace("dataFieldToKeyVal: " + Json.prettyPrint(node))
         val value = (node \ "field").as[String].trim
         if (!value.isEmpty()) {
           val key = (node \ "name").as[String]
@@ -96,14 +96,22 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
       }
 
       def dataFieldToListKeyVal(node: JsValue, prefix: Option[String]) = {
+        Logger.trace("dataFieldToListKeyVal: " + Json.prettyPrint(node))
         node.as[JsObject].fields.foreach(entry => {
           val key = entry._1
           if (!key.startsWith("xnat_")) {
-            val value = entry._2.as[String].trim
+            val value = jsvalueToString(entry._2)
             if (!value.isEmpty())
               result = (prefix.getOrElse("") + key, Valunit(value = value)) :: result
           }
         })
+      }
+
+      def jsvalueToString(jsvalue: JsValue) = jsvalue match {
+        case JsString(v)  => v.trim
+        case JsBoolean(v) => v.toString
+        case JsNumber(v)  => v.toString
+        case _            => Logger.error(s"Could not convert ${jsvalue} to simple string."); ""
       }
 
       /**
@@ -176,30 +184,30 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
   }
 
   private def getSubjects(project: Project, tagIds: Set[Tag.Id]): Future[Either[String, Set[DataNode]]] = {
-    Logger.debug(s"Getting subjects for: ${project.id}")
-    query(baseReq / "data" / "archive" / "projects" / project.id.get / "subjects").right.map(json =>
+    Logger.debug(s"Getting subjects for: ${project.idOpt.get}")
+    query(baseReq / "data" / "archive" / "projects" / project.idOpt.get / "subjects").right.map(json =>
       (json \ "ResultSet" \ "Result").as[JsArray].value.map(subject =>
         new Subject(subject, project, tagIds)).toSet)
   }
 
   private def getExperiments(project: Project, subject: Subject, tagIds: Set[Tag.Id]): Future[Either[String, Set[DataNode]]] = {
-    Logger.debug(s"Getting experiments for: ${subject.id}")
-    query(baseReq / "data" / "archive" / "projects" / subject.project.id.get / "subjects" / subject.id.get / "experiments").right.map(json =>
+    Logger.debug(s"Getting experiments for: ${subject.idOpt.get}")
+    query(baseReq / "data" / "archive" / "projects" / subject.project.idOpt.get / "subjects" / subject.idOpt.get / "experiments").right.map(json =>
       (json \ "ResultSet" \ "Result").as[JsArray].value.map(experiment =>
         new Experiment(experiment, subject, tagIds)).toSet)
   }
 
   private def getScans(experiment: Experiment, tagIds: Set[Tag.Id]): Future[Either[String, Set[DataNode]]] = {
-    Logger.debug(s"Getting scans for: ${experiment.id}")
-    query(baseReq / "data" / "archive" / "experiments" / experiment.id.get / "scans").right.map(json =>
+    Logger.debug(s"Getting scans for: ${experiment.idOpt.get}")
+    query(baseReq / "data" / "archive" / "experiments" / experiment.idOpt.get / "scans").right.map(json =>
       (json \ "ResultSet" \ "Result").as[JsArray].value.map(scan =>
         new Scan(scan, experiment, tagIds)).toSet)
   }
 
   private def getResources(scan: Scan, tagIds: Set[Tag.Id]): Future[Either[String, Set[DataNode]]] = {
     val experiment = scan.parent.get.asInstanceOf[Experiment]
-    Logger.debug(s"Getting resources for: ${experiment.id}/${scan.id}")
-    query(baseReq / "data" / "archive" / "experiments" / experiment.id.get / "scans" / scan.id.get / "resources").right.map(json =>
+    Logger.debug(s"Getting resources for: ${experiment.idOpt.get}/${scan.idOpt.get}")
+    query(baseReq / "data" / "archive" / "experiments" / experiment.idOpt.get / "scans" / scan.idOpt.get / "resources").right.map(json =>
       (json \ "ResultSet" \ "Result").as[JsArray].value.map(resource =>
         new Resource(resource, scan, tagIds)).toSet)
   }
@@ -207,8 +215,8 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
   private def getFiles(resource: Resource, tagIds: Set[Tag.Id]): Future[Either[String, Set[DataNode]]] = {
     val scan = resource.parent.get.asInstanceOf[Scan]
     val experiment = scan.parent.get.asInstanceOf[Experiment]
-    Logger.debug(s"Getting files for: ${experiment.id}/${scan.id}/${resource.id}")
-    query(baseReq / "data" / "archive" / "experiments" / experiment.id.get / "scans" / scan.id.get / "resources" / resource.id.get / "files").right.map(json =>
+    Logger.debug(s"Getting files for: ${experiment.idOpt.get}/${scan.idOpt.get}/${resource.idOpt.get}")
+    query(baseReq / "data" / "archive" / "experiments" / experiment.idOpt.get / "scans" / scan.idOpt.get / "resources" / resource.idOpt.get / "files").right.map(json =>
       (json \ "ResultSet" \ "Result").as[JsArray].value.map(file =>
         new File(file, resource, tagIds)).toSet)
   }
@@ -225,8 +233,8 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
    * @param kind DatumCategory
    */
   abstract class LeanDataNode(node: JsValue, kind: Tag.DatumCategories.Value) {
-    Logger.debug(s"Initializing a new $kind in LeanDataNode.")
-    Logger.debug(Json.prettyPrint(node))
+    Logger.trace(s"Initializing a new $kind.")
+    Logger.trace(Json.prettyPrint(node))
 
     /**
      * This is to accommodate the differences between nodes coming from ResultSet.Result and Items
@@ -235,19 +243,20 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
      */
     val dataFields = (node \ "data_fields").toOption
     val essentials = if (dataFields.nonEmpty) dataFields.get else node
+    Logger.trace("essentials: " + Json.prettyPrint(essentials))
 
     /** uri is used to query information for this DataNode */
-    val uri: Option[String] = (essentials \ "URI").asOpt[String]
-    val id: Option[String] = (essentials \ "ID").asOpt[String]
-    val name: String = (essentials \ "name").asOpt[String].getOrElse((essentials \ "label").as[String])
+    val uriOpt: Option[String] = (essentials \ "URI").asOpt[String]
+    val idOpt: Option[String] = (essentials \ "ID").asOpt[String]
+    val nameOpt: Option[String] = (essentials \ "name").asOpt[String].orElse((essentials \ "label").asOpt[String])
 
     val categoryTag = Tag.getDatumCategory(kind.toString).id
 
     lazy val datum = new Datum(
-      name = name,
+      name = nameOpt.get,
       resource = Some(resource.id),
-      idOnResource = id,
-      pathOnResource = uri,
+      idOnResource = idOpt,
+      pathOnResource = uriOpt,
       // creator = User.current.id,
       tags = Set(categoryTag))
   }
@@ -261,11 +270,8 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
   abstract class DataNode(node: JsValue, val kind: Tag.DatumCategories.Value, val parent: Option[DataNode], tagIds: Set[Tag.Id])
       extends LeanDataNode(node, kind) with JsonProcessor {
 
-    Logger.debug(s"Initializing a new $kind in DataNode.")
-    Logger.debug(Json.prettyPrint(node))
-
     /** Get the meta-data of the current DataNode and fill the (future_)data */
-    lazy val futureEitherData = query(baseReq.setUrl(baseUri + uri))
+    lazy val futureEitherData = query(baseReq.setUrl(baseUri + uriOpt.get))
     lazy val eitherData = futureEitherData() // this calls the apply method of dispatch enriched future, which means data is there
     lazy val data = eitherData match {
       case Right(jsonNode) => jsonNode
@@ -298,10 +304,10 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
 
     // Datum for storage in the database
     override lazy val datum = new Datum(
-      name = name,
+      name = nameOpt.get,
       resource = Some(resource.id),
-      idOnResource = id,
-      pathOnResource = uri,
+      idOnResource = idOpt,
+      pathOnResource = uriOpt,
       // creator = User.current.id,
       tags = tagIds + categoryTag,
       info = new Info(metadata.toMap))
@@ -310,15 +316,14 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
   case class LeanProject(node: JsValue)
       extends LeanDataNode(node, Tag.DatumCategories.Project) {
 
-    override val name: String = (node \ "name").as[String]
+    override val nameOpt: Option[String] = (node \ "name").asOpt[String]
   }
 
   /** XNAT Project */
   case class Project(node: JsValue, path: String, workspaceId: Tag.Id, importTagId: Tag.Id)
       extends DataNode(node, Tag.DatumCategories.Project, None, Set(workspaceId, importTagId)) {
 
-    override val uri = Some(path)
-    override val name = (node \ "name").as[String]
+    override val uriOpt = Some(path)
     lazy val futureEitherChildren = getSubjects(this, Set(workspaceId, importTagId))
     lazy val datumWithChildren = datum.copy(children = children.map(_.datum.id))
   }
@@ -338,7 +343,7 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
     lazy val project = subject.parent.get.asInstanceOf[Project]
 
     lazy val replica = Replica(resource = resource.id,
-      location = s"data/archive/projects/${project.id}/subjects/${subject.id}/experiments/${id}/scans/ALL/files?format=zip")
+      location = s"data/archive/projects/${project.idOpt.get}/subjects/${subject.idOpt.get}/experiments/${idOpt.get}/scans/ALL/files?format=zip")
     lazy val futureEitherChildren = getScans(this, tagIds)
     lazy val datumWithChildren = datum.copy(children = children.map(_.datum.id), replicas = Set(replica))
   }
@@ -350,9 +355,9 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
     lazy val project = subject.parent.get.asInstanceOf[Project]
     lazy val subject = experiment.parent.get.asInstanceOf[Subject]
 
-    override val name = s"${experiment.id}_${id}"
+    override val nameOpt = Some(s"${experiment.idOpt.get}_${idOpt.get}")
     lazy val replica = Replica(resource = resource.id,
-      location = s"data/archive/projects/${project.id}/subjects/${subject.id}/experiments/${experiment.id}/scans/${id}/files?format=zip")
+      location = s"data/archive/projects/${project.idOpt.get}/subjects/${subject.idOpt.get}/experiments/${experiment.idOpt.get}/scans/${idOpt}/files?format=zip")
     lazy val futureEitherChildren = getResources(this, tagIds)
     lazy val datumWithChildren = datum.copy(children = children.map(_.datum.id), replicas = Set(replica))
   }
@@ -365,14 +370,14 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
     lazy val subject = experiment.parent.get.asInstanceOf[Subject]
     lazy val experiment = scan.parent.get.asInstanceOf[Experiment]
 
-    override val id = (essentials \ "xnat_abstractresource_id").asOpt[String]
-    val label = (essentials \ "label").as[String]
-    override val name = s"${scan.name}_$label"
-    override val uri = Some(s"data/archive/experiments/${experiment.id}/scans/${scan.id}/resources/${id}")
+    override val idOpt = (essentials \ "xnat_abstractresource_id").asOpt[String]
+    val labelOpt = (essentials \ "label").asOpt[String]
+    override val nameOpt = if (labelOpt.isEmpty) scan.nameOpt.map(_ + "_resource") else Some(s"${scan.nameOpt.get}_${labelOpt.get}")
+    override val uriOpt = Some(s"data/archive/experiments/${experiment.idOpt.get}/scans/${scan.idOpt.get}/resources/${idOpt.get}")
     import ValunitConvertors._
     override lazy val singleMetadata = nodeToListKeyVal(essentials, Some(kind.toString)).toValunit
     lazy val replica = Replica(resource = resource.id,
-      location = s"data/archive/projects/${project.id}/subjects/${subject.id}/experiments/${experiment.id}/scans/${scan.id}/resources/${id}/files?format=zip")
+      location = s"data/archive/projects/${project.idOpt.get}/subjects/${subject.idOpt.get}/experiments/${experiment.idOpt.get}/scans/${scan.idOpt.get}/resources/${idOpt.get}/files?format=zip")
     lazy val futureEitherChildren = Future { Right(Set.empty[DataNode]) }
     // lazy val futureEitherChildren = getFiles(this, tagIds)
     lazy val datumWithChildren = datum.copy(replicas = Set(replica))
@@ -383,11 +388,11 @@ class Xnat(val resource: Resource, socket: Option[Socket], importId: String)(
   case class File(node: JsValue, xnatResource: Resource, tagIds: Set[Tag.Id])
       extends DataNode(node, Tag.DatumCategories.File, Some(xnatResource), tagIds) {
 
-    override val name = (node \ "name").as[String]
-    override val id = Some(name)
+    override val nameOpt = (node \ "name").asOpt[String]
+    override val idOpt = nameOpt
     import ValunitConvertors._
     override lazy val singleMetadata = nodeToListKeyVal(essentials, Some(kind.toString)).toValunit
-    lazy val replica = Replica(resource = resource.id, location = uri.get)
+    lazy val replica = Replica(resource = resource.id, location = uriOpt.get)
     lazy val futureEitherChildren = Future { Right(Set.empty[DataNode]) }
     lazy val datumWithChildren = datum
   }
