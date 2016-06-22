@@ -1,6 +1,6 @@
 organization := "nl.amc.ebioscience"
 
-name := """Rosemary-Vanilla"""
+name := """Rosemary-NSG"""
 
 version := "1.2.0-SNAPSHOT"
 

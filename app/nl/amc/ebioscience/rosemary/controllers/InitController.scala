@@ -49,10 +49,10 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     initDB(request)
 
     // Inject Datums
-    injectData
+    //injectData
 
     // Inject Processings
-    injectProcessings
+    //injectProcessings
 
     Redirect("/reindex")
   }
@@ -78,9 +78,13 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     val multiWorkspace = WorkspaceTag("Multi-user Workspace", Membered(approvedUser.id, Set(disabledUser.id, adminUser.id))).insert
 
     // Datum Category Tags
-    val category_grandfather = DatumCategoryTag(Tag.DatumCategories.GrandFather.toString).insert
-    val category_father = DatumCategoryTag(Tag.DatumCategories.Father.toString).insert
-    val category_child = DatumCategoryTag(Tag.DatumCategories.Child.toString).insert
+    val category_project = DatumCategoryTag(Tag.DatumCategories.Project.toString).insert
+    val category_subject = DatumCategoryTag(Tag.DatumCategories.Subject.toString).insert
+    val category_experiment = DatumCategoryTag(Tag.DatumCategories.Experiment.toString).insert
+    val category_scan = DatumCategoryTag(Tag.DatumCategories.Scan.toString).insert
+    val category_reconstruction = DatumCategoryTag(Tag.DatumCategories.Reconstruction.toString).insert
+    val category_resource = DatumCategoryTag(Tag.DatumCategories.Resource.toString).insert
+    //val category_file = DatumCategoryTag(Tag.DatumCategories.File.toString).insert
 
     // Processing Category Tags
     val processing_category_dataprocessing = ProcessingCategoryTag(Tag.ProcessingCategories.DataProcessing.toString).insert
@@ -109,6 +113,13 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
       port = if (hp.length > 1) hp.last.toInt else 80,
       basePath = Some("/api/v1/download")).insert
 
+    // XNAT Resources 
+    Resource(
+      name = "Xnat Central",
+      kind = ResourceKind.Xnat,
+      protocol = "https",
+      host = "central.xnat.org").insert
+
     // WebDAV Resource
     Resource(
       name = "WebDAV",
@@ -118,6 +129,30 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
       basePath = Some("/webdav/files"),
       username = Some("webdav"),
       password = Some(cryptoService.encrypt("secret"))).insert
+
+    // Tracula application
+    // Processing Manager configurations
+    val traculaPmIPorts = Set(
+      AbstractPort(name = "dmri", kind = PortKind.File),
+      AbstractPort(name = "smri", kind = PortKind.File))
+    val traculaPmOPorts = Set(
+      AbstractPort(name = "dtipreprocessing", kind = PortKind.File),
+      AbstractPort(name = "bedpostx", kind = PortKind.File),
+      AbstractPort(name = "freesurfer_proc", kind = PortKind.File),
+      AbstractPort(name = "freesurfer_vis", kind = PortKind.File),
+      AbstractPort(name = "tracall", kind = PortKind.File))
+    val traculaPmApp = PMApplication(iPorts = traculaPmIPorts, oPorts = traculaPmOPorts)
+    // Rosemary configurations
+    val traculaUiIports = Set(
+      AbstractPort(name = "Image Session", kind = PortKind.Data))
+    Application(
+      name = "Tracula",
+      description = "This is the Tracula application",
+      version = Some("1.0"),
+      platform = Some("Dirac"),
+      iPorts = traculaUiIports,
+      pmApplication = traculaPmApp,
+      transformer = "traculaTransformer").insert
 
     // Mock application
     val mockPmIPorts = Set(
@@ -151,61 +186,128 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     // Get the workspace
     val workspace = adminUser.getWorkspaceTagsHasAccess.filter(_.name == "Multi-user Workspace").head
 
-    val childTag = Tag.getDatumCategory(Tag.DatumCategories.Child.toString).id
-    val fatherTag = Tag.getDatumCategory(Tag.DatumCategories.Father.toString).id
-    val grandFatherTag = Tag.getDatumCategory(Tag.DatumCategories.GrandFather.toString).id
+    val projectTag = Tag.getDatumCategory(Tag.DatumCategories.Project.toString).id
+    val subjectTag = Tag.getDatumCategory(Tag.DatumCategories.Subject.toString).id
+    val experimentTag = Tag.getDatumCategory(Tag.DatumCategories.Experiment.toString).id
+    val scanTag = Tag.getDatumCategory(Tag.DatumCategories.Scan.toString).id
+    val reconstructionTag = Tag.getDatumCategory(Tag.DatumCategories.Reconstruction.toString).id
+    val resourceTag = Tag.getDatumCategory(Tag.DatumCategories.Resource.toString).id
 
     val resource = Resource.getLocalMongoResource
 
     val rnd = new RandomNameGenerator()
 
-    val grandFathers = for {
-      gfi <- 1 to 5
-    } yield Datum(
-      name = s"GrandFatherDatum_${gfi}",
+    val project = Datum(
+      name = s"MockProject",
       resource = Some(resource.id),
-      tags = Set(workspace.id, grandFatherTag),
+      tags = Set(workspace.id, projectTag),
       info = Info(
         dict = Map(
-          "gf/number" -> Random.nextInt(100).toString(),
-          "gf/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
-          "gf/who" -> rnd.next()).toValunit)).insert
+          "project/number" -> Random.nextInt(100).toString(),
+          "project/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+          "project/who" -> rnd.next()).toValunit)).insert
 
-    grandFathers.map { grandFather =>
-      val fathers = for {
-        fi <- 1 to Random.nextInt(5)
+    val subjects = for {
+      subi <- 1 to 10
+    } yield Datum(
+      name = s"Subject${subi}",
+      resource = Some(resource.id),
+      tags = Set(workspace.id, subjectTag),
+      info = Info(
+        dict = Map(
+          "subject/number" -> Random.nextInt(100).toString(),
+          "subject/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+          "subject/who" -> rnd.next()).toValunit,
+        inheritedDict = project.info.dict ++ project.info.inheritedDict,
+        ascendents = project.info.ascendents ::: List(Catname(project.getCategoryName.getOrElse("unknown"), project.name)))).insert
+
+    subjects.map { subject =>
+      val experiments = for {
+        expi <- 1 to Random.nextInt(3) + 1
       } yield Datum(
-        name = s"FatherDatum_${fi}",
+        name = s"${subject.name}_Experiment${expi}",
         resource = Some(resource.id),
-        tags = Set(workspace.id, fatherTag),
+        tags = Set(workspace.id, experimentTag),
         info = Info(
           dict = Map(
-            "f/number" -> Random.nextInt(100).toString(),
-            "f/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
-            "f/who" -> rnd.next()).toValunit,
-          inheritedDict = grandFather.info.dict ++ grandFather.info.inheritedDict,
-          ascendents = grandFather.info.ascendents ::: List(Catname(grandFather.getCategoryName.getOrElse("unknown"), grandFather.name)))).insert
+            "experiment/number" -> Random.nextInt(100).toString(),
+            "experiment/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+            "experiment/who" -> rnd.next()).toValunit,
+          inheritedDict = subject.info.dict ++ subject.info.inheritedDict,
+          ascendents = subject.info.ascendents ::: List(Catname(subject.getCategoryName.getOrElse("unknown"), subject.name)))).insert
 
-      fathers.map { father =>
-        val children = for {
-          ci <- 1 to Random.nextInt(5)
+      experiments.map { experiment =>
+        val scans = for {
+          sci <- 1 to Random.nextInt(4) + 1
         } yield Datum(
-          name = s"ChildDatum_${ci}",
+          name = s"${experiment.name}_Scan${sci}",
           resource = Some(resource.id),
-          tags = Set(workspace.id, childTag),
+          tags = Set(workspace.id, scanTag),
           info = Info(
             dict = Map(
-              "c/number" -> Random.nextInt(100).toString(),
-              "c/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
-              "c/who" -> rnd.next()).toValunit,
-            inheritedDict = father.info.dict ++ father.info.inheritedDict,
-            ascendents = father.info.ascendents ::: List(Catname(father.getCategoryName.getOrElse("unknown"), father.name)))).insert
+              "scan/number" -> Random.nextInt(100).toString(),
+              "scan/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+              "scan/who" -> rnd.next()).toValunit,
+            inheritedDict = experiment.info.dict ++ experiment.info.inheritedDict,
+            ascendents = experiment.info.ascendents ::: List(Catname(experiment.getCategoryName.getOrElse("unknown"), experiment.name)))).insert
 
-        father.copy(children = father.children ++ children.map(_.id).toSet).update
+        scans.map { scan =>
+          val resources = for {
+            ri <- 1 to 2
+          } yield Datum(
+            name = s"${scan.name}_Resource${ri}",
+            resource = Some(resource.id),
+            tags = Set(workspace.id, resourceTag),
+            info = Info(
+              dict = Map(
+                "resource/number" -> Random.nextInt(100).toString(),
+                "resource/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+                "resource/who" -> rnd.next()).toValunit,
+              inheritedDict = scan.info.dict ++ scan.info.inheritedDict,
+              ascendents = scan.info.ascendents ::: List(Catname(scan.getCategoryName.getOrElse("unknown"), scan.name)))).insert
+
+          scan.copy(children = scan.children ++ resources.map(_.id).toSet).update
+        }
+
+        val reconstructions = for {
+          reci <- 1 to Random.nextInt(4) + 1
+        } yield Datum(
+          name = s"${experiment.name}_Reconstruction${reci}",
+          resource = Some(resource.id),
+          tags = Set(workspace.id, reconstructionTag),
+          info = Info(
+            dict = Map(
+              "reconstruction/number" -> Random.nextInt(100).toString(),
+              "reconstruction/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+              "reconstruction/who" -> rnd.next()).toValunit,
+            inheritedDict = experiment.info.dict ++ experiment.info.inheritedDict,
+            ascendents = experiment.info.ascendents ::: List(Catname(experiment.getCategoryName.getOrElse("unknown"), experiment.name)))).insert
+
+        reconstructions.map { reconstruction =>
+          val resources = for {
+            ri <- 1 to 2
+          } yield Datum(
+            name = s"${reconstruction.name}_Resource${ri}",
+            resource = Some(resource.id),
+            tags = Set(workspace.id, resourceTag),
+            info = Info(
+              dict = Map(
+                "resource/number" -> Random.nextInt(100).toString(),
+                "resource/foobar" -> (if (Random.nextBoolean()) "foo" else "bar"),
+                "resource/who" -> rnd.next()).toValunit,
+              inheritedDict = reconstruction.info.dict ++ reconstruction.info.inheritedDict,
+              ascendents = reconstruction.info.ascendents ::: List(Catname(reconstruction.getCategoryName.getOrElse("unknown"), reconstruction.name)))).insert
+
+          reconstruction.copy(children = reconstruction.children ++ resources.map(_.id).toSet).update
+        }
+
+        experiment.copy(children = experiment.children ++ scans.map(_.id).toSet ++ reconstructions.map(_.id).toSet).update
       }
 
-      grandFather.copy(children = grandFather.children ++ fathers.map(_.id).toSet).update
+      subject.copy(children = subject.children ++ experiments.map(_.id).toSet).update
     }
+
+    project.copy(children = project.children ++ subjects.map(_.id).toSet).update
 
     Logger.info("Done injecting datums into database")
   }
@@ -224,12 +326,14 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
 
     // Get Tags
     val dataProcessingTag = Tag.getProcessingCategory(Tag.ProcessingCategories.DataProcessing.toString)
-    val fatherCategory = Tag.datumCategoriesNameMap(Tag.DatumCategories.Father.toString)
-    val childCategory = Tag.datumCategoriesNameMap(Tag.DatumCategories.Child.toString)
+    val experimentCategory = Tag.datumCategoriesNameMap(Tag.DatumCategories.Experiment.toString)
+    val resourceCategory = Tag.datumCategoriesNameMap(Tag.DatumCategories.Resource.toString)
 
     // Get some Datums
-    val fatherData = Datum.findWithAllTagsNoPage(Set(workspace.id, fatherCategory.id)).toSeq
-    val childData = Datum.findWithAllTagsNoPage(Set(workspace.id, childCategory.id)).toSeq
+    val experimentData = Datum.findWithAllTagsNoPage(Set(workspace.id, experimentCategory.id)).toSeq
+    val resourceData = Datum.findWithAllTagsNoPage(Set(workspace.id, resourceCategory.id)).toSeq
+    val scanResourceData = resourceData.filter(_.info.ascendents.find(_.category.equalsIgnoreCase(Tag.DatumCategories.Scan.toString)).nonEmpty)
+    val reconstructionResourceData = resourceData.filter(_.info.ascendents.find(_.category.equalsIgnoreCase(Tag.DatumCategories.Reconstruction.toString)).nonEmpty)
 
     // Get Processing Statuses
     val seqStatuses = Seq(ProcessingLifeCycle.InProgress, ProcessingLifeCycle.OnHold, ProcessingLifeCycle.Aborted)
@@ -243,7 +347,7 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
         name = s"Mock_${i}",
         initiator = adminUser.id,
         inputs = application.iPorts.toSeq.map { abstractPort =>
-          val datum = fatherData(Random.nextInt(fatherData.size))
+          val datum = experimentData(Random.nextInt(experimentData.size))
           ParamOrDatum(
             name = abstractPort.name,
             param = if (abstractPort.kind == PortKind.Param) Some(Random.alphanumeric.take(10).mkString) else None,
@@ -270,14 +374,14 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
           name = s"Mock_${i}_${j}",
           initiator = adminUser.id,
           inputs = application.pmApplication.iPorts.map { abstractPort =>
-            val datum = childData(Random.nextInt(childData.size))
+            val datum = scanResourceData(Random.nextInt(scanResourceData.size))
             ParamOrDatum(
               name = abstractPort.name,
               param = if (abstractPort.kind == PortKind.Param) Some(Random.alphanumeric.take(10).mkString) else None,
               datum = if (abstractPort.kind == PortKind.File) Some(DatumAndReplica(datum = datum.id)) else None)
           },
           outputs = someOfTheOPorts.map { abstractPort =>
-            val datum = childData(Random.nextInt(childData.size))
+            val datum = reconstructionResourceData(Random.nextInt(reconstructionResourceData.size))
             ParamOrDatum(
               name = abstractPort.name,
               param = if (abstractPort.kind == PortKind.Param) Some(Random.alphanumeric.take(10).mkString) else None,
