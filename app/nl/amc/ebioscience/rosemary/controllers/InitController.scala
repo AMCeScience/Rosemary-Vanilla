@@ -48,11 +48,14 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     // Create structure around the Datums
     initDB(request)
 
-    // Inject Datums
-    //injectData
+    // Inject Mock Data
+    //injectMockData
 
-    // Inject Processings
-    //injectProcessings
+    // Inject Mock Application
+    //injectMockApplications
+
+    // Inject Mock Processings
+    //injectMockProcessings
 
     Redirect("/reindex")
   }
@@ -154,31 +157,12 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
       pmApplication = traculaPmApp,
       transformer = "traculaTransformer").insert
 
-    // Mock application
-    val mockPmIPorts = Set(
-      AbstractPort(name = "Parameter One", kind = PortKind.Param),
-      AbstractPort(name = "Input Data", kind = PortKind.File))
-    val mockPmOPorts = Set(
-      AbstractPort(name = "Output Data", kind = PortKind.File))
-    val mockPmApp = PMApplication(iPorts = mockPmIPorts, oPorts = mockPmOPorts)
-    val mockUiIPorts = Set(
-      AbstractPort(name = "Input Data", kind = PortKind.Data),
-      AbstractPort(name = "Parameter One", kind = PortKind.Param))
-    Application(
-      name = "Mock",
-      description = "This is a Mock application",
-      version = Some("1.0"),
-      platform = Some("Dirac"),
-      iPorts = mockUiIPorts,
-      pmApplication = mockPmApp,
-      transformer = "mockTransformer").insert
-
-    Logger.info("Done initialising the database")
+    Logger.info("Done initialising the database.")
   }
 
-  private def injectData = {
+  private def injectMockData = {
     import nl.amc.ebioscience.rosemary.models.core.ValunitConvertors._
-    Logger.info("Injecting datums into database...")
+    Logger.info("Injecting mock data into database...")
 
     // Get a user whose workspace we're going to fill
     val adminUser = User.find("admin@rosemary.ebioscience.amc.nl").get
@@ -309,11 +293,36 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
 
     project.copy(children = project.children ++ subjects.map(_.id).toSet).update
 
-    Logger.info("Done injecting datums into database")
+    Logger.info("Done injecting mock data into database.")
   }
 
-  private def injectProcessings = {
-    Logger.info("Injecting processings into database...")
+  private def injectMockApplications = {
+    Logger.info("Injecting mock applications into database...")
+
+    // Mock application
+    val mockPmIPorts = Set(
+      AbstractPort(name = "Parameter One", kind = PortKind.Param),
+      AbstractPort(name = "Input Data", kind = PortKind.File))
+    val mockPmOPorts = Set(
+      AbstractPort(name = "Output Data", kind = PortKind.File))
+    val mockPmApp = PMApplication(iPorts = mockPmIPorts, oPorts = mockPmOPorts)
+    val mockUiIPorts = Set(
+      AbstractPort(name = "Input Data", kind = PortKind.Data),
+      AbstractPort(name = "Parameter One", kind = PortKind.Param))
+    Application(
+      name = "Mock",
+      description = "This is a Mock application",
+      version = Some("1.0"),
+      platform = Some("Dirac"),
+      iPorts = mockUiIPorts,
+      pmApplication = mockPmApp,
+      transformer = "mockTransformer").insert
+
+    Logger.info("Done injecting mock applications into database.")
+  }
+
+  private def injectMockProcessings = {
+    Logger.info("Injecting mock processings into database...")
 
     // Get a user whose workspace we're going to fill
     val adminUser = User.find("admin@rosemary.ebioscience.amc.nl").get
@@ -395,7 +404,7 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
       }
     }
 
-    Logger.info("Done injecting processings into database")
+    Logger.info("Done injecting mock processings into database.")
   }
 
 }
