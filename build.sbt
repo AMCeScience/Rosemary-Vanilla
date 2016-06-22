@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
   "org.apache.lucene" % "lucene-analyzers-common" % "4.9.1",
   "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
   "com.github.lookfirst" % "sardine" % "5.6",
-  "nl.amc.ebioscience" %% "processing-manager-core" % "2.0-SNAPSHOT",
+  "nl.amc.ebioscience" %% "processing-manager-core" % "2.1-SNAPSHOT",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
 )
 

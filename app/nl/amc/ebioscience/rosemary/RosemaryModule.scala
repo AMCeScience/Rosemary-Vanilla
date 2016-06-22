@@ -45,7 +45,7 @@ import nl.amc.ebioscience.rosemary.services.processing.transformers.nsg._
  * adding `play.modules.enabled` settings to the `application.conf`
  * configuration file.
  */
-class Module extends AbstractModule with AkkaGuiceSupport {
+class RosemaryModule extends AbstractModule with AkkaGuiceSupport {
 
   override def configure() = {
     // Use the system clock as the default implementation of Clock
