@@ -21,7 +21,6 @@ libraryDependencies ++= Seq(
   "org.mindrot" % "jbcrypt" % "0.4",
   "org.kohsuke" % "wordnet-random-name" % "1.3",
   "com.github.shayanlinux" %% "play-plugins-salat" % "1.6.0",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.1",
   "org.apache.lucene" % "lucene-core" % "4.9.1",
   "org.apache.lucene" % "lucene-queryparser" % "4.9.1",
   "org.apache.lucene" % "lucene-queries" % "4.9.1",
