@@ -33,6 +33,7 @@ import nl.amc.ebioscience.rosemary.services.dao._
 import nl.amc.ebioscience.rosemary.services.search._
 import nl.amc.ebioscience.rosemary.services.processing._
 import nl.amc.ebioscience.rosemary.services.processing.transformers._
+import nl.amc.ebioscience.rosemary.services.processing.transformers.nsg._
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -74,6 +75,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[ProcessingHelper])
     bind(classOf[ProcessingStatusCheckDaemon]).asEagerSingleton()
     bind(classOf[Transformer]).annotatedWith(Names.named("mockTransformer")).to(classOf[MockTransformer])
+    bind(classOf[Transformer]).annotatedWith(Names.named("traculaTransformer")).to(classOf[TraculaTransformer])
 
     bind(classOf[SearchWriter]).asEagerSingleton()
     bind(classOf[SearchReader])

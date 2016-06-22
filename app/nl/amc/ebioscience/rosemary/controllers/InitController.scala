@@ -130,6 +130,30 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
       username = Some("webdav"),
       password = Some(cryptoService.encrypt("secret"))).insert
 
+    // Tracula application
+    // Processing Manager configurations
+    val traculaPmIPorts = Set(
+      AbstractPort(name = "dmri", kind = PortKind.File),
+      AbstractPort(name = "smri", kind = PortKind.File))
+    val traculaPmOPorts = Set(
+      AbstractPort(name = "dtipreprocessing", kind = PortKind.File),
+      AbstractPort(name = "bedpostx", kind = PortKind.File),
+      AbstractPort(name = "freesurfer_proc", kind = PortKind.File),
+      AbstractPort(name = "freesurfer_vis", kind = PortKind.File),
+      AbstractPort(name = "tracall", kind = PortKind.File))
+    val traculaPmApp = PMApplication(iPorts = traculaPmIPorts, oPorts = traculaPmOPorts)
+    // Rosemary configurations
+    val traculaUiIports = Set(
+      AbstractPort(name = "Image Session", kind = PortKind.Data))
+    Application(
+      name = "Tracula",
+      description = "This is the Tracula application",
+      version = Some("1.0"),
+      platform = Some("Dirac"),
+      iPorts = traculaUiIports,
+      pmApplication = traculaPmApp,
+      transformer = "traculaTransformer").insert
+
     // Mock application
     val mockPmIPorts = Set(
       AbstractPort(name = "Parameter One", kind = PortKind.Param),
