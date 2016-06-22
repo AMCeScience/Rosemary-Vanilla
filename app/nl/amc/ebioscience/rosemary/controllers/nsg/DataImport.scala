@@ -135,7 +135,7 @@ class DataImport @Inject() (
                       searchWriter.commit
 
                       // Replicate files from the XNAT to the WebDAV
-                      val replicateAll = false
+                      val replicateAll = true
                       var countReplica = 0
                       if (replicateAll) {
                         val webdav = User.current_id.withValue(user) {
