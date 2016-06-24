@@ -35,10 +35,14 @@ import nl.amc.ebioscience.rosemary.core.datasource.Webdav
 import nl.amc.ebioscience.rosemary.services.search.SearchWriter
 import nl.amc.ebioscience.rosemary.services.CryptoService
 import nl.amc.ebioscience.processingmanager.types.messaging.StatusContainerMessage
+import nl.amc.ebioscience.rosemary.services.dao.ResourceDAO
 
 @Singleton
-class TraculaTransformer @Inject() (searchWriter: SearchWriter)(
-    implicit cryptoService: CryptoService) extends Transformer(Resource.getDefaultWebdavInstance) {
+class TraculaTransformer @Inject() (
+  searchWriter: SearchWriter,
+  resourceDAO: ResourceDAO)(
+    implicit cryptoService: CryptoService)
+    extends Transformer(resourceDAO.getDefaultWebdavInstance) {
 
   // Port names
   val imageSessionPortName = "Image Session"
