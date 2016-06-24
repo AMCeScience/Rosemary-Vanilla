@@ -26,9 +26,11 @@ import javax.inject._
 import nl.amc.ebioscience.rosemary.services.processing._
 import nl.amc.ebioscience.rosemary.models.{ Processing, Resource }
 import nl.amc.ebioscience.processingmanager.types.messaging.StatusContainerMessage
+import nl.amc.ebioscience.rosemary.services.dao.ResourceDAO
 
 @Singleton
-class MockTransformer extends Transformer(Resource.getDefaultWebdavInstance) {
+class MockTransformer @Inject() (resourceDAO: ResourceDAO)
+    extends Transformer(resourceDAO.getDefaultWebdavInstance) {
 
   def revealDecepticons(cybertronian: Cybertronian): Option[Map[String, String]] = None
   def transform(cybertronian: Cybertronian): Seq[IOInflatedConcretePort] = ???
