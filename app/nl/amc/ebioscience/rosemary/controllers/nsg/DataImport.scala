@@ -40,11 +40,13 @@ import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.Controller
 import java.net.InetAddress
+import nl.amc.ebioscience.rosemary.services.dao.ResourceDAO
 
 @Singleton
 class DataImport @Inject() (
     securityService: SecurityService,
-    searchWriter: SearchWriter)(
+    searchWriter: SearchWriter,
+    resourceDAO: ResourceDAO)(
         implicit cryptoService: CryptoService,
         exec: ExecutionContext) extends Controller with JsonHelpers {
 
@@ -161,7 +163,7 @@ class DataImport @Inject() (
                       var countReplica = 0
                       if (replicateAll) {
                         val webdav = User.current_id.withValue(user) {
-                          new Webdav(Resource.getDefaultWebdavInstance, socket, Some(importId))
+                          new Webdav(resourceDAO.getDefaultWebdavInstance, socket, Some(importId))
                         }
 
                         for (xresource <- resources) {
