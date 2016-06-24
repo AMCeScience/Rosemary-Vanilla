@@ -75,11 +75,8 @@ case class Resource(
  * Resource companion object that contains database queries specific to the `resources` collection.
  */
 object Resource extends DefaultModelBase[Resource]("resources") with TagsQueries[Resource] {
+  
   def findResourceByHostname(hostname: String) = findOne("host" $eq hostname)
-
-  val defaultWebdavHost = Play.current.configuration.getString("rosemary.webdav.host.default").getOrElse("localhost")
-  /** Helper method to get a single WebDAV resource instance */
-  def getDefaultWebdavInstance = findOne($and("kind" $eq ResourceKind.Webdav.toString, "host" $eq defaultWebdavHost)).get
   def getLocalMongoResource = findOne("kind" $eq ResourceKind.Mongodb.toString).get
 }
 
