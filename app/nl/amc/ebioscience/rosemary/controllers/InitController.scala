@@ -64,18 +64,18 @@ class InitController @Inject() (cryptoService: CryptoService) extends Controller
     Logger.info("Initialising the database...")
 
     // Admin User
-    var adminUser = User("admin@rosemary.ebioscience.amc.nl", "secret", "Admin Admin", true, true, Role.Admin).hashPassword.insert
+    val adminUser = User("admin@rosemary.ebioscience.amc.nl", "secret", "Admin Admin", true, true, Role.Admin).hashPassword.insert
     val adminWorkspace = WorkspaceTag("Admin's Workspace", Membered(adminUser.id)).insert
 
     // Test users
     // Approved, enabled user, and their workspace
-    var approvedUser = User("approved-user@rosemary.ebioscience.amc.nl", "secret", "Approved User", true).hashPassword.insert
+    val approvedUser = User("approved-user@rosemary.ebioscience.amc.nl", "secret", "Approved User", true).hashPassword.insert
     val approvedWorkspace = WorkspaceTag("Approved User's Workspace", Membered(approvedUser.id)).insert
     // Unapproved, enabled user, and their workspace
-    var unapprovedUser = User("unapproved-user@rosemary.ebioscience.amc.nl", "secret", "Unapproved User", false).hashPassword.insert
+    val unapprovedUser = User("unapproved-user@rosemary.ebioscience.amc.nl", "secret", "Unapproved User", false).hashPassword.insert
     val unapprovedWorkspace = WorkspaceTag("Unapproved User's Workspace", Membered(unapprovedUser.id)).insert
     // Approved, disabled user, and their workspace
-    var disabledUser = User("disabled-user@rosemary.ebioscience.amc.nl", "secret", "Disabled User", true, false).hashPassword.insert
+    val disabledUser = User("disabled-user@rosemary.ebioscience.amc.nl", "secret", "Disabled User", true, false).hashPassword.insert
     val disabledWorkspace = WorkspaceTag("Disabled User's Workspace", Membered(disabledUser.id)).insert
     // Shared workspace with one owner and two members
     val multiWorkspace = WorkspaceTag("Multi-user Workspace", Membered(approvedUser.id, Set(disabledUser.id, adminUser.id))).insert
