@@ -29,7 +29,7 @@ import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.concurrent.Akka
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import akka.actor.{ ActorSystem, Props, PoisonPill }
+import akka.actor.{ ActorSystem, Props, PoisonPill, ActorRef }
 import akka.util.Timeout
 import akka.pattern.ask
 import scala.concurrent.duration._
@@ -55,6 +55,7 @@ class ProcessingGroupsController @Inject() (
     processingManagerClient: ProcessingManagerClient,
     processingHelper: ProcessingHelper,
     searchWriter: SearchWriter,
+    @Named("processingStatusCheckActor") processingStatusCheckActor: ActorRef,
     actorSystem: ActorSystem,
     playApplication: Provider[PlayApplication]) extends Controller with JsonHelpers {
 
@@ -140,7 +141,7 @@ class ProcessingGroupsController @Inject() (
             val abortedStatusTag = Tag.getProcessingStatusTag(ProcessingLifeCycle.Aborted.toString)
             val application = objectMap(submitRequest.application).asInstanceOf[Application]
 
-            // run-time binding using the Scala reflection API
+            // run-time binding using the dependency injection API
             val qualifier = Some(QualifierInstance(Names.named(application.transformer)))
             val bindingKey = BindingKey[Transformer](classOf[Transformer], qualifier)
             val transformer = playApplication.get.injector.instanceOf[Transformer](bindingKey)
@@ -349,12 +350,9 @@ class ProcessingGroupsController @Inject() (
   }
 
   def update = Action.async {
-    val pmActor = actorSystem.actorOf(Props[ProcessingStatusCheckActor])
     implicit val timeout = Timeout(5.minutes) // needed for `?` below
-    val future = (pmActor ? "go for it!").mapTo[String]
+    val future = (processingStatusCheckActor ? "go for it!").mapTo[String]
     future.map { msg =>
-      Logger.debug("going to send the poison pill!")
-      pmActor ! PoisonPill
       Ok(msg)
     }
   }

@@ -31,9 +31,14 @@ import nl.amc.ebioscience.rosemary.models.core.Implicits._
 import nl.amc.ebioscience.rosemary.core.WebSockets
 import nl.amc.ebioscience.processingmanager.types.ProcessingLifeCycle
 import scala.reflect.runtime.universe
+import play.api.inject.{ QualifierInstance, BindingKey }
+import play.api.{ Application => PlayApplication }
+import com.google.inject.name.Names
 
 @Singleton
-class ProcessingHelper @Inject() (processingManagerClient: ProcessingManagerClient) {
+class ProcessingHelper @Inject() (
+    processingManagerClient: ProcessingManagerClient,
+    playApplication: Provider[PlayApplication]) {
 
   /**
    * Update status and send notification for a ProcessingGroup
@@ -107,10 +112,10 @@ class ProcessingHelper @Inject() (processingManagerClient: ProcessingManagerClie
         case Some(groupStatusMsg) =>
           val application = Recipe.findByIds(processingGroup.recipes).filter(_.isInstanceOf[Application]).map(_.asInstanceOf[Application]).head
 
-          // run-time binding using the Scala reflection API
-          val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
-          val module = runtimeMirror.staticModule(application.transformer)
-          val transformer = runtimeMirror.reflectModule(module).instance.asInstanceOf[Transformer]
+          // run-time binding using the dependency injection API
+          val qualifier = Some(QualifierInstance(Names.named(application.transformer)))
+          val bindingKey = BindingKey[Transformer](classOf[Transformer], qualifier)
+          val transformer = playApplication.get.injector.instanceOf[Transformer](bindingKey)
 
           // Update submission statuses and create new datum if they are produced by the Processing Manager  
           val processings = groupStatusMsg.statuses.flatMap(transformer.getSpark(_))
@@ -156,10 +161,10 @@ class ProcessingHelper @Inject() (processingManagerClient: ProcessingManagerClie
         case Some(statusContainerMsg) =>
           val application = Recipe.findByIds(processing.recipes).filter(_.isInstanceOf[Application]).map(_.asInstanceOf[Application]).head
 
-          // run-time binding using the Scala reflection API
-          val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
-          val module = runtimeMirror.staticModule(application.transformer)
-          val transformer = runtimeMirror.reflectModule(module).instance.asInstanceOf[Transformer]
+          // run-time binding using the dependency injection API
+          val qualifier = Some(QualifierInstance(Names.named(application.transformer)))
+          val bindingKey = BindingKey[Transformer](classOf[Transformer], qualifier)
+          val transformer = playApplication.get.injector.instanceOf[Transformer](bindingKey)
 
           // Update submission statuses and create new datum if they are produced by the Processing Manager  
           val updatedProcessing = transformer.getSpark(statusContainerMsg)

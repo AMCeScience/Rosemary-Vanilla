@@ -123,7 +123,7 @@ class ProcessingsController @Inject() (
             val abortedStatusTag = Tag.getProcessingStatusTag(ProcessingLifeCycle.Aborted.toString)
             val application = objectMap(submitReq.application).asInstanceOf[Application]
 
-            // run-time binding using the Scala reflection API
+            // run-time binding using the dependency injection API
             val qualifier = Some(QualifierInstance(Names.named(application.transformer)))
             val bindingKey = BindingKey[Transformer](classOf[Transformer], qualifier)
             val transformer = playApplication.get.injector.instanceOf[Transformer](bindingKey)
