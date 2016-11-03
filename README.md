@@ -12,7 +12,8 @@ It has been planted as part of the [COMMIT project](http://commit-nl.nl/)!
 
 An overview of Rosemary is found on the paper:
 
-S. Shahand and S. D. Olabarriaga, “Rosemary: A Flexible Programming Framework to Build Science Gateways,” in Proceedings of the 8th International Workshop on Science Gateways (IWSG), June 2016 , Rome, 2016. [See pdf.](docs/general/Rosemary%20A%20Flexible%20Programming%20Framework%20to%20Build%20Science%20Gateways%20IWSG%202016.pdf)
+S. Shahand and S. D. Olabarriaga, “Rosemary: A Flexible Programming Framework to Build Science Gateways,” in Proceedings of the 8th International Workshop on Science Gateways (IWSG), June 2016 , Rome, 2016. 
+See [preprint](https://peerj.com/preprints/2576/)
 
 ## Screenshots
 
