@@ -25,7 +25,7 @@ Rosemary has a reactive back-end and a responsive front-end. Below you see how i
 
 ## License
 
-Rosemary is semi-free software: you can redistribute it and/or modify it under the terms of the Rosemary license. You may obtain a copy of this license at: https://github.com/AMCeScience/Rosemary-Vanilla/blob/master/LICENSE.md.
+Rosemary is semi-free software: you can redistribute it and/or modify it under the terms of the Rosemary license. You may obtain a copy of this license at: https://github.com/AMCeScience/Rosemary-Vanilla/blob/vanilla-master/LICENSE.md.
 
 Also see: [Contributions](docs/general/contributions.md)
 
