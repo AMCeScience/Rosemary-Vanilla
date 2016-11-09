@@ -14,7 +14,7 @@ This assumes a clean OS X installation (with Java SDK). Skip steps accordingly t
 	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	```
 
-* Install NodeJS (with NPM), MongoDB and Scala (through the Typesafe Activator)
+* Install NodeJS (with NPM), MongoDB and Scala (through the [Typesafe Activator](https://www.lightbend.com/activator/download))
 
 	This instruction is tested with typesafe-activator version __1.3.9__, Scala version __2.11.7__ and Java version __1.8.0_92__.
 
